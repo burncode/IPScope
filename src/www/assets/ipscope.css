@@ -59,6 +59,18 @@ h1 { font-size: 21px; letter-spacing: -.035em; }
 .muted-inline { color: var(--muted); }
 .copy-ip { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 5px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
 .copy-ip:hover { color: var(--accent); border-color: var(--accent); }
+.address-actions { display: flex; align-items: center; gap: 6px; }
+.details-ip { border: 0; background: transparent; color: var(--accent); padding: 4px 6px; font-size: 11px; cursor: pointer; }
+.details-ip:hover { text-decoration: underline; }
+.address-detail-row[hidden] { display: none; }
+.address-detail-row td { white-space: normal; background: #f8fafb; padding: 12px 16px; }
+.address-detail-content { display: flex; flex-wrap: wrap; gap: 16px 26px; align-items: flex-start; }
+.address-detail-content > div:not(.detail-owner-list) { min-width: 110px; display: flex; flex-direction: column; gap: 4px; }
+.detail-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+.address-detail-content strong { font-size: 12px; font-weight: 650; }
+.detail-owner-list { display: flex; flex-wrap: wrap; gap: 8px; width: 100%; }
+.detail-owner { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 7px 9px; border: 1px solid var(--line); background: #fff; border-radius: 6px; font-size: 11px; }
+.detail-owner span { color: var(--muted); }
 #template-list td { vertical-align: middle; }
 #template-list .status-pill { margin: 2px 4px 2px 0; }
 .network-card:last-child { border-bottom: 0; }
