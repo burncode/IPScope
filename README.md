@@ -35,7 +35,9 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 - [x] T006 address ownership merge and conflict detection; install-only templates without matching Docker containers are reported separately and do not reserve IPs
 - [x] T007 snapshot builder, atomic JSON store, and read-only PHP API (installation and host verification pending)
 - [x] T008 initial read-only inventory dashboard (visual and Unraid route validation pending)
-- [ ] T009 Unraid 7.3.x acceptance
+- [x] T009 core address inventory validated on Unraid 7.3.x (bond0 /24 = 256 records; built-in bridge not expanded)
+- [x] T010 address table UI with search, status filter, owner details, and copy-IP action (browser validation pending)
+- [ ] T011 .plg packaging, install/uninstall, and Docker template integration
 
 ## Local checks (no Actions)
 
