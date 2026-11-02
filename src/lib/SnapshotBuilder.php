@@ -33,11 +33,14 @@ final class SnapshotBuilder
                 'network_count' => count($inventory['networks']),
                 'container_count' => count($containers),
                 'template_count' => count($templates),
+                'matched_template_count' => count($templates) - count($inventory['orphan_templates']),
+                'unmatched_template_count' => count($inventory['orphan_templates']),
                 'conflict_count' => count($inventory['conflicts']),
             ],
             'networks' => $inventory['networks'],
             'containers' => $containers,
             'templates' => $templates,
+            'orphan_templates' => $inventory['orphan_templates'],
             'conflicts' => $inventory['conflicts'],
         ];
     }
