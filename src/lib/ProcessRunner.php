@@ -35,6 +35,7 @@ final class ProcessRunner
         $stderr = '';
         $startedAt = microtime(true);
         $timedOut = false;
+        $observedExitCode = null;
 
         do {
             $stdout .= stream_get_contents($pipes[1]) ?: '';
@@ -42,6 +43,7 @@ final class ProcessRunner
             $status = proc_get_status($process);
 
             if (!$status['running']) {
+                $observedExitCode = is_int($status['exitcode']) ? $status['exitcode'] : null;
                 break;
             }
             if ((microtime(true) - $startedAt) > $timeoutSeconds) {
@@ -68,7 +70,7 @@ final class ProcessRunner
         }
 
         return [
-            'exit_code' => $closeCode,
+            'exit_code' => ($closeCode === -1 && $observedExitCode !== null) ? $observedExitCode : $closeCode,
             'stdout' => $stdout,
             'stderr' => $stderr,
         ];
