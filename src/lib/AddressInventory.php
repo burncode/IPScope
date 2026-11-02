@@ -220,8 +220,14 @@ final class AddressInventory
                 $addressMap[$address['ip']] = $address;
             }
 
-            foreach (($network['ipv4'] ?? []) as $config) {
-                $subnet = (string)($config['subnet'] ?? '');
+            // Docker's built-in bridge/host/none networks are infrastructure
+            // networks, not the user-managed static-IP pools this plugin targets.
+            // Keep their observed/system addresses, but do not expand a /16 bridge
+            // into tens of thousands of synthetic "available" candidates.
+            $isBuiltinNetwork = in_array($networkName, ['bridge', 'host', 'none'], true);
+            if (!$isBuiltinNetwork) {
+                foreach (($network['ipv4'] ?? []) as $config) {
+                    $subnet = (string)($config['subnet'] ?? '');
                 if ($subnet === '') {
                     continue;
                 }
@@ -285,6 +291,7 @@ final class AddressInventory
                         ];
                     }
                 }
+                }
             }
 
             $addresses = array_values($addressMap);
@@ -293,6 +300,8 @@ final class AddressInventory
             });
 
             $networkResults[] = array_merge($network, [
+                'address_space_managed' => !$isBuiltinNetwork,
+                'address_space_reason' => $isBuiltinNetwork ? 'docker_builtin_network' : null,
                 'known_addresses' => $addresses,
                 'known_address_count' => count($addresses),
             ]);
