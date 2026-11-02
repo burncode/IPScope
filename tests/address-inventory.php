@@ -6,7 +6,11 @@ require_once __DIR__ . '/../src/lib/AddressInventory.php';
 use IPScope\AddressInventory;
 
 $networks = [
-    ['name' => 'bond0', 'ipv4' => [['subnet' => '192.168.50.0/24']]],
+    ['name' => 'bond0', 'ipv4' => [[
+        'subnet' => '192.168.50.0/24',
+        'gateway' => '192.168.50.1',
+        'auxiliary_addresses' => ['server' => '192.168.50.21'],
+    ]]],
 ];
 $containers = [
     [
@@ -49,6 +53,8 @@ $checks = [
     ($addresses['192.168.50.101'] ?? null) === 'occupied',
     ($addresses['192.168.50.103'] ?? null) === 'reserved',
     ($addresses['192.168.50.104'] ?? null) === 'occupied',
+    ($addresses['192.168.50.1'] ?? null) === 'system',
+    ($addresses['192.168.50.21'] ?? null) === 'system',
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'reservation_conflict')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'active_reservation_collision')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
