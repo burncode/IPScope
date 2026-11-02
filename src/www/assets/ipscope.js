@@ -6,6 +6,7 @@
   var statusNode = document.getElementById("scan-status");
   var noticeNode = document.getElementById("notice");
   var addressFilter = document.getElementById("address-filter");
+  var statusFilter = document.getElementById("status-filter");
   var currentSnapshot = null;
 
   function escapeHtml(value) {
@@ -23,13 +24,21 @@
     document.getElementById(id).textContent = String(value);
   }
 
-  function filterAddressCards() {
-    if (!addressFilter) return;
-    var query = addressFilter.value.trim().toLowerCase();
-    var cards = document.querySelectorAll(".network-card");
-    cards.forEach(function (card) {
-      card.hidden = query !== "" && card.getAttribute("data-search").indexOf(query) === -1;
+  function filterAddressRows() {
+    var query = addressFilter ? addressFilter.value.trim().toLowerCase() : "";
+    var selectedStatus = statusFilter ? statusFilter.value : "all";
+    var rows = document.querySelectorAll(".address-row");
+    var visible = 0;
+    rows.forEach(function (row) {
+      var matchesQuery = query === "" || row.getAttribute("data-search").indexOf(query) !== -1;
+      var matchesStatus = selectedStatus === "all" || row.getAttribute("data-status") === selectedStatus;
+      var show = matchesQuery && matchesStatus;
+      row.hidden = !show;
+      if (show) visible += 1;
     });
+    var total = rows.length;
+    var countNode = document.getElementById("address-count");
+    if (countNode) countNode.textContent = visible + " / " + total + " addresses";
   }
 
   function render(snapshot) {
@@ -43,38 +52,43 @@
     setMetric("metric-conflicts", summary.conflict_count || 0);
 
     var networks = snapshot.networks || [];
-    document.getElementById("network-list").innerHTML = networks.length ? networks.map(function (network) {
+    document.getElementById("network-list").innerHTML = networks.map(function (network) {
       var addresses = network.known_addresses || [];
       var subnet = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
-      var chips = addresses.length ? addresses.map(function (address) {
+      var rows = addresses.map(function (address) {
         var status = address.status || "reserved";
-        return '<span class="address-chip status-' + escapeHtml(status) + '">' +
-          '<i class="dot"></i><span>' + escapeHtml(address.ip) + '</span>' +
-          '<span class="state-pill">' + escapeHtml(status) + '</span></span>';
-      }).join("") : '<span class="network-meta">No known addresses</span>';
-      var searchable = [network.name, network.driver, subnet].concat(addresses.map(function (address) {
-        return [address.ip, address.status].concat((address.owners || []).map(function (owner) {
-          return owner.container;
-        })).join(" ");
-      })).join(" ").toLowerCase();
-      return '<article class="network-card" data-search="' + escapeHtml(searchable) + '"><div class="network-head"><div>' +
-        '<div class="network-name">' + escapeHtml(network.name) + '</div>' +
+        var owners = (address.owners || []).map(function (owner) {
+          return owner.container + (owner.state && owner.state !== "system" ? " · " + owner.state : "");
+        });
+        var ownerText = owners.length ? owners.join(", ") : "—";
+        var reason = address.system_reason ? address.system_reason.replace(/_/g, " ") : "";
+        var searchText = [address.ip, status, ownerText, reason, network.name].join(" ").toLowerCase();
+        var label = {
+          available: "Available",
+          occupied: "Occupied",
+          reserved: "Reserved",
+          system: "System",
+          conflict: "Conflict"
+        }[status] || status;
+        return '<tr class="address-row" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
+          '<td class="ip-cell">' + escapeHtml(address.ip) + '</td>' +
+          '<td><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></td>' +
+          '<td>' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + '</td>' +
+          '<td><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="Copy ' + escapeHtml(address.ip) + '">Copy</button></td>' +
+          '</tr>';
+      }).join("");
+      var managed = network.address_space_managed !== false;
+      return '<article class="network-card">' +
+        '<div class="network-head"><div><div class="network-name">' + escapeHtml(network.name) + '</div>' +
         '<div class="network-meta">' + escapeHtml(network.driver || "unknown driver") +
-        (subnet ? " · " + escapeHtml(subnet) : "") + '</div></div>' +
-        '<span class="network-count">' + addresses.length + ' known</span></div>' +
-        '<div class="address-list">' + chips + '</div></article>';
-    }).join("") : '<div class="empty-state">No Docker networks were discovered.</div>';
-    var totalAddresses = networks.reduce(function (total, network) {
-      return total + (network.known_address_count || 0);
-    }, 0);
-    var availableAddresses = networks.reduce(function (total, network) {
-      return total + (network.known_addresses || []).filter(function (address) {
-        return address.status === "available";
-      }).length;
-    }, 0);
-    document.getElementById("address-count").textContent =
-      totalAddresses + " addresses · " + availableAddresses + " available candidates";
-    filterAddressCards();
+        (subnet ? " · " + escapeHtml(subnet) : "") +
+        (managed ? "" : " · built-in network, address pool not managed") + '</div></div>' +
+        '<span class="network-count">' + addresses.length + ' addresses</span></div>' +
+        '<div class="table-wrap"><table class="address-table"><thead><tr><th>IPv4 address</th><th>Status</th><th>Owner / reason</th><th></th></tr></thead>' +
+        '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">No address records.</td></tr>') + '</tbody></table></div>' +
+        '</article>';
+    }).join("") || '<div class="empty-state">No Docker networks were discovered.</div>';
+    filterAddressRows();
 
     var conflicts = snapshot.conflicts || [];
     document.getElementById("conflict-list").innerHTML = conflicts.length ? conflicts.map(function (item) {
@@ -158,6 +172,20 @@
   }
 
   scanButton.addEventListener("click", runScan);
-  if (addressFilter) addressFilter.addEventListener("input", filterAddressCards);
+  if (addressFilter) addressFilter.addEventListener("input", filterAddressRows);
+  if (statusFilter) statusFilter.addEventListener("change", filterAddressRows);
+  document.addEventListener("click", function (event) {
+    var button = event.target.closest("[data-copy-ip]");
+    if (!button) return;
+    var ip = button.getAttribute("data-copy-ip");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(ip).then(function () {
+        button.textContent = "Copied";
+        window.setTimeout(function () { button.textContent = "Copy"; }, 1200);
+      }).catch(function () { button.textContent = ip; });
+    } else {
+      button.textContent = ip;
+    }
+  });
   requestSnapshot();
 }());
