@@ -153,6 +153,13 @@ final class AddressInventory
                     }
                 }
 
+                // A running container's template/IPAM request is not a second,
+                // independent reservation owner for the same address. Runtime
+                // occupancy takes precedence for that same container/IP pair.
+                foreach (array_keys($runtimeOwners) as $runtimeOwner) {
+                    unset($reservationOwners[$runtimeOwner]);
+                }
+
                 $runtimeCount = count($runtimeOwners);
                 $reservationCount = count($reservationOwners);
                 $ownerCount = count($distinctContainers);
