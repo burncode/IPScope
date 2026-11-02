@@ -30,6 +30,7 @@ $templates = [
     ['name' => 'plex', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
     ['name' => 'duplicate', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
     ['name' => 'mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.103']],
+    ['name' => 'saved-only-app', 'network' => 'bond0', 'ips' => ['192.168.50.105']],
 ];
 
 $result = (new AddressInventory())->build($networks, $containers, $templates);
@@ -45,6 +46,8 @@ $checks = [
     ($addresses['192.168.50.104'] ?? null) === 'occupied',
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'duplicate_ip')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
+    !isset($addresses['192.168.50.105']),
+    count($result['orphan_templates']) === 1,
 ];
 
 foreach ($checks as $index => $passed) {
