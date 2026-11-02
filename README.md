@@ -33,7 +33,7 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 - [x] T004 initial Unraid template parser + stopped-container fixture
 - [x] T005 initial IPv4 CIDR calculator + smoke tests
 - [x] T006 initial address ownership merge and conflict detection (fixture tests; real-host validation pending)
-- [ ] T007 snapshot and API
+- [x] T007 snapshot builder, atomic JSON store, and read-only PHP API (installation and host verification pending)
 - [ ] T008 WebGUI
 - [ ] T009 Unraid 7.3.x acceptance
 
@@ -42,9 +42,7 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 Run on a machine with PHP CLI:
 
 ```sh
-php -l src/ipscope-scan.php
-php -l src/lib/ProcessRunner.php
-php tests/smoke.php
+sh scripts/check-local.sh
 ```
 
 The Docker integration scan is intended to run on the Unraid host. It is read-only.
