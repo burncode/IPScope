@@ -42,14 +42,12 @@ final class AddressInventory
             // A saved template without a corresponding Docker container is only
             // an install template, not proof that an existing container reserves IP.
             if (!isset($containerByName[$containerName])) {
-                if (!empty($template['ips'])) {
-                    $orphanTemplates[] = [
-                        'name' => $containerName,
-                        'network' => $networkName,
-                        'ips' => array_values(array_filter($template['ips'], [$this, 'isIPv4'])),
-                        'reason' => 'no_matching_docker_container',
-                    ];
-                }
+                $orphanTemplates[] = [
+                    'name' => $containerName,
+                    'network' => $networkName,
+                    'ips' => array_values(array_filter($template['ips'] ?? [], [$this, 'isIPv4'])),
+                    'reason' => 'no_matching_docker_container',
+                ];
                 continue;
             }
 
