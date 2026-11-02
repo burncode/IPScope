@@ -58,7 +58,17 @@ declare(strict_types=1);
         </div>
       </div>
       <div class="network-toolbar">
-        <input id="address-filter" class="address-filter" type="search" placeholder="Filter by IP, container, or status…" autocomplete="off">
+        <div class="address-controls">
+          <input id="address-filter" class="address-filter" type="search" placeholder="Search IP or container…" autocomplete="off">
+          <select id="status-filter" class="status-filter" aria-label="Filter by address status">
+            <option value="all">All statuses</option>
+            <option value="available">Available</option>
+            <option value="occupied">Occupied</option>
+            <option value="reserved">Reserved</option>
+            <option value="system">System</option>
+            <option value="conflict">Conflict</option>
+          </select>
+        </div>
         <span id="address-count" class="network-count">—</span>
       </div>
       <div id="network-list" class="network-list">
