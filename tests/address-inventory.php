@@ -25,12 +25,17 @@ $containers = [
         'name' => 'mismatch', 'state' => 'running', 'running' => true,
         'networks' => ['bond0' => ['ipv4' => '192.168.50.104', 'ipam_ipv4' => null]],
     ],
+    [
+        'name' => 'stopped-reserver', 'state' => 'exited', 'running' => false,
+        'networks' => [],
+    ],
 ];
 $templates = [
     ['name' => 'plex', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
     ['name' => 'duplicate', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
     ['name' => 'mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.103']],
     ['name' => 'saved-only-app', 'network' => 'bond0', 'ips' => ['192.168.50.105']],
+    ['name' => 'stopped-reserver', 'network' => 'bond0', 'ips' => ['192.168.50.101']],
 ];
 
 $result = (new AddressInventory())->build($networks, $containers, $templates);
@@ -44,7 +49,8 @@ $checks = [
     ($addresses['192.168.50.101'] ?? null) === 'occupied',
     ($addresses['192.168.50.103'] ?? null) === 'reserved',
     ($addresses['192.168.50.104'] ?? null) === 'occupied',
-    count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'duplicate_ip')) === 1,
+    count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'reservation_conflict')) === 1,
+    count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'active_reservation_collision')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
     !isset($addresses['192.168.50.105']),
     count($result['orphan_templates']) === 1,
