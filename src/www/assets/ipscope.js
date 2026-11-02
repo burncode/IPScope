@@ -90,6 +90,36 @@
     }).join("") || '<div class="empty-state">No Docker networks were discovered.</div>';
     filterAddressRows();
 
+    var templates = snapshot.templates || [];
+    var liveNames = {};
+    (snapshot.containers || []).forEach(function (container) {
+      liveNames[container.name] = true;
+    });
+    var templateIpOwners = {};
+    templates.forEach(function (template) {
+      (template.ips || []).forEach(function (ip) {
+        var key = (template.network || "") + "|" + ip;
+        if (!templateIpOwners[key]) templateIpOwners[key] = [];
+        templateIpOwners[key].push(template.name);
+      });
+    });
+    document.getElementById("template-list").innerHTML = templates.length ? templates.map(function (template) {
+      var ips = template.ips || [];
+      var isOrphan = !liveNames[template.name];
+      var duplicateIps = ips.filter(function (ip) {
+        return (templateIpOwners[(template.network || "") + "|" + ip] || []).length > 1;
+      });
+      var audit = [];
+      if (isOrphan) audit.push('<span class="status-pill status-reserved">No Docker container</span>');
+      if (duplicateIps.length) audit.push('<span class="status-pill status-conflict">Duplicate template IP</span>');
+      if (!audit.length) audit.push('<span class="status-pill status-available">Matched</span>');
+      return "<tr>" +
+        "<td>" + escapeHtml(template.name) + "</td>" +
+        "<td>" + escapeHtml(template.network || "—") + "</td>" +
+        '<td class="ip-cell">' + escapeHtml(ips.join(", ") || "—") + "</td>" +
+        "<td>" + audit.join(" ") + "</td></tr>";
+    }).join("") : '<tr><td colspan="4" class="table-empty">No saved templates found.</td></tr>';
+
     var conflicts = snapshot.conflicts || [];
     document.getElementById("conflict-list").innerHTML = conflicts.length ? conflicts.map(function (item) {
       var details;
