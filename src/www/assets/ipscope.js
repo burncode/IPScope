@@ -70,12 +70,28 @@
           system: "System",
           conflict: "Conflict"
         }[status] || status;
+        var detailKey = network.name + "|" + address.ip;
+        var ownerDetails = (address.owners || []).map(function (owner) {
+          return '<div class="detail-owner"><strong>' + escapeHtml(owner.container) + '</strong>' +
+            '<span>' + escapeHtml(owner.source || "unknown source") + '</span>' +
+            '<span>' + escapeHtml(owner.kind || "unknown") + '</span>' +
+            '<span>' + escapeHtml(owner.state || "unknown state") + '</span></div>';
+        }).join("");
+        var detailContent = '<div class="address-detail-content">' +
+          '<div><span class="detail-label">Network</span><strong>' + escapeHtml(network.name) + '</strong></div>' +
+          '<div><span class="detail-label">Address state</span><strong>' + escapeHtml(label) + '</strong></div>' +
+          '<div><span class="detail-label">Runtime owners</span><strong>' + escapeHtml(address.runtime_owner_count || 0) + '</strong></div>' +
+          '<div><span class="detail-label">Reservation owners</span><strong>' + escapeHtml(address.reservation_owner_count || 0) + '</strong></div>' +
+          (reason ? '<div><span class="detail-label">System reason</span><strong>' + escapeHtml(reason) + '</strong></div>' : '') +
+          '<div class="detail-owner-list">' + (ownerDetails || '<span class="muted-inline">No known owner. Candidate is based on Docker and saved-template data only.</span>') + '</div>' +
+          '</div>';
         return '<tr class="address-row" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
           '<td class="ip-cell">' + escapeHtml(address.ip) + '</td>' +
           '<td><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></td>' +
           '<td>' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + '</td>' +
-          '<td><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="Copy ' + escapeHtml(address.ip) + '">Copy</button></td>' +
-          '</tr>';
+          '<td class="address-actions"><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="Copy ' + escapeHtml(address.ip) + '">Copy</button>' +
+          '<button class="details-ip" type="button" data-toggle-details="' + escapeHtml(detailKey) + '">Details</button></td>' +
+          '</tr><tr class="address-detail-row" data-detail-for="' + escapeHtml(detailKey) + '" hidden><td colspan="4">' + detailContent + '</td></tr>';
       }).join("");
       var managed = network.address_space_managed !== false;
       return '<article class="network-card">' +
@@ -205,6 +221,18 @@
   if (addressFilter) addressFilter.addEventListener("input", filterAddressRows);
   if (statusFilter) statusFilter.addEventListener("change", filterAddressRows);
   document.addEventListener("click", function (event) {
+    var detailsButton = event.target.closest("[data-toggle-details]");
+    if (detailsButton) {
+      var detailKey = detailsButton.getAttribute("data-toggle-details");
+      var detailRow = Array.from(document.querySelectorAll(".address-detail-row")).find(function (row) {
+        return row.getAttribute("data-detail-for") === detailKey;
+      });
+      if (detailRow) {
+        detailRow.hidden = !detailRow.hidden;
+        detailsButton.textContent = detailRow.hidden ? "Details" : "Hide";
+      }
+      return;
+    }
     var button = event.target.closest("[data-copy-ip]");
     if (!button) return;
     var ip = button.getAttribute("data-copy-ip");
