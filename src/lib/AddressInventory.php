@@ -26,6 +26,7 @@ final class AddressInventory
         }
 
         $claims = [];
+        $orphanTemplates = [];
         $networkNames = [];
         foreach ($networks as $network) {
             $name = (string)($network['name'] ?? '');
@@ -38,6 +39,20 @@ final class AddressInventory
         foreach ($templates as $template) {
             $networkName = trim((string)($template['network'] ?? ''));
             $containerName = (string)($template['name'] ?? 'unknown-template');
+            // A saved template without a corresponding Docker container is only
+            // an install template, not proof that an existing container reserves IP.
+            if (!isset($containerByName[$containerName])) {
+                if (!empty($template['ips'])) {
+                    $orphanTemplates[] = [
+                        'name' => $containerName,
+                        'network' => $networkName,
+                        'ips' => array_values(array_filter($template['ips'], [$this, 'isIPv4'])),
+                        'reason' => 'no_matching_docker_container',
+                    ];
+                }
+                continue;
+            }
+
             if ($networkName === '' || !isset($networkNames[$networkName])) {
                 continue;
             }
@@ -176,7 +191,11 @@ final class AddressInventory
             }
         }
 
-        return ['networks' => $networkResults, 'conflicts' => $conflicts];
+        return [
+            'networks' => $networkResults,
+            'conflicts' => $conflicts,
+            'orphan_templates' => $orphanTemplates,
+        ];
     }
 
     private function addClaim(array &$claims, string $network, string $ip, array $owner): void
