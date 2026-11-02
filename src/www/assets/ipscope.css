@@ -59,6 +59,8 @@ h1 { font-size: 21px; letter-spacing: -.035em; }
 .muted-inline { color: var(--muted); }
 .copy-ip { border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 5px; padding: 4px 8px; font-size: 11px; cursor: pointer; }
 .copy-ip:hover { color: var(--accent); border-color: var(--accent); }
+#template-list td { vertical-align: middle; }
+#template-list .status-pill { margin: 2px 4px 2px 0; }
 .network-card:last-child { border-bottom: 0; }
 .network-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; margin-bottom: 12px; }
 .network-name { font-weight: 700; font-size: 14px; }
