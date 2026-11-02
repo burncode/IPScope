@@ -57,6 +57,10 @@ declare(strict_types=1);
           <p>Known addresses grouped by Docker network</p>
         </div>
       </div>
+      <div class="network-toolbar">
+        <input id="address-filter" class="address-filter" type="search" placeholder="Filter by IP, container, or status…" autocomplete="off">
+        <span id="address-count" class="network-count">—</span>
+      </div>
       <div id="network-list" class="network-list">
         <div class="empty-state">Run a scan to collect Docker network data.</div>
       </div>
