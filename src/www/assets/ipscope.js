@@ -34,6 +34,13 @@
       var matchesStatus = selectedStatus === "all" || row.getAttribute("data-status") === selectedStatus;
       var show = matchesQuery && matchesStatus;
       row.hidden = !show;
+      var detailKey = row.getAttribute("data-search").split(" ")[0];
+      var detailRow = row.nextElementSibling;
+      if (detailRow && detailRow.classList.contains("address-detail-row") && !show) {
+        detailRow.hidden = true;
+        var detailButton = row.querySelector("[data-toggle-details]");
+        if (detailButton) detailButton.textContent = "Details";
+      }
       if (show) visible += 1;
     });
     var total = rows.length;
