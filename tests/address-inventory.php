@@ -11,6 +11,11 @@ $networks = [
         'gateway' => '192.168.50.1',
         'auxiliary_addresses' => ['server' => '192.168.50.21'],
     ]]],
+    ['name' => 'bridge', 'ipv4' => [[
+        'subnet' => '172.17.0.0/16',
+        'gateway' => '172.17.0.1',
+        'auxiliary_addresses' => [],
+    ]]],
 ];
 $containers = [
     [
@@ -43,6 +48,10 @@ $templates = [
 ];
 
 $result = (new AddressInventory())->build($networks, $containers, $templates);
+$bridgeNetwork = $result['networks'][1];
+$bridgeAddresses = $bridgeNetwork['known_addresses'] ?? [];
+$bridgeCount = count($bridgeAddresses);
+
 $addresses = [];
 foreach ($result['networks'][0]['known_addresses'] as $address) {
     $addresses[$address['ip']] = $address['status'];
@@ -51,6 +60,9 @@ foreach ($result['networks'][0]['known_addresses'] as $address) {
 $checks = [
     ($addresses['192.168.50.100'] ?? null) === 'conflict',
     ($addresses['192.168.50.102'] ?? null) === 'available',
+    $bridgeNetwork['address_space_managed'] === false,
+    $bridgeCount === 1,
+    ($bridgeAddresses[0]['ip'] ?? null) === '172.17.0.1',
     ($addresses['192.168.50.101'] ?? null) === 'occupied',
     ($addresses['192.168.50.103'] ?? null) === 'reserved',
     ($addresses['192.168.50.104'] ?? null) === 'conflict',
