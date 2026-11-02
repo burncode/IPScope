@@ -37,9 +37,9 @@ declare(strict_types=1);
         <span class="summary-note">Running and stopped</span>
       </article>
       <article class="summary-card">
-        <span class="summary-label">Reservations</span>
+        <span class="summary-label">Known IPs</span>
         <strong id="metric-reservations">—</strong>
-        <span class="summary-note">Known configured addresses</span>
+        <span class="summary-note">Occupied and reserved addresses</span>
       </article>
       <article class="summary-card summary-card-alert">
         <span class="summary-label">Conflicts</span>
