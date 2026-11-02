@@ -27,12 +27,12 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 ## Development status
 
 - [x] Repository initialized
-- [x] T001 base project structure and local smoke test
-- [ ] T002 Docker network collector
-- [ ] T003 container collector
-- [ ] T004 Unraid template parser
-- [ ] T005 IPv4 calculations
-- [ ] T006 conflict detection
+- [x] T001 base project structure and local check scripts (installable .plg packaging still pending)
+- [x] T002 initial Docker network collector (real-host validation pending)
+- [x] T003 initial all-container collector (real-host validation pending)
+- [x] T004 initial Unraid template parser + stopped-container fixture
+- [x] T005 initial IPv4 CIDR calculator + smoke tests
+- [ ] T006 address ownership merge and conflict detection
 - [ ] T007 snapshot and API
 - [ ] T008 WebGUI
 - [ ] T009 Unraid 7.3.x acceptance
