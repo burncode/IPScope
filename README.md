@@ -34,7 +34,7 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 - [x] T005 initial IPv4 CIDR calculator + smoke tests
 - [x] T006 initial address ownership merge and conflict detection (fixture tests; real-host validation pending)
 - [x] T007 snapshot builder, atomic JSON store, and read-only PHP API (installation and host verification pending)
-- [ ] T008 WebGUI
+- [x] T008 initial read-only inventory dashboard (visual and Unraid route validation pending)
 - [ ] T009 Unraid 7.3.x acceptance
 
 ## Local checks (no Actions)
