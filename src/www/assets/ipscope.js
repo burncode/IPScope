@@ -50,10 +50,21 @@
 
     var conflicts = snapshot.conflicts || [];
     document.getElementById("conflict-list").innerHTML = conflicts.length ? conflicts.map(function (item) {
-      var details = item.type === "duplicate_ip"
-        ? (item.containers || []).join(", ")
-        : (item.container || "") + " · template " + (item.template_ip || "") + " → runtime " + (item.runtime_ip || "");
-      return "<tr><td>" + escapeHtml(item.type) + "</td><td>" + escapeHtml(item.network) +
+      var details;
+      if (item.type === "reservation_conflict") {
+        details = "Stopped reservations: " + (item.reserved_containers || item.containers || []).join(", ");
+      } else if (item.type === "active_reservation_collision") {
+        details = "Running: " + (item.running_containers || []).join(", ") +
+          " · Reserved: " + (item.reserved_containers || []).join(", ");
+      } else if (item.type === "multiple_runtime_owners") {
+        details = "Running containers: " + (item.running_containers || item.containers || []).join(", ");
+      } else {
+        details = (item.container || "") + " · template " + (item.template_ip || "") + " → runtime " + (item.runtime_ip || "");
+      }
+      var conflictLabel = item.type === "reservation_conflict" ? "Reservation conflict" :
+        (item.type === "active_reservation_collision" ? "Active / reserved collision" :
+        (item.type === "multiple_runtime_owners" ? "Multiple runtime owners" : item.type));
+      return "<tr><td>" + escapeHtml(conflictLabel) + "</td><td>" + escapeHtml(item.network) +
         "</td><td>" + escapeHtml(item.ip || item.template_ip || "—") +
         "</td><td>" + escapeHtml(details) + "</td></tr>";
     }).join("") : '<tr><td colspan="4" class="table-empty">No known conflicts.</td></tr>';
