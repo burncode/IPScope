@@ -50,11 +50,15 @@ foreach ($result['networks'][0]['known_addresses'] as $address) {
 
 $checks = [
     ($addresses['192.168.50.100'] ?? null) === 'conflict',
+    ($addresses['192.168.50.102'] ?? null) === 'available',
     ($addresses['192.168.50.101'] ?? null) === 'occupied',
     ($addresses['192.168.50.103'] ?? null) === 'reserved',
     ($addresses['192.168.50.104'] ?? null) === 'occupied',
     ($addresses['192.168.50.1'] ?? null) === 'system',
     ($addresses['192.168.50.21'] ?? null) === 'system',
+    ($addresses['192.168.50.0'] ?? null) === 'system',
+    ($addresses['192.168.50.255'] ?? null) === 'system',
+    ($addresses['192.168.50.100'] ?? null) === 'conflict',
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'reservation_conflict')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'active_reservation_collision')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
