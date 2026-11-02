@@ -228,12 +228,10 @@ final class AddressInventory
 
                 try {
                     $range = (new IPv4Calculator())->range($subnet);
-                } catch (\\InvalidArgumentException $error) {
+                } catch (\InvalidArgumentException $error) {
                     continue;
                 }
 
-                $networkLong = (int)sprintf('%u', ip2long($range['network']));
-                $broadcastLong = (int)sprintf('%u', ip2long($range['broadcast']));
                 $prefix = (int)substr(strrchr($subnet, '/'), 1);
 
                 // Network and broadcast addresses are never assignable in
