@@ -114,31 +114,60 @@ final class AddressInventory
             $addresses = [];
             foreach (($claims[$networkName] ?? []) as $ip => $owners) {
                 $distinctContainers = [];
-                $hasRuntime = false;
+                $runtimeOwners = [];
+                $reservationOwners = [];
                 foreach ($owners as $owner) {
                     $distinctContainers[$owner['container']] = true;
                     if ($owner['kind'] === 'occupied') {
-                        $hasRuntime = true;
+                        $runtimeOwners[$owner['container']] = true;
+                    } else {
+                        $reservationOwners[$owner['container']] = true;
                     }
                 }
 
-                $status = count($distinctContainers) > 1
-                    ? 'conflict'
-                    : ($hasRuntime ? 'occupied' : 'reserved');
+                $runtimeCount = count($runtimeOwners);
+                $reservationCount = count($reservationOwners);
+                $ownerCount = count($distinctContainers);
+                $hasMultipleOwners = $ownerCount > 1;
+
+                if ($hasMultipleOwners) {
+                    $status = 'conflict';
+                    if ($runtimeCount > 0 && $reservationCount > 0) {
+                        $conflictType = 'active_reservation_collision';
+                        $severity = 'critical';
+                    } elseif ($runtimeCount > 1) {
+                        $conflictType = 'multiple_runtime_owners';
+                        $severity = 'critical';
+                    } else {
+                        $conflictType = 'reservation_conflict';
+                        $severity = 'warning';
+                    }
+                } else {
+                    $status = $runtimeCount > 0 ? 'occupied' : 'reserved';
+                    $conflictType = null;
+                    $severity = null;
+                }
 
                 $addresses[] = [
                     'ip' => $ip,
                     'status' => $status,
                     'available' => false,
+                    'runtime_owner_count' => $runtimeCount,
+                    'reservation_owner_count' => $reservationCount,
                     'owners' => array_values($owners),
                 ];
 
-                if (count($distinctContainers) > 1) {
+                if ($hasMultipleOwners) {
                     $conflicts[] = [
-                        'type' => 'duplicate_ip',
+                        'type' => $conflictType,
+                        'severity' => $severity,
                         'network' => $networkName,
                         'ip' => $ip,
                         'containers' => array_keys($distinctContainers),
+                        'running_containers' => array_keys($runtimeOwners),
+                        'reserved_containers' => array_keys($reservationOwners),
+                        'runtime_owner_count' => $runtimeCount,
+                        'reservation_owner_count' => $reservationCount,
                     ];
                 }
             }
