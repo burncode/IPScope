@@ -205,6 +205,84 @@ final class AddressInventory
                 }
             }
 
+            // Expand configured IPv4 subnets into a complete address inventory.
+            // Guard against unexpectedly large networks so a malformed Docker
+            // configuration cannot allocate an unbounded PHP array.
+            $addressMap = [];
+            foreach ($addresses as $address) {
+                $addressMap[$address['ip']] = $address;
+            }
+
+            foreach (($network['ipv4'] ?? []) as $config) {
+                $subnet = (string)($config['subnet'] ?? '');
+                if ($subnet === '') {
+                    continue;
+                }
+
+                try {
+                    $range = (new IPv4Calculator())->range($subnet);
+                } catch (\\InvalidArgumentException $error) {
+                    continue;
+                }
+
+                $networkLong = (int)sprintf('%u', ip2long($range['network']));
+                $broadcastLong = (int)sprintf('%u', ip2long($range['broadcast']));
+                $prefix = (int)substr(strrchr($subnet, '/'), 1);
+
+                // Network and broadcast addresses are never assignable in
+                // conventional IPv4 subnets. Keep them visible as system rows.
+                if ($prefix <= 30) {
+                    foreach ([
+                        $range['network'] => 'network_address',
+                        $range['broadcast'] => 'broadcast_address',
+                    ] as $specialIp => $reason) {
+                        if (!isset($addressMap[$specialIp])) {
+                            $addressMap[$specialIp] = [
+                                'ip' => $specialIp,
+                                'status' => 'system',
+                                'available' => false,
+                                'system_reason' => $reason,
+                                'runtime_owner_count' => 0,
+                                'reservation_owner_count' => 0,
+                                'system_owner_count' => 1,
+                                'owners' => [[
+                                    'container' => 'system:' . $reason,
+                                    'source' => 'ipv4_subnet',
+                                    'kind' => 'system',
+                                    'state' => 'system',
+                                ]],
+                            ];
+                        }
+                    }
+                }
+
+                if ($range['first_host'] === null || $range['last_host'] === null) {
+                    continue;
+                }
+
+                $first = (int)sprintf('%u', ip2long($range['first_host']));
+                $last = (int)sprintf('%u', ip2long($range['last_host']));
+                if (($last - $first + 1) > 65536) {
+                    continue;
+                }
+
+                for ($value = $first; $value <= $last; $value++) {
+                    $ip = long2ip($value);
+                    if (!isset($addressMap[$ip])) {
+                        $addressMap[$ip] = [
+                            'ip' => $ip,
+                            'status' => 'available',
+                            'available' => true,
+                            'runtime_owner_count' => 0,
+                            'reservation_owner_count' => 0,
+                            'system_owner_count' => 0,
+                            'owners' => [],
+                        ];
+                    }
+                }
+            }
+
+            $addresses = array_values($addressMap);
             usort($addresses, static function (array $a, array $b): int {
                 return ip2long($a['ip']) <=> ip2long($b['ip']);
             });
