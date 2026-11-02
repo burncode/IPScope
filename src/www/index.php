@@ -79,6 +79,21 @@ declare(strict_types=1);
     <section class="panel">
       <div class="panel-heading">
         <div>
+          <h2>Template library audit</h2>
+          <p>Saved templates without a matching Docker container, plus duplicate template IPs</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Template</th><th>Network</th><th>Saved IPv4</th><th>Audit</th></tr></thead>
+          <tbody id="template-list"><tr><td colspan="4" class="table-empty">No snapshot loaded.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
           <h2>Conflicts</h2>
           <p>Address ownership issues requiring review</p>
         </div>
