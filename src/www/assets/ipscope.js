@@ -5,6 +5,8 @@
   var scanButton = document.getElementById("scan-button");
   var statusNode = document.getElementById("scan-status");
   var noticeNode = document.getElementById("notice");
+  var addressFilter = document.getElementById("address-filter");
+  var currentSnapshot = null;
 
   function escapeHtml(value) {
     return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
@@ -21,7 +23,17 @@
     document.getElementById(id).textContent = String(value);
   }
 
+  function filterAddressCards() {
+    if (!addressFilter) return;
+    var query = addressFilter.value.trim().toLowerCase();
+    var cards = document.querySelectorAll(".network-card");
+    cards.forEach(function (card) {
+      card.hidden = query !== "" && card.getAttribute("data-search").indexOf(query) === -1;
+    });
+  }
+
   function render(snapshot) {
+    currentSnapshot = snapshot;
     var summary = snapshot.summary || {};
     setMetric("metric-networks", summary.network_count || 0);
     setMetric("metric-containers", summary.container_count || 0);
@@ -40,13 +52,29 @@
           '<i class="dot"></i><span>' + escapeHtml(address.ip) + '</span>' +
           '<span class="state-pill">' + escapeHtml(status) + '</span></span>';
       }).join("") : '<span class="network-meta">No known addresses</span>';
-      return '<article class="network-card"><div class="network-head"><div>' +
+      var searchable = [network.name, network.driver, subnet].concat(addresses.map(function (address) {
+        return [address.ip, address.status].concat((address.owners || []).map(function (owner) {
+          return owner.container;
+        })).join(" ");
+      })).join(" ").toLowerCase();
+      return '<article class="network-card" data-search="' + escapeHtml(searchable) + '"><div class="network-head"><div>' +
         '<div class="network-name">' + escapeHtml(network.name) + '</div>' +
         '<div class="network-meta">' + escapeHtml(network.driver || "unknown driver") +
         (subnet ? " · " + escapeHtml(subnet) : "") + '</div></div>' +
         '<span class="network-count">' + addresses.length + ' known</span></div>' +
         '<div class="address-list">' + chips + '</div></article>';
     }).join("") : '<div class="empty-state">No Docker networks were discovered.</div>';
+    var totalAddresses = networks.reduce(function (total, network) {
+      return total + (network.known_address_count || 0);
+    }, 0);
+    var availableAddresses = networks.reduce(function (total, network) {
+      return total + (network.known_addresses || []).filter(function (address) {
+        return address.status === "available";
+      }).length;
+    }, 0);
+    document.getElementById("address-count").textContent =
+      totalAddresses + " addresses · " + availableAddresses + " available candidates";
+    filterAddressCards();
 
     var conflicts = snapshot.conflicts || [];
     document.getElementById("conflict-list").innerHTML = conflicts.length ? conflicts.map(function (item) {
@@ -130,5 +158,6 @@
   }
 
   scanButton.addEventListener("click", runScan);
+  if (addressFilter) addressFilter.addEventListener("input", filterAddressCards);
   requestSnapshot();
 }());
