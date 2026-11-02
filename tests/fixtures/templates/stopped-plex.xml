@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Container version="2">
+  <Name>plex</Name>
+  <Network>bond0</Network>
+  <MyIP>192.168.50.100</MyIP>
+  <MyMAC>02:42:C0:A8:32:64</MyMAC>
+</Container>
