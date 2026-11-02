@@ -32,7 +32,7 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 - [x] T003 initial all-container collector (real-host validation pending)
 - [x] T004 initial Unraid template parser + stopped-container fixture
 - [x] T005 initial IPv4 CIDR calculator + smoke tests
-- [ ] T006 address ownership merge and conflict detection
+- [x] T006 initial address ownership merge and conflict detection (fixture tests; real-host validation pending)
 - [ ] T007 snapshot and API
 - [ ] T008 WebGUI
 - [ ] T009 Unraid 7.3.x acceptance
