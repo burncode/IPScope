@@ -36,6 +36,31 @@ final class AddressInventory
             $networkNames[$name] = true;
         }
 
+        // Reserve Docker-declared infrastructure addresses before container claims.
+        foreach ($networks as $network) {
+            $networkName = (string)($network['name'] ?? '');
+            if ($networkName === '') {
+                continue;
+            }
+            foreach (($network['ipv4'] ?? []) as $config) {
+                foreach (['gateway' => 'gateway', 'auxiliary_addresses' => 'auxiliary'] as $field => $kind) {
+                    $values = $field === 'auxiliary_addresses'
+                        ? (is_array($config[$field] ?? null) ? array_values($config[$field]) : [])
+                        : [$config[$field] ?? null];
+                    foreach ($values as $ip) {
+                        if ($this->isIPv4($ip)) {
+                            $this->addClaim($claims, $networkName, $ip, [
+                                'container' => 'system:' . $kind,
+                                'source' => 'docker_network',
+                                'kind' => 'system',
+                                'state' => 'system',
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
         foreach ($templates as $template) {
             $networkName = trim((string)($template['network'] ?? ''));
             $containerName = (string)($template['name'] ?? 'unknown-template');
@@ -116,10 +141,13 @@ final class AddressInventory
                 $distinctContainers = [];
                 $runtimeOwners = [];
                 $reservationOwners = [];
+                $systemOwners = [];
                 foreach ($owners as $owner) {
                     $distinctContainers[$owner['container']] = true;
                     if ($owner['kind'] === 'occupied') {
                         $runtimeOwners[$owner['container']] = true;
+                    } elseif ($owner['kind'] === 'system') {
+                        $systemOwners[$owner['container']] = true;
                     } else {
                         $reservationOwners[$owner['container']] = true;
                     }
@@ -132,7 +160,10 @@ final class AddressInventory
 
                 if ($hasMultipleOwners) {
                     $status = 'conflict';
-                    if ($runtimeCount > 0 && $reservationCount > 0) {
+                    if (count($systemOwners) > 0) {
+                        $conflictType = 'system_address_collision';
+                        $severity = 'critical';
+                    } elseif ($runtimeCount > 0 && $reservationCount > 0) {
                         $conflictType = 'active_reservation_collision';
                         $severity = 'critical';
                     } elseif ($runtimeCount > 1) {
@@ -143,7 +174,7 @@ final class AddressInventory
                         $severity = 'warning';
                     }
                 } else {
-                    $status = $runtimeCount > 0 ? 'occupied' : 'reserved';
+                    $status = count($systemOwners) > 0 ? 'system' : ($runtimeCount > 0 ? 'occupied' : 'reserved');
                     $conflictType = null;
                     $severity = null;
                 }
@@ -154,6 +185,7 @@ final class AddressInventory
                     'available' => false,
                     'runtime_owner_count' => $runtimeCount,
                     'reservation_owner_count' => $reservationCount,
+                    'system_owner_count' => count($systemOwners),
                     'owners' => array_values($owners),
                 ];
 
@@ -168,6 +200,7 @@ final class AddressInventory
                         'reserved_containers' => array_keys($reservationOwners),
                         'runtime_owner_count' => $runtimeCount,
                         'reservation_owner_count' => $reservationCount,
+                        'system_owners' => array_keys($systemOwners),
                     ];
                 }
             }
