@@ -15,5 +15,6 @@ done
 
 php tests/smoke.php
 php tests/template-parser.php
+php tests/address-inventory.php
 
 echo "All local IPScope checks passed."
