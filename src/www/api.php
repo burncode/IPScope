@@ -25,6 +25,15 @@ header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 header('X-Content-Type-Options: nosniff');
 
+// Temporary diagnostic breadcrumbs for the Unraid web SAPI.
+// Written to the PHP error log; remove after the scan response issue is resolved.
+$ipscopeStage = 'api_bootstrap';
+register_shutdown_function(static function () use (&$ipscopeStage): void {
+    $last = error_get_last();
+    error_log('IPScope scan shutdown stage=' . $ipscopeStage .
+        ' last_error=' . ($last === null ? 'none' : json_encode($last)));
+});
+
 function ipscopeRespond(int $status, array $payload): void
 {
     http_response_code($status);
@@ -62,16 +71,32 @@ try {
         ipscopeRespond(405, ['ok' => false, 'error' => 'Scanning requires POST.']);
     }
 
+    $ipscopeStage = 'before_docker_client';
+    error_log('IPScope scan stage=' . $ipscopeStage);
     $docker = new DockerClient(null, $dockerBinary);
+
+    $ipscopeStage = 'before_snapshot_build';
+    error_log('IPScope scan stage=' . $ipscopeStage);
     $snapshot = (new SnapshotBuilder($docker, $templateDirectory))->build();
+
+    $ipscopeStage = 'after_snapshot_build';
+    error_log('IPScope scan stage=' . $ipscopeStage . ' networks=' . count($snapshot['networks'] ?? []) .
+        ' containers=' . count($snapshot['containers'] ?? []));
+
+    $ipscopeStage = 'before_snapshot_write';
+    error_log('IPScope scan stage=' . $ipscopeStage . ' path=' . $store->path());
     $store->write($snapshot);
+
+    $ipscopeStage = 'after_snapshot_write';
+    error_log('IPScope scan stage=' . $ipscopeStage);
 
     ipscopeRespond(200, [
         'ok' => true,
         'snapshot' => $snapshot,
     ]);
 } catch (Throwable $error) {
-    error_log('IPScope API error: ' . $error->getMessage());
+    $ipscopeStage = 'caught_exception';
+    error_log('IPScope API error at stage=' . $ipscopeStage . ': ' . $error->getMessage());
     ipscopeRespond(500, [
         'ok' => false,
         'error' => 'IPScope could not complete the request. Check the Unraid system log.',
