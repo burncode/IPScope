@@ -135,3 +135,30 @@ tbody tr:last-child td { border-bottom: 0; }
   .address-list-tools { width: 100%; justify-content: space-between; }
   .overview-network { align-items: flex-start; flex-direction: column; gap: 9px; }
 }
+
+
+/* T015-B: address inventory table alignment and copy feedback */
+.address-table-wrap { padding-top: 8px; }
+.address-table { width: 100%; table-layout: fixed; border-spacing: 0; }
+.address-table .col-ip { width: 19%; }
+.address-table .col-status { width: 13%; }
+.address-table .col-owner { width: auto; }
+.address-table .col-actions { width: 150px; }
+.address-table th, .address-table td { vertical-align: middle; }
+.address-table th { padding-top: 12px; padding-bottom: 12px; }
+.address-table td { padding-top: 10px; padding-bottom: 10px; }
+.address-table .actions-heading { text-align: right; padding-right: 18px; }
+.address-table td.address-actions { display: table-cell; text-align: right; white-space: nowrap; }
+.address-actions { min-width: 150px; }
+.copy-ip, .details-ip { display: inline-flex; align-items: center; justify-content: center; min-height: 30px; margin-left: 5px; }
+.address-table td:nth-child(3) { overflow-wrap: anywhere; white-space: normal; }
+.address-detail-row td { padding: 14px 18px; }
+.copy-toast { position: fixed; right: 24px; bottom: 24px; z-index: 10000; max-width: min(420px, calc(100vw - 32px)); padding: 11px 15px; border: 1px solid #b7dfca; border-radius: 8px; background: #effaf3; color: #176b43; box-shadow: 0 8px 28px rgba(16,24,40,.16); font-size: 13px; }
+.copy-toast.is-error { border-color: #f0c7c2; background: var(--danger-soft); color: var(--danger); }
+.copy-toast[hidden] { display: none; }
+@media (max-width: 760px) {
+  .address-table { min-width: 720px; }
+  .address-table .col-ip { width: 175px; }
+  .address-table .col-status { width: 110px; }
+  .address-table .col-actions { width: 145px; }
+}

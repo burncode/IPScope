@@ -159,6 +159,7 @@ declare(strict_types=1);
       <span id="generated-at">No snapshot</span>
       <span>Read-only · No Docker configuration changes</span>
     </footer>
+    <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
   </main>
   <script src="/plugins/ipscope/src/www/assets/ipscope.js" defer></script>
 </body>
