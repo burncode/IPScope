@@ -82,6 +82,15 @@
           (first + 1) + "–" + Math.min(first + pageSize, filtered.length) + " of " + filtered.length : "No matching addresses";
         pager.querySelector("[data-page-prev]").disabled = page === 0;
         pager.querySelector("[data-page-next]").disabled = page >= pageCount - 1;
+        var numberHost = pager.querySelector(".pager-numbers");
+        if (numberHost) {
+          numberHost.innerHTML = Array.from({ length: pageCount }, function (_, index) {
+            return '<button type="button" class="pager-button pager-number' +
+              (index === page ? ' is-current' : '') + '" data-page-index="' + index +
+              '" aria-label="Page ' + (index + 1) + '"' +
+              (index === page ? ' aria-current="page"' : '') + '>' + (index + 1) + '</button>';
+          }).join("");
+        }
       }
     });
     var total = document.querySelectorAll(".address-row").length;
@@ -150,7 +159,7 @@
         '<span class="network-count">' + addresses.length + ' addresses</span></div>' +
         '<div class="table-wrap address-table-wrap"><table class="address-table"><colgroup><col class="col-ip"><col class="col-status"><col class="col-owner"><col class="col-actions"></colgroup><thead><tr><th>IPv4 address</th><th>Status</th><th>Owner / reason</th><th class="actions-heading">Actions</th></tr></thead>' +
         '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">No address records.</td></tr>') + '</tbody></table></div>' +
-        '<div class="address-pager"><span class="pager-label">—</span><div><button type="button" class="pager-button" data-page-prev disabled>Previous</button><button type="button" class="pager-button" data-page-next>Next</button></div></div>' +
+        '<div class="address-pager"><span class="pager-label">—</span><div class="pager-controls"><button type="button" class="pager-button" data-page-prev disabled>Previous</button><span class="pager-numbers"></span><button type="button" class="pager-button" data-page-next>Next</button></div></div>' +
         '</article>';
     }).join("") || '<div class="empty-state">No Docker networks were discovered.</div>';
     filterAddressRows(true);
@@ -165,7 +174,7 @@
         '<div class="overview-counts"><span><b>' + counts.available + '</b> available</span>' +
         '<span><b>' + counts.occupied + '</b> occupied</span><span><b>' + counts.reserved + '</b> reserved</span>' +
         '<span><b>' + counts.conflict + '</b> conflicts</span></div>' +
-        '<button type="button" class="text-action" data-open-view="addresses">Manage IPs</button></article>';
+        '<button type="button" class="text-action" data-open-view="addresses" data-open-network="' + escapeHtml(network.name) + '">Manage IPs</button></article>';
     }).join("") || '<div class="empty-state">No networks found.</div>';
 
     var templates = snapshot.templates || [];
@@ -290,18 +299,31 @@
       panel.classList.toggle("is-active", panel.getAttribute("data-panel") === viewName);
     });
   }
-  document.querySelectorAll("[data-view], [data-open-view]").forEach(function (button) {
-    button.addEventListener("click", function () {
-      activateView(button.getAttribute("data-view") || button.getAttribute("data-open-view"));
-    });
+  document.addEventListener("click", function (event) {
+    var viewButton = event.target.closest("[data-view], [data-open-view]");
+    if (!viewButton) return;
+    var viewName = viewButton.getAttribute("data-view") || viewButton.getAttribute("data-open-view");
+    activateView(viewName);
+    var networkName = viewButton.getAttribute("data-open-network");
+    if (networkName) {
+      window.setTimeout(function () {
+        var target = Array.from(document.querySelectorAll(".network-card")).find(function (card) {
+          var heading = card.querySelector(".network-name");
+          return heading && heading.textContent === networkName;
+        });
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+    }
   });
   document.addEventListener("click", function (event) {
     var previous = event.target.closest("[data-page-prev]");
     var next = event.target.closest("[data-page-next]");
-    if (!previous && !next) return;
+    var numbered = event.target.closest("[data-page-index]");
+    if (!previous && !next && !numbered) return;
     var card = event.target.closest(".network-card");
     if (!card) return;
-    card.dataset.page = String(Math.max(0, Number(card.dataset.page || 0) + (next ? 1 : -1)));
+    if (numbered) card.dataset.page = String(Number(numbered.getAttribute("data-page-index")));
+    else card.dataset.page = String(Math.max(0, Number(card.dataset.page || 0) + (next ? 1 : -1)));
     filterAddressRows(false);
   });
   document.addEventListener("click", function (event) {
