@@ -38,7 +38,9 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 - [x] T009 core address inventory validated on Unraid 7.3.x (bond0 /24 = 256 records; built-in bridge not expanded)
 - [x] T010 address table UI with search, status filter, owner details, and copy-IP action (browser validation pending)
 - [x] T011 saved-template audit table with orphan-template and duplicate-template-IP detection (browser validation pending)
-- [ ] T012 .plg packaging, install/uninstall, and Docker template integration
+- [x] T012 workspace navigation: Overview, IP Manager, Templates, Conflicts, Containers
+- [x] T013 per-network IPv4 pagination (25/50/100 rows) and network overview summaries (browser validation pending)
+- [ ] T014 .plg packaging, install/uninstall, and Docker template integration
 
 ## Local checks (no Actions)
 
