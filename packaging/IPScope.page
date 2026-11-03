@@ -1,0 +1,7 @@
+Menu="Settings"
+Title="IPScope"
+Icon="network-wired"
+---
+<?php
+require_once '/usr/local/emhttp/plugins/ipscope/src/www/index.php';
+?>

@@ -40,7 +40,10 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 - [x] T011 saved-template audit table with orphan-template and duplicate-template-IP detection (browser validation pending)
 - [x] T012 workspace navigation: Overview, IP Manager, Templates, Conflicts, Containers
 - [x] T013 per-network IPv4 pagination (25/50/100 rows) and network overview summaries (browser validation pending)
-- [ ] T014 .plg packaging, install/uninstall, and Docker template integration
+- [ ] T014-A initial .plg packaging and runtime installer (manual package build/release validation pending)
+- [ ] T014-B native WebGUI page and API route validation
+- [ ] T014-C install/uninstall/upgrade lifecycle validation
+- [ ] T015 Docker template integration (planned; not part of T014-A)
 
 ## Local checks (no Actions)
 

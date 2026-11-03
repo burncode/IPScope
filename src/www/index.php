@@ -7,7 +7,7 @@ declare(strict_types=1);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>IPScope</title>
-  <link rel="stylesheet" href="assets/ipscope.css">
+  <link rel="stylesheet" href="/plugins/ipscope/src/www/assets/ipscope.css">
 </head>
 <body>
   <main class="ipscope">
@@ -160,6 +160,6 @@ declare(strict_types=1);
       <span>Read-only · No Docker configuration changes</span>
     </footer>
   </main>
-  <script src="assets/ipscope.js" defer></script>
+  <script src="/plugins/ipscope/src/www/assets/ipscope.js" defer></script>
 </body>
 </html>

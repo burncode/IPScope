@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var apiUrl = "api.php";
+  var apiUrl = "/plugins/ipscope/api.php";
   var scanButton = document.getElementById("scan-button");
   var statusNode = document.getElementById("scan-status");
   var noticeNode = document.getElementById("notice");
