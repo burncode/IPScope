@@ -346,10 +346,12 @@
       navigator.clipboard.writeText(ip).then(function () {
         showCopyNotice("Copied " + ip, false);
       }).catch(function () {
-        showCopyNotice(fallbackCopy() ? "Copied " + ip : "Copy failed. Select the IP manually.", !fallbackCopy);
+        var copied = fallbackCopy();
+        showCopyNotice(copied ? "Copied " + ip : "Copy failed. Select the IP manually.", !copied);
       });
     } else {
-      showCopyNotice(fallbackCopy() ? "Copied " + ip : "Copy failed. Select the IP manually.", false);
+      var copied = fallbackCopy();
+      showCopyNotice(copied ? "Copied " + ip : "Copy failed. Select the IP manually.", !copied);
     }
   });
   requestSnapshot();
