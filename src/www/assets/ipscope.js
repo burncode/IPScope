@@ -24,6 +24,26 @@
     document.getElementById(id).textContent = String(value);
   }
 
+  function readApiResponse(response) {
+    return response.text().then(function (raw) {
+      var body;
+      try {
+        body = raw === "" ? null : JSON.parse(raw);
+      } catch (error) {
+        var preview = raw.trim().slice(0, 240);
+        throw new Error("API returned invalid JSON (HTTP " + response.status + "). " +
+          (preview ? "Response: " + preview : "The response body was empty. Check the PHP server terminal and Unraid logs."));
+      }
+      if (!response.ok) {
+        throw new Error((body && body.error) || ("API request failed (HTTP " + response.status + ")."));
+      }
+      if (!body || typeof body !== "object") {
+        throw new Error("API returned an empty response (HTTP " + response.status + ").");
+      }
+      return body;
+    });
+  }
+
   function filterAddressRows(resetPages) {
     var query = addressFilter ? addressFilter.value.trim().toLowerCase() : "";
     var selectedStatus = statusFilter ? statusFilter.value : "all";
@@ -220,12 +240,7 @@
   function requestSnapshot() {
     statusNode.textContent = "Loading snapshot…";
     fetch(apiUrl + "?action=snapshot", { credentials: "same-origin", headers: { "Accept": "application/json" } })
-      .then(function (response) {
-        return response.json().then(function (body) {
-          if (!response.ok) throw new Error(body.error || "Unable to load snapshot.");
-          return body;
-        });
-      })
+      .then(readApiResponse)
       .then(function (body) { render(body.snapshot); setNotice(""); })
       .catch(function (error) {
         statusNode.textContent = "Snapshot unavailable";
@@ -243,12 +258,7 @@
       method: "POST",
       credentials: "same-origin",
       headers: { "Accept": "application/json" }
-    }).then(function (response) {
-      return response.json().then(function (body) {
-        if (!response.ok) throw new Error(body.error || "Scan failed.");
-        return body;
-      });
-    }).then(function (body) {
+    }).then(readApiResponse).then(function (body) {
       render(body.snapshot);
     }).catch(function (error) {
       statusNode.textContent = "Scan failed";
