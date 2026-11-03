@@ -43,6 +43,41 @@ echo "==> Installing/replacing IPScope locally"
 echo "Package: $PACKAGE"
 upgradepkg --install-new "$PACKAGE"
 
+# The launch target belongs to the installed PLG manifest, not the Slackware
+# package payload. Local package upgrades do not replace that manifest, so
+# update only its navigation metadata while preserving release URLs/checksums.
+PLUGIN_MANIFEST="/boot/config/plugins/ipscope.plg"
+if [[ -f "$PLUGIN_MANIFEST" ]]; then
+  php -r '
+    $path = $argv[1];
+    $xml = file_get_contents($path);
+    if ($xml === false) {
+      fwrite(STDERR, "Unable to read installed plugin manifest.\\n");
+      exit(1);
+    }
+    $count = 0;
+    $updated = preg_replace_callback("/<PLUGIN\\b[^>]*>/s", function ($match) {
+      $tag = $match[0];
+      if (preg_match("/\\blaunch\\s*=\\s*[\"\\x27][^\"\\x27]*[\"\\x27]/", $tag)) {
+        $tag = preg_replace("/\\blaunch\\s*=\\s*([\"\\x27])[^\"\\x27]*\\1/", "launch=\"Settings/IPScope\"", $tag, 1);
+      } else {
+        $tag = preg_replace("/>$/", " launch=\"Settings/IPScope\">", $tag);
+      }
+      if (!preg_match("/\\bicon\\s*=/", $tag)) {
+        $tag = preg_replace("/>$/", " icon=\"network-wired\">", $tag);
+      }
+      return $tag;
+    }, $xml, 1, $count);
+    if ($count !== 1 || $updated === null || file_put_contents($path, $updated) === false) {
+      fwrite(STDERR, "Unable to update IPScope launch metadata in installed PLG.\\n");
+      exit(1);
+    }
+  ' "$PLUGIN_MANIFEST"
+  echo "Updated installed plugin launch target: Settings/IPScope"
+else
+  echo "Warning: $PLUGIN_MANIFEST not found; plugin-list launch target was not updated." >&2
+fi
+
 echo
 echo "IPScope $VERSION installation completed."
 echo "Open Settings > User Utilities > IPScope."
