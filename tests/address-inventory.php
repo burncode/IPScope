@@ -75,7 +75,7 @@ $checks = [
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'reservation_conflict')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'active_reservation_collision')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
-    !isset($addresses['192.168.50.105']),
+    ($addresses['192.168.50.105'] ?? null) === 'available',
     count($result['orphan_templates']) === 1,
 ];
 
