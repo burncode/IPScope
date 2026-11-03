@@ -254,10 +254,17 @@
     statusNode.textContent = "Collecting Docker data…";
     setNotice("");
 
+    var scanHeaders = { "Accept": "application/json" };
+    // Unraid injects csrf_token globally into plugin pages. The auto-prepend
+    // security check accepts it through the X-CSRF-Token request header.
+    if (typeof csrf_token !== "undefined" && csrf_token) {
+      scanHeaders["X-CSRF-Token"] = csrf_token;
+    }
+
     fetch(apiUrl + "?action=scan", {
       method: "POST",
       credentials: "same-origin",
-      headers: { "Accept": "application/json" }
+      headers: scanHeaders
     }).then(readApiResponse).then(function (body) {
       render(body.snapshot);
     }).catch(function (error) {
