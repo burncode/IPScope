@@ -14,6 +14,9 @@ done
 
 bash "$ROOT/scripts/check-local.sh"
 
+# Normalize archive permissions regardless of source-file modes or the caller umask.
+umask 022
+
 STAGE="$ROOT/dist/stage"
 PKGNAME="ipscope-$VERSION-noarch-1"
 PKG="$ROOT/dist/$PKGNAME.txz"
@@ -47,6 +50,11 @@ cat > "$STAGE/install/doinst.sh" <<'EOF'
 #!/bin/sh
 chmod 0755 /usr/local/emhttp/plugins/ipscope
 EOF
+chmod 0755 "$STAGE/install/doinst.sh"
+
+# Slackware package payload must not inherit permissive 0777/0666 source modes.
+find "$STAGE" -type d -exec chmod 0755 {} +
+find "$STAGE" -type f -exec chmod 0644 {} +
 chmod 0755 "$STAGE/install/doinst.sh"
 
 mkdir -p "$ROOT/dist"
