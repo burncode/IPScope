@@ -89,22 +89,39 @@ cat > "$PLG" <<EOF
     <INLINE><![CDATA[
 set -e
 CFG="/boot/config/plugins/ipscope"
+PKGNAME="$PKGNAME"
+PKGFILE="\$CFG/$PKGNAME.txz"
 mkdir -p "\$CFG"
-PKGFILE="\$(find "\$CFG" -maxdepth 1 -type f -name "ipscope-*-noarch-1.txz" | sort | tail -n 1)"
-[ -n "\$PKGFILE" ] || { echo "IPScope package archive not found." >&2; exit 1; }
+[ -f "\$PKGFILE" ] || { echo "IPScope package archive not found: \$PKGFILE" >&2; exit 1; }
+
+# Remove previously installed IPScope package versions before installing this one.
+for PACKAGE_LOG in /var/log/packages/ipscope-*; do
+  [ -f "\$PACKAGE_LOG" ] || continue
+  INSTALLED_PACKAGE="\${PACKAGE_LOG##*/}"
+  removepkg "\$INSTALLED_PACKAGE"
+done
+
 installpkg "\$PKGFILE"
 mkdir -p /var/local/emhttp/plugins/ipscope
 chmod 0755 /usr/local/emhttp/plugins/ipscope
-echo "IPScope installed."
+echo "IPScope $VERSION installed."
     ]]></INLINE>
   </FILE>
   <FILE Run="/bin/bash" Method="remove">
     <INLINE><![CDATA[
-removepkg ipscope || true
+# Remove every installed IPScope package version by its exact Slackware package name.
+for PACKAGE_LOG in /var/log/packages/ipscope-*; do
+  [ -f "\$PACKAGE_LOG" ] || continue
+  INSTALLED_PACKAGE="\${PACKAGE_LOG##*/}"
+  removepkg "\$INSTALLED_PACKAGE" || true
+done
+
+# Clean only IPScope-owned runtime files; never touch Docker or network configuration.
 rm -rf /usr/local/emhttp/plugins/ipscope
 rm -rf /var/local/emhttp/plugins/ipscope
+
+# Remove cached IPScope package archives, but preserve the user's config directory.
 find /boot/config/plugins/ipscope -maxdepth 1 -type f -name "ipscope-*-noarch-1.txz" -delete
-# Keep /boot/config/plugins/ipscope so user configuration survives uninstall.
     ]]></INLINE>
   </FILE>
 </PLUGIN>
