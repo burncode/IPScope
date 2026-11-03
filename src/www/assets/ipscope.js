@@ -105,10 +105,10 @@
       var subnet = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
       var rows = addresses.map(function (address) {
         var status = address.status || "reserved";
-        var owners = (address.owners || []).map(function (owner) {
-          return owner.container + (owner.state && owner.state !== "system" ? " · " + owner.state : "");
-        });
-        var ownerText = owners.length ? owners.join(", ") : "—";
+        var ownerNames = Array.from(new Set((address.owners || []).map(function (owner) {
+          return owner.container;
+        }).filter(Boolean)));
+        var ownerText = ownerNames.length ? ownerNames.join(", ") : "—";
         var reason = address.system_reason ? address.system_reason.replace(/_/g, " ") : "";
         var searchText = [address.ip, status, ownerText, reason, network.name].join(" ").toLowerCase();
         var label = {
@@ -148,7 +148,7 @@
         (subnet ? " · " + escapeHtml(subnet) : "") +
         (managed ? "" : " · built-in network, address pool not managed") + '</div></div>' +
         '<span class="network-count">' + addresses.length + ' addresses</span></div>' +
-        '<div class="table-wrap"><table class="address-table"><thead><tr><th>IPv4 address</th><th>Status</th><th>Owner / reason</th><th></th></tr></thead>' +
+        '<div class="table-wrap address-table-wrap"><table class="address-table"><colgroup><col class="col-ip"><col class="col-status"><col class="col-owner"><col class="col-actions"></colgroup><thead><tr><th>IPv4 address</th><th>Status</th><th>Owner / reason</th><th class="actions-heading">Actions</th></tr></thead>' +
         '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">No address records.</td></tr>') + '</tbody></table></div>' +
         '<div class="address-pager"><span class="pager-label">—</span><div><button type="button" class="pager-button" data-page-prev disabled>Previous</button><button type="button" class="pager-button" data-page-next>Next</button></div></div>' +
         '</article>';
@@ -320,13 +320,36 @@
     var button = event.target.closest("[data-copy-ip]");
     if (!button) return;
     var ip = button.getAttribute("data-copy-ip");
+    function showCopyNotice(message, failed) {
+      var toast = document.getElementById("copy-toast");
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.toggle("is-error", !!failed);
+      toast.hidden = false;
+      window.clearTimeout(toast._hideTimer);
+      toast._hideTimer = window.setTimeout(function () { toast.hidden = true; }, 2200);
+    }
+    function fallbackCopy() {
+      var field = document.createElement("textarea");
+      field.value = ip;
+      field.setAttribute("readonly", "");
+      field.style.position = "fixed";
+      field.style.opacity = "0";
+      document.body.appendChild(field);
+      field.select();
+      var copied = false;
+      try { copied = document.execCommand("copy"); } catch (error) { copied = false; }
+      document.body.removeChild(field);
+      return copied;
+    }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(ip).then(function () {
-        button.textContent = "Copied";
-        window.setTimeout(function () { button.textContent = "Copy"; }, 1200);
-      }).catch(function () { button.textContent = ip; });
+        showCopyNotice("Copied " + ip, false);
+      }).catch(function () {
+        showCopyNotice(fallbackCopy() ? "Copied " + ip : "Copy failed. Select the IP manually.", !fallbackCopy);
+      });
     } else {
-      button.textContent = ip;
+      showCopyNotice(fallbackCopy() ? "Copied " + ip : "Copy failed. Select the IP manually.", false);
     }
   });
   requestSnapshot();
