@@ -67,13 +67,14 @@ cat > "$PLG" <<EOF
 <!DOCTYPE PLUGIN [
   <!ENTITY name "ipscope">
   <!ENTITY version "$VERSION">
+  <!ENTITY launch "Settings/IPScope">
   <!ENTITY packageName "$PKGNAME.txz">
   <!ENTITY packageURL "$BASE/$PKGNAME.txz">
   <!ENTITY packageMD5 "$MD5">
   <!ENTITY packageSHA256 "$SHA256">
   <!ENTITY cfgdir "/boot/config/plugins/ipscope">
 ]>
-<PLUGIN name="&name;" author="burncode" version="&version;"
+<PLUGIN name="&name;" author="burncode" version="&version;" launch="&launch;" icon="network-wired"
         pluginURL="https://github.com/burncode/IPScope/releases/download/v$VERSION/ipscope.plg"
         min="7.0.0" support="https://github.com/burncode/IPScope/issues" >
   <CHANGES>
