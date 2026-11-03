@@ -135,3 +135,202 @@ tbody tr:last-child td { border-bottom: 0; }
   .address-list-tools { width: 100%; justify-content: space-between; }
   .overview-network { align-items: flex-start; flex-direction: column; gap: 9px; }
 }
+
+
+/* T015-B: address inventory table alignment and copy feedback */
+.address-table-wrap { padding-top: 8px; }
+.address-table { width: 100%; table-layout: fixed; border-spacing: 0; }
+.address-table .col-ip { width: 19%; }
+.address-table .col-status { width: 13%; }
+.address-table .col-owner { width: auto; }
+.address-table .col-actions { width: 150px; }
+.address-table th, .address-table td { vertical-align: middle; }
+.address-table th { padding-top: 12px; padding-bottom: 12px; }
+.address-table td { padding-top: 10px; padding-bottom: 10px; }
+.address-table .actions-heading { text-align: right; padding-right: 18px; }
+.address-table td.address-actions { display: table-cell; text-align: right; white-space: nowrap; }
+.address-actions { min-width: 150px; }
+.copy-ip, .details-ip { display: inline-flex; align-items: center; justify-content: center; min-height: 30px; margin-left: 5px; }
+.address-table td:nth-child(3) { overflow-wrap: anywhere; white-space: normal; }
+.address-detail-row td { padding: 14px 18px; }
+.copy-toast { position: fixed; right: 24px; bottom: 24px; z-index: 10000; max-width: min(420px, calc(100vw - 32px)); padding: 11px 15px; border: 1px solid #b7dfca; border-radius: 8px; background: #effaf3; color: #176b43; box-shadow: 0 8px 28px rgba(16,24,40,.16); font-size: 13px; }
+.copy-toast.is-error { border-color: #f0c7c2; background: var(--danger-soft); color: var(--danger); }
+.copy-toast[hidden] { display: none; }
+@media (max-width: 760px) {
+  .address-table { min-width: 720px; }
+  .address-table .col-ip { width: 175px; }
+  .address-table .col-status { width: 110px; }
+  .address-table .col-actions { width: 145px; }
+}
+
+
+/* T016-A: readable address rows, centered feedback, and numbered paging */
+.address-table .col-ip { width: 180px; }
+.address-table .col-status { width: 118px; }
+.address-table .col-actions { width: 168px; }
+.address-table td:nth-child(3) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.pager-controls { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.pager-numbers { display: inline-flex; align-items: center; gap: 4px; }
+.pager-number { min-width: 28px; padding-inline: 7px; }
+.pager-number.is-current {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.copy-toast {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  min-width: 180px;
+  text-align: center;
+  font-weight: 650;
+  box-shadow: 0 12px 36px rgba(16,24,40,.22);
+}
+@media (max-width: 760px) {
+  .address-table .col-ip { width: 165px; }
+  .address-table .col-status { width: 105px; }
+  .address-table .col-actions { width: 155px; }
+}
+
+
+/* T016-A2: isolate compact controls from Unraid's global button styles. */
+.ipscope .address-table-wrap {
+  overflow-x: hidden;
+}
+.ipscope .address-table {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed;
+}
+.ipscope .address-table .col-ip { width: 180px !important; }
+.ipscope .address-table .col-status { width: 118px !important; }
+.ipscope .address-table .col-actions { width: 176px !important; }
+.ipscope .address-table td.address-actions {
+  display: table-cell;
+  padding-left: 6px;
+  padding-right: 10px;
+  text-align: right;
+  white-space: nowrap;
+}
+.ipscope .address-table .address-actions button.copy-ip,
+.ipscope .address-table .address-actions button.details-ip {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: 64px !important;
+  min-width: 64px !important;
+  max-width: 64px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  margin: 0 0 0 4px !important;
+  padding: 0 6px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 5px !important;
+  background: #fff !important;
+  color: var(--text) !important;
+  font: 600 11px/1 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+.ipscope .address-table .address-actions button.copy-ip:hover,
+.ipscope .address-table .address-actions button.details-ip:hover {
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+  text-decoration: none !important;
+}
+.ipscope .address-table .address-actions button:focus-visible,
+.ipscope .address-pager button:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px !important;
+}
+.ipscope .address-pager {
+  align-items: center;
+  gap: 12px;
+}
+.ipscope .address-pager .pager-label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+.ipscope .address-pager .pager-controls {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap !important;
+  gap: 5px;
+  min-width: 0;
+}
+.ipscope .address-pager .pager-numbers {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ipscope .address-pager button.pager-button {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 5px !important;
+  background: #fff !important;
+  color: var(--text) !important;
+  font: 600 11px/1 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+.ipscope .address-pager button.pager-button[data-page-prev],
+.ipscope .address-pager button.pager-button[data-page-next] {
+  width: 68px !important;
+  min-width: 68px !important;
+  max-width: 68px !important;
+  padding: 0 8px !important;
+  font-size: 10px !important;
+}
+.ipscope .address-pager button.pager-number.is-current {
+  border-color: var(--accent) !important;
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+.ipscope .address-pager button.pager-button:disabled {
+  opacity: .4 !important;
+  cursor: default !important;
+}
+@media (max-width: 760px) {
+  .ipscope .address-table-wrap { overflow-x: auto; }
+  .ipscope .address-table { min-width: 680px !important; }
+  .ipscope .address-pager {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .ipscope .address-pager .pager-controls {
+    max-width: 100%;
+    overflow-x: auto;
+    justify-content: flex-start;
+  }
+}

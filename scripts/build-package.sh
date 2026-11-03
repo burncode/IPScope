@@ -74,6 +74,7 @@ cat > "$PLG" <<EOF
   <!ENTITY cfgdir "/boot/config/plugins/ipscope">
 ]>
 <PLUGIN name="&name;" author="burncode" version="&version;"
+        launch="Settings/IPScope" icon="network-wired"
         pluginURL="https://github.com/burncode/IPScope/releases/download/v$VERSION/ipscope.plg"
         min="7.0.0" support="https://github.com/burncode/IPScope/issues" >
   <CHANGES>

@@ -82,6 +82,15 @@
           (first + 1) + "–" + Math.min(first + pageSize, filtered.length) + " of " + filtered.length : "No matching addresses";
         pager.querySelector("[data-page-prev]").disabled = page === 0;
         pager.querySelector("[data-page-next]").disabled = page >= pageCount - 1;
+        var numberHost = pager.querySelector(".pager-numbers");
+        if (numberHost) {
+          numberHost.innerHTML = Array.from({ length: pageCount }, function (_, index) {
+            return '<button type="button" class="pager-button pager-number' +
+              (index === page ? ' is-current' : '') + '" data-page-index="' + index +
+              '" aria-label="Page ' + (index + 1) + '"' +
+              (index === page ? ' aria-current="page"' : '') + '>' + (index + 1) + '</button>';
+          }).join("");
+        }
       }
     });
     var total = document.querySelectorAll(".address-row").length;
@@ -105,10 +114,10 @@
       var subnet = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
       var rows = addresses.map(function (address) {
         var status = address.status || "reserved";
-        var owners = (address.owners || []).map(function (owner) {
-          return owner.container + (owner.state && owner.state !== "system" ? " · " + owner.state : "");
-        });
-        var ownerText = owners.length ? owners.join(", ") : "—";
+        var ownerNames = Array.from(new Set((address.owners || []).map(function (owner) {
+          return owner.container;
+        }).filter(Boolean)));
+        var ownerText = ownerNames.length ? ownerNames.join(", ") : "—";
         var reason = address.system_reason ? address.system_reason.replace(/_/g, " ") : "";
         var searchText = [address.ip, status, ownerText, reason, network.name].join(" ").toLowerCase();
         var label = {
@@ -136,7 +145,7 @@
         return '<tr class="address-row" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
           '<td class="ip-cell">' + escapeHtml(address.ip) + '</td>' +
           '<td><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></td>' +
-          '<td>' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + '</td>' +
+          '<td title="' + escapeHtml(ownerText + (reason ? ' · ' + reason : '')) + '">' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + '</td>' +
           '<td class="address-actions"><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="Copy ' + escapeHtml(address.ip) + '">Copy</button>' +
           '<button class="details-ip" type="button" data-toggle-details="' + escapeHtml(detailKey) + '">Details</button></td>' +
           '</tr><tr class="address-detail-row" data-detail-for="' + escapeHtml(detailKey) + '" hidden><td colspan="4">' + detailContent + '</td></tr>';
@@ -148,9 +157,9 @@
         (subnet ? " · " + escapeHtml(subnet) : "") +
         (managed ? "" : " · built-in network, address pool not managed") + '</div></div>' +
         '<span class="network-count">' + addresses.length + ' addresses</span></div>' +
-        '<div class="table-wrap"><table class="address-table"><thead><tr><th>IPv4 address</th><th>Status</th><th>Owner / reason</th><th></th></tr></thead>' +
+        '<div class="table-wrap address-table-wrap"><table class="address-table"><colgroup><col class="col-ip"><col class="col-status"><col class="col-owner"><col class="col-actions"></colgroup><thead><tr><th>IPv4 address</th><th>Status</th><th>Owner / reason</th><th class="actions-heading">Actions</th></tr></thead>' +
         '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">No address records.</td></tr>') + '</tbody></table></div>' +
-        '<div class="address-pager"><span class="pager-label">—</span><div><button type="button" class="pager-button" data-page-prev disabled>Previous</button><button type="button" class="pager-button" data-page-next>Next</button></div></div>' +
+        '<div class="address-pager"><span class="pager-label">—</span><div class="pager-controls"><button type="button" class="pager-button" data-page-prev disabled>Previous</button><span class="pager-numbers"></span><button type="button" class="pager-button" data-page-next>Next</button></div></div>' +
         '</article>';
     }).join("") || '<div class="empty-state">No Docker networks were discovered.</div>';
     filterAddressRows(true);
@@ -165,7 +174,7 @@
         '<div class="overview-counts"><span><b>' + counts.available + '</b> available</span>' +
         '<span><b>' + counts.occupied + '</b> occupied</span><span><b>' + counts.reserved + '</b> reserved</span>' +
         '<span><b>' + counts.conflict + '</b> conflicts</span></div>' +
-        '<button type="button" class="text-action" data-open-view="addresses">Manage IPs</button></article>';
+        '<button type="button" class="text-action" data-open-view="addresses" data-open-network="' + escapeHtml(network.name) + '">Manage IPs</button></article>';
     }).join("") || '<div class="empty-state">No networks found.</div>';
 
     var templates = snapshot.templates || [];
@@ -290,18 +299,31 @@
       panel.classList.toggle("is-active", panel.getAttribute("data-panel") === viewName);
     });
   }
-  document.querySelectorAll("[data-view], [data-open-view]").forEach(function (button) {
-    button.addEventListener("click", function () {
-      activateView(button.getAttribute("data-view") || button.getAttribute("data-open-view"));
-    });
+  document.addEventListener("click", function (event) {
+    var viewButton = event.target.closest("[data-view], [data-open-view]");
+    if (!viewButton) return;
+    var viewName = viewButton.getAttribute("data-view") || viewButton.getAttribute("data-open-view");
+    activateView(viewName);
+    var networkName = viewButton.getAttribute("data-open-network");
+    if (networkName) {
+      window.setTimeout(function () {
+        var target = Array.from(document.querySelectorAll(".network-card")).find(function (card) {
+          var heading = card.querySelector(".network-name");
+          return heading && heading.textContent === networkName;
+        });
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 0);
+    }
   });
   document.addEventListener("click", function (event) {
     var previous = event.target.closest("[data-page-prev]");
     var next = event.target.closest("[data-page-next]");
-    if (!previous && !next) return;
+    var numbered = event.target.closest("[data-page-index]");
+    if (!previous && !next && !numbered) return;
     var card = event.target.closest(".network-card");
     if (!card) return;
-    card.dataset.page = String(Math.max(0, Number(card.dataset.page || 0) + (next ? 1 : -1)));
+    if (numbered) card.dataset.page = String(Number(numbered.getAttribute("data-page-index")));
+    else card.dataset.page = String(Math.max(0, Number(card.dataset.page || 0) + (next ? 1 : -1)));
     filterAddressRows(false);
   });
   document.addEventListener("click", function (event) {
@@ -320,13 +342,38 @@
     var button = event.target.closest("[data-copy-ip]");
     if (!button) return;
     var ip = button.getAttribute("data-copy-ip");
+    function showCopyNotice(message, failed) {
+      var toast = document.getElementById("copy-toast");
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.toggle("is-error", !!failed);
+      toast.hidden = false;
+      window.clearTimeout(toast._hideTimer);
+      toast._hideTimer = window.setTimeout(function () { toast.hidden = true; }, 2200);
+    }
+    function fallbackCopy() {
+      var field = document.createElement("textarea");
+      field.value = ip;
+      field.setAttribute("readonly", "");
+      field.style.position = "fixed";
+      field.style.opacity = "0";
+      document.body.appendChild(field);
+      field.select();
+      var copied = false;
+      try { copied = document.execCommand("copy"); } catch (error) { copied = false; }
+      document.body.removeChild(field);
+      return copied;
+    }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(ip).then(function () {
-        button.textContent = "Copied";
-        window.setTimeout(function () { button.textContent = "Copy"; }, 1200);
-      }).catch(function () { button.textContent = ip; });
+        showCopyNotice("Copied " + ip, false);
+      }).catch(function () {
+        var copied = fallbackCopy();
+        showCopyNotice(copied ? "Copied " + ip : "Copy failed. Select the IP manually.", !copied);
+      });
     } else {
-      button.textContent = ip;
+      var copied = fallbackCopy();
+      showCopyNotice(copied ? "Copied " + ip : "Copy failed. Select the IP manually.", !copied);
     }
   });
   requestSnapshot();

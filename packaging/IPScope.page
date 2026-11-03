@@ -1,5 +1,6 @@
-Menu="Settings"
+Menu="Utilities"
 Title="IPScope"
+Type="xmenu"
 Icon="network-wired"
 ---
 <?php
