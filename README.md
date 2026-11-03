@@ -43,7 +43,7 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 - [ ] T014-A initial .plg packaging and runtime installer (manual package build/release validation pending)
 - [ ] T014-B native WebGUI page and API route validation
 - [ ] T014-C install/uninstall/upgrade lifecycle validation
-- [ ] T015 Docker template integration (planned; not part of T014-A)
+- [x] T015-A native Settings > User Utilities entry and Plugins-page launch link (Unraid host validation pending)
 
 ## Local checks (no Actions)
 
