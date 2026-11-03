@@ -87,7 +87,12 @@ declare(strict_types=1);
             <option value="conflict">Conflict</option>
           </select>
         </div>
-        <span id="address-count" class="network-count">—</span>
+        <div class="address-list-tools">
+          <label class="page-size-label">Rows
+            <select id="page-size" class="status-filter"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
+          </label>
+          <span id="address-count" class="network-count">—</span>
+        </div>
       </div>
       <div id="network-list" class="network-list">
         <div class="empty-state">Run a scan to collect Docker network data.</div>
