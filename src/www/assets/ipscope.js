@@ -24,27 +24,49 @@
     document.getElementById(id).textContent = String(value);
   }
 
-  function filterAddressRows() {
+  function filterAddressRows(resetPages) {
     var query = addressFilter ? addressFilter.value.trim().toLowerCase() : "";
     var selectedStatus = statusFilter ? statusFilter.value : "all";
-    var rows = document.querySelectorAll(".address-row");
-    var visible = 0;
-    rows.forEach(function (row) {
-      var matchesQuery = query === "" || row.getAttribute("data-search").indexOf(query) !== -1;
-      var matchesStatus = selectedStatus === "all" || row.getAttribute("data-status") === selectedStatus;
-      var show = matchesQuery && matchesStatus;
-      row.hidden = !show;
-      var detailRow = row.nextElementSibling;
-      if (detailRow && detailRow.classList.contains("address-detail-row") && !show) {
-        detailRow.hidden = true;
-        var detailButton = row.querySelector("[data-toggle-details]");
-        if (detailButton) detailButton.textContent = "Details";
+    var pageSizeNode = document.getElementById("page-size");
+    var pageSize = pageSizeNode ? Number(pageSizeNode.value) : 25;
+    var totalVisible = 0;
+    document.querySelectorAll(".network-card").forEach(function (card) {
+      if (resetPages) card.dataset.page = "0";
+      var rows = Array.from(card.querySelectorAll(".address-row"));
+      var filtered = rows.filter(function (row) {
+        var matchesQuery = query === "" || row.getAttribute("data-search").indexOf(query) !== -1;
+        var matchesStatus = selectedStatus === "all" || row.getAttribute("data-status") === selectedStatus;
+        return matchesQuery && matchesStatus;
+      });
+      var pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+      var page = Math.min(Number(card.dataset.page || 0), pageCount - 1);
+      card.dataset.page = String(page);
+      var first = page * pageSize;
+      rows.forEach(function (row) {
+        var index = filtered.indexOf(row);
+        var show = index >= first && index < first + pageSize;
+        row.hidden = !show;
+        var detailRow = row.nextElementSibling;
+        if (detailRow && detailRow.classList.contains("address-detail-row")) {
+          detailRow.hidden = !show || detailRow.hidden;
+          if (!show) {
+            var detailButton = row.querySelector("[data-toggle-details]");
+            if (detailButton) detailButton.textContent = "Details";
+          }
+        }
+      });
+      totalVisible += filtered.length;
+      var pager = card.querySelector(".address-pager");
+      if (pager) {
+        pager.querySelector(".pager-label").textContent = filtered.length ?
+          (first + 1) + "–" + Math.min(first + pageSize, filtered.length) + " of " + filtered.length : "No matching addresses";
+        pager.querySelector("[data-page-prev]").disabled = page === 0;
+        pager.querySelector("[data-page-next]").disabled = page >= pageCount - 1;
       }
-      if (show) visible += 1;
     });
-    var total = rows.length;
+    var total = document.querySelectorAll(".address-row").length;
     var countNode = document.getElementById("address-count");
-    if (countNode) countNode.textContent = visible + " / " + total + " addresses";
+    if (countNode) countNode.textContent = totalVisible + " / " + total + " addresses";
   }
 
   function render(snapshot) {
@@ -100,7 +122,7 @@
           '</tr><tr class="address-detail-row" data-detail-for="' + escapeHtml(detailKey) + '" hidden><td colspan="4">' + detailContent + '</td></tr>';
       }).join("");
       var managed = network.address_space_managed !== false;
-      return '<article class="network-card">' +
+      return '<article class="network-card" data-page="0">' +
         '<div class="network-head"><div><div class="network-name">' + escapeHtml(network.name) + '</div>' +
         '<div class="network-meta">' + escapeHtml(network.driver || "unknown driver") +
         (subnet ? " · " + escapeHtml(subnet) : "") +
@@ -108,9 +130,23 @@
         '<span class="network-count">' + addresses.length + ' addresses</span></div>' +
         '<div class="table-wrap"><table class="address-table"><thead><tr><th>IPv4 address</th><th>Status</th><th>Owner / reason</th><th></th></tr></thead>' +
         '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">No address records.</td></tr>') + '</tbody></table></div>' +
+        '<div class="address-pager"><span class="pager-label">—</span><div><button type="button" class="pager-button" data-page-prev disabled>Previous</button><button type="button" class="pager-button" data-page-next>Next</button></div></div>' +
         '</article>';
     }).join("") || '<div class="empty-state">No Docker networks were discovered.</div>';
-    filterAddressRows();
+    filterAddressRows(true);
+
+    document.getElementById("network-overview").innerHTML = networks.map(function (network) {
+      var addresses = network.known_addresses || [];
+      var counts = { available: 0, occupied: 0, reserved: 0, system: 0, conflict: 0 };
+      addresses.forEach(function (address) { counts[address.status] = (counts[address.status] || 0) + 1; });
+      var subnet = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
+      return '<article class="overview-network"><div><strong>' + escapeHtml(network.name) + '</strong><span>' +
+        escapeHtml(subnet || network.driver || "No IPv4 subnet") + '</span></div>' +
+        '<div class="overview-counts"><span><b>' + counts.available + '</b> available</span>' +
+        '<span><b>' + counts.occupied + '</b> occupied</span><span><b>' + counts.reserved + '</b> reserved</span>' +
+        '<span><b>' + counts.conflict + '</b> conflicts</span></div>' +
+        '<button type="button" class="text-action" data-open-view="addresses">Manage IPs</button></article>';
+    }).join("") || '<div class="empty-state">No networks found.</div>';
 
     var templates = snapshot.templates || [];
     var liveNames = {};
@@ -224,8 +260,33 @@
   }
 
   scanButton.addEventListener("click", runScan);
-  if (addressFilter) addressFilter.addEventListener("input", filterAddressRows);
-  if (statusFilter) statusFilter.addEventListener("change", filterAddressRows);
+  if (addressFilter) addressFilter.addEventListener("input", function () { filterAddressRows(true); });
+  if (statusFilter) statusFilter.addEventListener("change", function () { filterAddressRows(true); });
+  var pageSizeNode = document.getElementById("page-size");
+  if (pageSizeNode) pageSizeNode.addEventListener("change", function () { filterAddressRows(true); });
+
+  function activateView(viewName) {
+    document.querySelectorAll(".workspace-tab").forEach(function (tab) {
+      tab.classList.toggle("is-active", tab.getAttribute("data-view") === viewName);
+    });
+    document.querySelectorAll(".view-panel").forEach(function (panel) {
+      panel.classList.toggle("is-active", panel.getAttribute("data-panel") === viewName);
+    });
+  }
+  document.querySelectorAll("[data-view], [data-open-view]").forEach(function (button) {
+    button.addEventListener("click", function () {
+      activateView(button.getAttribute("data-view") || button.getAttribute("data-open-view"));
+    });
+  });
+  document.addEventListener("click", function (event) {
+    var previous = event.target.closest("[data-page-prev]");
+    var next = event.target.closest("[data-page-next]");
+    if (!previous && !next) return;
+    var card = event.target.closest(".network-card");
+    if (!card) return;
+    card.dataset.page = String(Math.max(0, Number(card.dataset.page || 0) + (next ? 1 : -1)));
+    filterAddressRows(false);
+  });
   document.addEventListener("click", function (event) {
     var detailsButton = event.target.closest("[data-toggle-details]");
     if (detailsButton) {
