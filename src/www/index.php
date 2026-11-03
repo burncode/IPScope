@@ -25,6 +25,15 @@ declare(strict_types=1);
       </div>
     </header>
 
+    <nav class="workspace-nav" aria-label="IPScope sections">
+      <button class="workspace-tab is-active" type="button" data-view="overview">Overview</button>
+      <button class="workspace-tab" type="button" data-view="addresses">IP Manager</button>
+      <button class="workspace-tab" type="button" data-view="templates">Templates</button>
+      <button class="workspace-tab" type="button" data-view="conflicts">Conflicts</button>
+      <button class="workspace-tab" type="button" data-view="containers">Containers</button>
+    </nav>
+
+    <section class="view-panel is-active" data-panel="overview">
     <section class="summary-grid" aria-label="Inventory summary">
       <article class="summary-card">
         <span class="summary-label">Networks</span>
@@ -50,6 +59,15 @@ declare(strict_types=1);
 
     <section id="notice" class="notice" hidden></section>
 
+    <section class="panel overview-panel">
+      <div class="panel-heading">
+        <div><h2>Network overview</h2><p>Managed address pools and current inventory health</p></div>
+      </div>
+      <div id="network-overview" class="network-overview"></div>
+    </section>
+    </section>
+
+    <section class="view-panel" data-panel="addresses">
     <section class="panel">
       <div class="panel-heading">
         <div>
@@ -76,6 +94,9 @@ declare(strict_types=1);
       </div>
     </section>
 
+    </section>
+
+    <section class="view-panel" data-panel="templates">
     <section class="panel">
       <div class="panel-heading">
         <div>
@@ -91,6 +112,9 @@ declare(strict_types=1);
       </div>
     </section>
 
+    </section>
+
+    <section class="view-panel" data-panel="conflicts">
     <section class="panel">
       <div class="panel-heading">
         <div>
@@ -106,6 +130,9 @@ declare(strict_types=1);
       </div>
     </section>
 
+    </section>
+
+    <section class="view-panel" data-panel="containers">
     <section class="panel">
       <div class="panel-heading">
         <div>
@@ -119,6 +146,8 @@ declare(strict_types=1);
           <tbody id="container-list"><tr><td colspan="4" class="table-empty">No snapshot loaded.</td></tr></tbody>
         </table>
       </div>
+    </section>
+
     </section>
 
     <footer class="footer">
