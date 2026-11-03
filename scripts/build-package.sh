@@ -81,10 +81,10 @@ cat > "$PLG" <<EOF
     <INLINE><![CDATA[
 set -e
 CFG="/boot/config/plugins/ipscope"
-mkdir -p "$CFG"
-PKGFILE="$(find "$CFG" -maxdepth 1 -type f -name "ipscope-*-noarch-1.txz" | sort | tail -n 1)"
-[ -n "$PKGFILE" ] || { echo "IPScope package archive not found." >&2; exit 1; }
-installpkg "$PKGFILE"
+mkdir -p "\$CFG"
+PKGFILE="\$(find "\$CFG" -maxdepth 1 -type f -name "ipscope-*-noarch-1.txz" | sort | tail -n 1)"
+[ -n "\$PKGFILE" ] || { echo "IPScope package archive not found." >&2; exit 1; }
+installpkg "\$PKGFILE"
 mkdir -p /var/local/emhttp/plugins/ipscope
 chmod 0755 /usr/local/emhttp/plugins/ipscope
 echo "IPScope installed."
