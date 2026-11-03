@@ -24,11 +24,11 @@ rm -rf "$ROOT/dist"
 mkdir -p "$STAGE/usr/local/emhttp/plugins/ipscope"
 
 DEST="$STAGE/usr/local/emhttp/plugins/ipscope"
-cp -a "$ROOT/src/lib" "$DEST/src-lib"
-mkdir -p "$DEST/src/www/assets"
-cp -a "$ROOT/src/www/api.php" "$DEST/src/www/"
-cp -a "$ROOT/src/www/index.php" "$DEST/src/www/"
-cp -a "$ROOT/src/www/assets/." "$DEST/src/www/assets/"
+mkdir -p "$DEST/src"
+cp -a "$ROOT/src/lib" "$DEST/src/lib"
+cp -a "$ROOT/src/www" "$DEST/src/www"
+cp -a "$ROOT/src/ipscope-scan.php" "$DEST/src/"
+
 cp -a "$ROOT/src/ipscope-scan.php" "$DEST/"
 
 # The page and API live at stable plugin URLs; implementation remains under src/www.
@@ -74,7 +74,9 @@ cat > "$PLG" <<EOF
 set -e
 CFG="/boot/config/plugins/ipscope"
 mkdir -p "$CFG"
-installpkg "$CFG/&packageName;"
+PKGFILE="$(find "$CFG" -maxdepth 1 -type f -name "ipscope-*-noarch-1.txz" | sort | tail -n 1)"
+[ -n "$PKGFILE" ] || { echo "IPScope package archive not found." >&2; exit 1; }
+installpkg "$PKGFILE"
 mkdir -p /var/local/emhttp/plugins/ipscope
 chmod 0755 /usr/local/emhttp/plugins/ipscope
 echo "IPScope &version; installed."
@@ -85,7 +87,7 @@ echo "IPScope &version; installed."
 removepkg ipscope || true
 rm -rf /usr/local/emhttp/plugins/ipscope
 rm -rf /var/local/emhttp/plugins/ipscope
-rm -f "/boot/config/plugins/ipscope/&packageName;"
+find /boot/config/plugins/ipscope -maxdepth 1 -type f -name "ipscope-*-noarch-1.txz" -delete
 # Keep /boot/config/plugins/ipscope so user configuration survives uninstall.
     ]]></INLINE>
   </FILE>
