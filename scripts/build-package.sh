@@ -12,7 +12,7 @@ for cmd in php tar xz md5sum sha256sum; do
   command -v "$cmd" >/dev/null 2>&1 || { echo "Missing required command: $cmd" >&2; exit 1; }
 done
 
-"$ROOT/scripts/check-local.sh"
+bash "$ROOT/scripts/check-local.sh"
 
 STAGE="$ROOT/dist/stage"
 PKGNAME="ipscope-$VERSION-noarch-1"
@@ -27,8 +27,6 @@ DEST="$STAGE/usr/local/emhttp/plugins/ipscope"
 mkdir -p "$DEST/src"
 cp -a "$ROOT/src/lib" "$DEST/src/lib"
 cp -a "$ROOT/src/www" "$DEST/src/www"
-cp -a "$ROOT/src/ipscope-scan.php" "$DEST/src/"
-
 cp -a "$ROOT/src/ipscope-scan.php" "$DEST/"
 
 # The page and API live at stable plugin URLs; implementation remains under src/www.
@@ -66,7 +64,7 @@ cat > "$PLG" <<EOF
 ]>
 <PLUGIN name="&name;" author="burncode" version="&version;"
         pluginURL="https://github.com/burncode/IPScope/releases/download/v$VERSION/ipscope.plg"
-        min="7.0.0" support="https://github.com/burncode/IPScope/issues" icon="network-wired">
+        min="7.0.0" support="https://github.com/burncode/IPScope/issues" >
   <CHANGES>
     ### $VERSION
     - Initial installable IPScope package.
@@ -86,7 +84,7 @@ PKGFILE="$(find "$CFG" -maxdepth 1 -type f -name "ipscope-*-noarch-1.txz" | sort
 installpkg "$PKGFILE"
 mkdir -p /var/local/emhttp/plugins/ipscope
 chmod 0755 /usr/local/emhttp/plugins/ipscope
-echo "IPScope &version; installed."
+echo "IPScope installed."
     ]]></INLINE>
   </FILE>
   <FILE Run="/bin/bash" Method="remove">
