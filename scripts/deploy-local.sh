@@ -39,8 +39,9 @@ if [[ ! -f "$PACKAGE" ]]; then
 fi
 
 # Fail before connecting if the package does not contain the native page and API entry points.
-tar -tJf "$PACKAGE" | grep -qx './usr/local/emhttp/plugins/ipscope/IPScope.page'
-tar -tJf "$PACKAGE" | grep -qx './usr/local/emhttp/plugins/ipscope/api.php'
+PACKAGE_CONTENTS="$(tar -tJf "$PACKAGE")"
+grep -Fxq './usr/local/emhttp/plugins/ipscope/IPScope.page' <<< "$PACKAGE_CONTENTS"
+grep -Fxq './usr/local/emhttp/plugins/ipscope/api.php' <<< "$PACKAGE_CONTENTS"
 
 echo "==> Checking SSH access to $HOST"
 ssh "$HOST" 'test "$(id -u)" -eq 0 && command -v upgradepkg >/dev/null'
