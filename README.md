@@ -55,6 +55,22 @@ sh scripts/check-local.sh
 
 The Docker integration scan is intended to run on the Unraid host. It is read-only.
 
+
+## Local installation on Unraid (development)
+
+Run directly in the Unraid SSH terminal from the repository checkout as `root`.
+No second SSH connection, SCP, GitHub Release, or manual uninstall is needed.
+
+```sh
+cd /root/IPScope
+git pull origin feat/t016-a-inventory-interactions
+bash scripts/install-local.sh
+```
+
+The script runs local checks, builds a development `.txz`, verifies the WebGUI entry
+files, and replaces the installed package with `upgradepkg --install-new`.
+Pass an explicit version if desired: `bash scripts/install-local.sh 0.1.1-dev.1`.
+
 ## License
 
 MIT
