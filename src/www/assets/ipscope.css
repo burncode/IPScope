@@ -162,3 +162,39 @@ tbody tr:last-child td { border-bottom: 0; }
   .address-table .col-status { width: 110px; }
   .address-table .col-actions { width: 145px; }
 }
+
+
+/* T016-A: readable address rows, centered feedback, and numbered paging */
+.address-table .col-ip { width: 180px; }
+.address-table .col-status { width: 118px; }
+.address-table .col-actions { width: 168px; }
+.address-table td:nth-child(3) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+.pager-controls { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.pager-numbers { display: inline-flex; align-items: center; gap: 4px; }
+.pager-number { min-width: 28px; padding-inline: 7px; }
+.pager-number.is-current {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.copy-toast {
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+  min-width: 180px;
+  text-align: center;
+  font-weight: 650;
+  box-shadow: 0 12px 36px rgba(16,24,40,.22);
+}
+@media (max-width: 760px) {
+  .address-table .col-ip { width: 165px; }
+  .address-table .col-status { width: 105px; }
+  .address-table .col-actions { width: 155px; }
+}
