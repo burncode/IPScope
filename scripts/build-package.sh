@@ -35,6 +35,13 @@ cp -a "$ROOT/src/ipscope-scan.php" "$DEST/"
 cp "$ROOT/packaging/IPScope.page" "$DEST/IPScope.page"
 cp "$ROOT/packaging/api.php" "$DEST/api.php"
 mkdir -p "$STAGE/install"
+cat > "$STAGE/install/slack-desc" <<'EOF'
+ipscope: IPScope (Unraid Docker IPv4 inventory)
+ipscope:
+ipscope: Read-only IPv4 address inventory for Unraid Docker networks.
+ipscope: Tracks running container addresses and saved template reservations.
+ipscope:
+EOF
 cat > "$STAGE/install/doinst.sh" <<'EOF'
 #!/bin/sh
 chmod 0755 /usr/local/emhttp/plugins/ipscope
@@ -58,7 +65,7 @@ cat > "$PLG" <<EOF
   <!ENTITY cfgdir "/boot/config/plugins/ipscope">
 ]>
 <PLUGIN name="&name;" author="burncode" version="&version;"
-        pluginURL="https://raw.githubusercontent.com/burncode/IPScope/main/ipscope.plg"
+        pluginURL="https://github.com/burncode/IPScope/releases/download/v$VERSION/ipscope.plg"
         min="7.0.0" support="https://github.com/burncode/IPScope/issues" icon="network-wired">
   <CHANGES>
     ### $VERSION
