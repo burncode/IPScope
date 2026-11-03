@@ -26,7 +26,10 @@ mkdir -p "$STAGE/usr/local/emhttp/plugins/ipscope"
 DEST="$STAGE/usr/local/emhttp/plugins/ipscope"
 mkdir -p "$DEST/src"
 cp -a "$ROOT/src/lib" "$DEST/src/lib"
-cp -a "$ROOT/src/www" "$DEST/src/www"
+mkdir -p "$DEST/src/www/assets"
+cp "$ROOT/src/www/index.php" "$DEST/src/www/index.php"
+cp "$ROOT/src/www/api.php" "$DEST/src/www/api.php"
+cp -a "$ROOT/src/www/assets/." "$DEST/src/www/assets/"
 cp -a "$ROOT/src/ipscope-scan.php" "$DEST/"
 
 # The page and API live at stable plugin URLs; implementation remains under src/www.
