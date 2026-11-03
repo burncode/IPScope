@@ -55,37 +55,34 @@ sh scripts/check-local.sh
 
 The Docker integration scan is intended to run on the Unraid host. It is read-only.
 
-## Deploy a local build to Unraid (no release)
+## Install a local build directly on Unraid (no release)
 
-For development testing, deploy directly over SSH without creating a GitHub Release or
-installing the `.plg` from the Plugins page.
-
-Requirements on the development machine:
-- Bash, PHP CLI, `tar`, `xz`, `md5sum`, `sha256sum` (used by the package build)
-- `ssh` and `scp`
-- SSH key/password access to Unraid as `root`
-
-Run from the repository root:
+Run this from the IPScope repository checkout in the Unraid SSH terminal as `root`.
+No second SSH connection, SCP, GitHub Release, or manual uninstall is required.
 
 ```sh
-bash scripts/deploy-local.sh root@192.168.50.21
+cd /root/IPScope
+git pull origin feat/t015-a-unraid-entry
+bash scripts/install-local.sh
 ```
 
-The script builds a uniquely versioned development package (unless a version is supplied),
-copies it to Unraid, and uses Slackware `upgradepkg --install-new` to replace the installed
-IPScope package. It does not publish a release or modify Docker/network configuration.
-The runtime snapshot under `/var/local/emhttp/plugins/ipscope` is outside the package
-and is preserved.
+The script runs local checks, builds a uniquely versioned development package, verifies
+that the package contains the WebGUI page/API entry points, and replaces the installed
+package with Slackware `upgradepkg --install-new`.
 
-You can set a different target or explicit version:
+You can pass an explicit development version:
 
 ```sh
-IPSCOPE_HOST=root@192.168.50.21 bash scripts/deploy-local.sh
-bash scripts/deploy-local.sh root@192.168.50.21 0.1.1-dev.1
+bash scripts/install-local.sh 0.1.1-dev.1
 ```
 
-After deployment, hard-refresh the IPScope page with Ctrl+F5. The first SSH connection may
-ask you to trust the Unraid host key.
+The package does not contain the runtime snapshot/configuration directories, so the
+existing data under `/var/local/emhttp/plugins/ipscope` and user configuration are
+not intentionally removed. The script does not publish a release or modify Docker/network
+configuration.
+
+After installation, open Settings > User Utilities > IPScope. If it was already open,
+hard-refresh the page with Ctrl+F5.
 
 ## License
 
