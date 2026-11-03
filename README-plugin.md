@@ -21,7 +21,7 @@ the WebGUI page and runtime files.
 
 ## Build without GitHub Actions
 
-GitHub Actions is not required. Run `scripts/build-package.sh 0.1.0` on a
+GitHub Actions is not required. Run `bash scripts/build-package.sh 0.1.0` on a
 Linux host with PHP CLI, tar, xz, md5sum, and sha256sum. Upload the generated
 `dist/ipscope-0.1.0-noarch-1.txz` and `dist/ipscope.plg` to a GitHub Release
 tagged `v0.1.0`.
