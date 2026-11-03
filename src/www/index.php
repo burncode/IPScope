@@ -7,7 +7,7 @@ declare(strict_types=1);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>IPScope</title>
-  <link rel="stylesheet" href="/plugins/ipscope/src/www/assets/ipscope.css">
+  <link rel="stylesheet" href="/plugins/ipscope/src/www/assets/ipscope.css?v=<?php echo (int) @filemtime(__DIR__ . '/assets/ipscope.css'); ?>">
 </head>
 <body>
   <main class="ipscope">
@@ -161,6 +161,6 @@ declare(strict_types=1);
     </footer>
     <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
   </main>
-  <script src="/plugins/ipscope/src/www/assets/ipscope.js" defer></script>
+  <script src="/plugins/ipscope/src/www/assets/ipscope.js?v=<?php echo (int) @filemtime(__DIR__ . '/assets/ipscope.js'); ?>" defer></script>
 </body>
 </html>

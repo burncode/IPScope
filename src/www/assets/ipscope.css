@@ -162,3 +162,43 @@ tbody tr:last-child td { border-bottom: 0; }
   .address-table .col-status { width: 110px; }
   .address-table .col-actions { width: 145px; }
 }
+
+
+/* Keep row actions visually independent from Unraid's global button theme. */
+.address-table td.address-actions button.copy-ip,
+.address-table td.address-actions button.details-ip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  height: 36px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+  box-shadow: none;
+}
+.address-table td.address-actions button.copy-ip + button.details-ip {
+  margin-left: 6px;
+}
+.address-table td.address-actions button.copy-ip:hover,
+.address-table td.address-actions button.details-ip:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.address-table td.address-actions button.copy-ip:focus-visible,
+.address-table td.address-actions button.details-ip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.address-table .col-actions { width: 170px; }
