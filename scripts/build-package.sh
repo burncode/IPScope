@@ -33,6 +33,8 @@ mkdir -p "$DEST/src/www/assets"
 cp "$ROOT/src/www/index.php" "$DEST/src/www/index.php"
 cp "$ROOT/src/www/api.php" "$DEST/src/www/api.php"
 cp -a "$ROOT/src/www/assets/." "$DEST/src/www/assets/"
+mkdir -p "$DEST/images"
+cp "$ROOT/assets/ipscope.png" "$DEST/images/ipscope.png"
 cp -a "$ROOT/src/ipscope-scan.php" "$DEST/"
 
 # The page and API live at stable plugin URLs; implementation remains under src/www.
@@ -75,7 +77,8 @@ cat > "$PLG" <<EOF
 ]>
 <PLUGIN name="&name;" author="burncode" version="&version;"
         pluginURL="https://github.com/burncode/IPScope/releases/download/v$VERSION/ipscope.plg"
-        min="7.0.0" support="https://github.com/burncode/IPScope/issues" >
+        min="7.0.0" support="https://github.com/burncode/IPScope/issues"
+        launch="Settings/IPScope" icon="ipscope.png" >
   <CHANGES>
     ### $VERSION
     - Initial installable IPScope package.
