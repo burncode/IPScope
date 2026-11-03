@@ -11,6 +11,12 @@ require_once __DIR__ . '/../lib/AddressInventory.php';
 require_once __DIR__ . '/../lib/SnapshotBuilder.php';
 require_once __DIR__ . '/../lib/SnapshotStore.php';
 
+// A full Docker inspection can take longer than the default web execution limit.
+@set_time_limit(0);
+ignore_user_abort(true);
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
 use IPScope\DockerClient;
 use IPScope\SnapshotBuilder;
 use IPScope\SnapshotStore;
