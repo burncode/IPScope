@@ -18,6 +18,8 @@ the WebGUI page and runtime files.
 - Runtime snapshot: `/var/local/emhttp/plugins/ipscope/snapshot.json`
 - V0.1 is read-only. It does not change Docker networks, containers, or templates.
 - Uninstall preserves the persistent configuration directory.
+- Upgrades remove previously installed IPScope Slackware package versions before installing the selected version.
+- Uninstall removes IPScope package records, runtime files, and cached package archives while preserving `/boot/config/plugins/ipscope/` itself.
 
 ## Build without GitHub Actions
 
