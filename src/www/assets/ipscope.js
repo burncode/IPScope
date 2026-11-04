@@ -459,7 +459,7 @@
     var ruleId = viewButton.getAttribute("data-open-rule");
     if (ruleId) {
       window.setTimeout(function () {
-        var ruleRow = document.querySelector('[data-rule-id="' + ruleId.replace(/["\\\\]/g, "") + '"]');
+        var ruleRow = document.querySelector('[data-rule-id="' + ruleId + '"]');
         if (ruleRow) {
           ruleRow.scrollIntoView({ behavior: "smooth", block: "center" });
           ruleRow.classList.add("is-highlighted");
