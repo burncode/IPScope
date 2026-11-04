@@ -244,6 +244,7 @@
         details = "Running containers: " + (item.running_containers || item.containers || []).join(", ");
       } else if (item.type === "excluded_address_in_use") {
         details = (item.reason || "Address matches an exclusion rule") +
+          (item.rule_id ? " · Rule ID: " + item.rule_id : "") +
           (item.owners && item.owners.length ? " · Owners: " + item.owners.join(", ") : "");
       } else {
         details = (item.container || "") + " · template " + (item.template_ip || "") + " → runtime " + (item.runtime_ip || "");
@@ -454,7 +455,7 @@
     }).catch(function (error) {
       setExclusionFeedback("Could not load rules: " + error.message, true);
       var list = document.getElementById("exclusion-list");
-      if (list) list.innerHTML = '<tr><td colspan="5" class="table-empty">Rules could not be loaded.</td></tr>';
+      if (list) list.innerHTML = '<tr><td colspan="8" class="table-empty">Rules could not be loaded.</td></tr>';
     });
   }
 

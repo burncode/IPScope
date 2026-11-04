@@ -81,3 +81,19 @@ Please provide:
 - Any errors from the scan
 
 Do not send the full snapshot if it contains private container names or LAN details.
+
+
+## 7. T017-D exclusion rule management and audit
+
+After installing the T017-D build, open **Exclusions** and verify:
+
+- Edit a rule's network, match type, IP/CIDR and reason; save and confirm it persists after a page refresh.
+- Cancel an edit and confirm the original rule remains unchanged.
+- Select several rules and bulk-enable, bulk-disable, then bulk-delete a disposable test rule.
+- Add an IP rule covered by an enabled CIDR rule. Both remain saved, and the rule list reports an overlap warning instead of silently deleting or merging either rule.
+- Add a global CIDR rule and a network-specific IP rule inside that range. The overlap is reported because both rules can affect the same address on that network.
+- Confirm the coverage column counts addresses matched by each enabled rule.
+- Confirm addresses already occupied, reserved, or assigned to a system service are counted as in-use and remain visible in the Conflicts view.
+- Confirm disabled rules do not affect inventory state or generate active-overlap warnings.
+
+The audit is based on the latest saved inventory snapshot. Run **Scan now** after network/container changes before interpreting coverage counts. Overlap warnings are advisory; they do not change address ownership or automatically rewrite rules.
