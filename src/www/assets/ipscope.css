@@ -474,11 +474,24 @@ tbody tr:last-child td { border-bottom: 0; }
   outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
 }
 .recommendation-run {
-  height: 36px; min-width: 160px; border: 1px solid #f05a36;
-  background: #fff; color: #e85b24; font-size: 11px; font-weight: 700;
-  letter-spacing: .08em; text-transform: uppercase;
+  appearance: none !important; -webkit-appearance: none !important;
+  display: inline-flex !important; align-items: center !important; justify-content: center !important;
+  box-sizing: border-box !important; height: 36px !important; min-height: 36px !important;
+  min-width: 160px !important; margin: 0 !important; padding: 0 14px !important;
+  border: 1px solid #f05a36 !important; border-radius: 6px !important;
+  background: #fff !important; color: #e85b24 !important;
+  font: 700 11px/1 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  letter-spacing: .08em !important; text-transform: uppercase !important;
+  box-shadow: none !important; cursor: pointer !important;
 }
-.recommendation-run:hover:not(:disabled) { background: #fff5ef; }
+.recommendation-run:hover:not(:disabled) {
+  border-color: #e85b24 !important; background: #fff5ef !important; color: #e85b24 !important;
+}
+.recommendation-run:focus-visible,
+.recommendation-copy:focus-visible {
+  outline: 2px solid var(--accent) !important; outline-offset: 2px !important;
+}
+.recommendation-run:disabled { opacity: .55 !important; cursor: wait !important; }
 .recommendation-summary {
   display: flex; align-items: center; flex-wrap: wrap; gap: 7px;
   padding: 13px 19px; color: var(--muted); font-size: 12px;
@@ -495,20 +508,48 @@ tbody tr:last-child td { border-bottom: 0; }
 .recommendation-network-head p { margin: 4px 0 0; color: var(--muted); font-size: 11px; }
 .recommendation-network-head > span { color: var(--muted); font-size: 11px; white-space: nowrap; }
 .recommendation-network-head > span strong { color: var(--text); font-size: 14px; }
-.recommendation-candidate-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; padding: 12px; }
+.recommendation-candidate-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 178px), 1fr));
+  gap: 8px; padding: 12px;
+}
 .recommendation-candidate {
-  display: flex; align-items: center; gap: 9px; min-width: 0;
-  padding: 9px 10px; border: 1px solid var(--line); border-radius: 6px; background: #fff;
+  display: flex; align-items: center; gap: 7px; min-width: 0; overflow: hidden;
+  padding: 8px 9px; border: 1px solid var(--line); border-radius: 6px; background: #fff;
 }
 .recommendation-rank {
   display: grid; place-items: center; width: 21px; height: 21px; flex: 0 0 21px;
   border-radius: 5px; background: #eef3f5; color: var(--muted); font-size: 10px; font-weight: 700;
 }
 .recommendation-candidate code {
-  color: var(--text); font: 650 12px ui-monospace, SFMono-Regular, Consolas, monospace;
+  display: block; flex: 1 1 auto; min-width: 0; overflow: hidden;
+  color: var(--text); font: 650 11px ui-monospace, SFMono-Regular, Consolas, monospace;
+  white-space: nowrap; text-overflow: ellipsis;
 }
-.recommendation-candidate-state { margin-left: auto; color: #167044; font-size: 10px; white-space: nowrap; }
-.recommendation-candidate .recommendation-copy { flex: 0 0 auto; }
+.recommendation-candidate-state {
+  display: block; flex: 0 0 7px; width: 7px; height: 7px; margin-left: auto;
+  border-radius: 50%; background: #239568; box-shadow: 0 0 0 2px #e8f5ee;
+}
+.ipscope .recommendation-candidate button.recommendation-copy {
+  appearance: none !important; -webkit-appearance: none !important;
+  display: inline-flex !important; flex: 0 0 28px !important;
+  align-items: center !important; justify-content: center !important;
+  box-sizing: border-box !important; width: 28px !important; min-width: 28px !important;
+  max-width: 28px !important; height: 28px !important; min-height: 28px !important;
+  margin: 0 !important; padding: 0 !important; border: 1px solid #f05a36 !important;
+  border-radius: 5px !important; background: #fff !important; color: #e85b24 !important;
+  box-shadow: none !important; cursor: pointer !important;
+}
+.ipscope .recommendation-candidate button.recommendation-copy svg {
+  display: block; width: 14px; height: 14px; fill: none;
+  stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.ipscope .recommendation-candidate button.recommendation-copy:hover:not(:disabled) {
+  border-color: #e85b24 !important; background: #fff5ef !important;
+  color: #e85b24 !important;
+}
+.ipscope .recommendation-candidate button.recommendation-copy:active {
+  background: #ffede3 !important;
+}
 .recommendation-empty { padding: 18px 14px; color: var(--muted); font-size: 12px; }
 .recommendation-empty.is-error { color: var(--danger); }
 .recommendation-notice {
