@@ -414,3 +414,5 @@ tbody tr:last-child td { border-bottom: 0; }
 .detail-exclude-button:hover, .detail-link-button:hover { background: #fff5ef; }
 .detail-exclude-button:disabled { opacity: .55; cursor: wait; }
 .detail-exclusion-state { align-items: center; color: var(--muted); font-size: 11px; }
+
+.exclusion-match-tag { display: inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: #fff7df; color: #946200; font-size: 10px; font-weight: 650; white-space: nowrap; }
