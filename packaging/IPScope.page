@@ -1,7 +1,7 @@
 Menu="Utilities"
 Title="IPScope"
 Type="xmenu"
-Icon="network-wired"
+Icon="ipscope.png"
 ---
 <?php
 require_once '/usr/local/emhttp/plugins/ipscope/src/www/index.php';
