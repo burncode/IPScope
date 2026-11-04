@@ -318,9 +318,13 @@
         return '<div class="recommendation-candidate">' +
           '<span class="recommendation-rank">' + (index + 1) + '</span>' +
           '<code>' + escapeHtml(candidate.ip) + '</code>' +
-          '<span class="recommendation-candidate-state">Available</span>' +
+          '<span class="recommendation-candidate-state" role="img" aria-label="Available" title="Available"></span>' +
           '<button type="button" class="copy-ip recommendation-copy" data-copy-ip="' +
-          escapeHtml(candidate.ip) + '">Copy</button></div>';
+          escapeHtml(candidate.ip) + '" aria-label="Copy ' + escapeHtml(candidate.ip) +
+          '" title="Copy IP address"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+          '<rect x="8" y="8" width="12" height="13" rx="2"></rect>' +
+          '<path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2"></path>' +
+          '</svg></button></div>';
       }).join("") : '<div class="recommendation-empty">No known available addresses in this network.</div>';
 
       return '<article class="recommendation-network">' +
