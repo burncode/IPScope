@@ -190,12 +190,23 @@ declare(strict_types=1);
         <div class="exclusion-summary">
           <span><strong id="exclusion-total">0</strong> rules</span>
           <span><strong id="exclusion-active">0</strong> enabled</span>
-          <span>Saved on this Unraid server</span>
+          <span><strong id="exclusion-hit-count">0</strong> matched addresses</span>
+          <span><strong id="exclusion-in-use-count">0</strong> already in use</span>
+          <span><strong id="exclusion-overlap-count">0</strong> overlapping pairs</span>
+        </div>
+        <div class="exclusion-bulk-toolbar">
+          <label class="exclusion-select-all"><input id="exclusion-select-all" type="checkbox"> Select all</label>
+          <span id="exclusion-selected-count">0 selected</span>
+          <div class="exclusion-bulk-actions">
+            <button type="button" class="exclusion-action" data-exclusion-bulk="enable" disabled>Enable</button>
+            <button type="button" class="exclusion-action" data-exclusion-bulk="disable" disabled>Disable</button>
+            <button type="button" class="exclusion-action is-danger" data-exclusion-bulk="delete" disabled>Delete selected</button>
+          </div>
         </div>
         <div class="table-wrap exclusion-table-wrap">
           <table class="exclusion-table">
-            <thead><tr><th>Network</th><th>Match</th><th>Reason</th><th>State</th><th>Actions</th></tr></thead>
-            <tbody id="exclusion-list"><tr><td colspan="5" class="table-empty">Loading exclusion rules…</td></tr></tbody>
+            <thead><tr><th class="exclusion-check-cell"></th><th>Network</th><th>Match</th><th>Reason</th><th>Coverage</th><th>Audit</th><th>State</th><th>Actions</th></tr></thead>
+            <tbody id="exclusion-list"><tr><td colspan="8" class="table-empty">Loading exclusion rules…</td></tr></tbody>
           </table>
         </div>
         <div class="exclusion-footnote">Excluded addresses remain visible in the inventory. If an excluded address is already occupied, reserved or assigned to a system service, IPScope reports it as a conflict instead of hiding the owner.</div>

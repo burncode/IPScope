@@ -9,6 +9,7 @@
   var statusFilter = document.getElementById("status-filter");
   var currentSnapshot = null;
   var exclusionRules = [];
+  var editingExclusionId = null;
 
   function escapeHtml(value) {
     return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
@@ -102,6 +103,7 @@
   function render(snapshot) {
     currentSnapshot = snapshot;
     populateExclusionNetworks(snapshot);
+    renderExclusionRules();
     var summary = snapshot.summary || {};
     setMetric("metric-networks", summary.network_count || 0);
     setMetric("metric-containers", summary.container_count || 0);
@@ -310,24 +312,138 @@
     return fetch(apiUrl + "?action=exclusions", options).then(readApiResponse);
   }
 
+  function exclusionRange(rule) {
+    if (rule.match_type === "ip") {
+      var value = ipToNumber(rule.value);
+      return value === null ? null : { start: value, end: value };
+    }
+    var parts = String(rule.value || "").split("/");
+    if (parts.length !== 2) return null;
+    var base = ipToNumber(parts[0]);
+    var prefix = Number(parts[1]);
+    if (base === null || !Number.isInteger(prefix) || prefix < 0 || prefix > 32) return null;
+    var size = Math.pow(2, 32 - prefix);
+    var start = Math.floor(base / size) * size;
+    return { start: start, end: start + size - 1 };
+  }
+
+  function exclusionRulesOverlap(left, right) {
+    if (!left.enabled || !right.enabled) return false;
+    if (left.network !== "*" && right.network !== "*" && left.network !== right.network) return false;
+    var a = exclusionRange(left);
+    var b = exclusionRange(right);
+    return !!a && !!b && a.start <= b.end && b.start <= a.end;
+  }
+
+  function getExclusionAudit() {
+    var result = { byId: {}, matched: 0, inUse: 0, overlaps: [] };
+    exclusionRules.forEach(function (rule) {
+      result.byId[rule.id] = { matched: 0, inUse: 0 };
+    });
+    var seen = {};
+    if (currentSnapshot && Array.isArray(currentSnapshot.networks)) {
+      currentSnapshot.networks.forEach(function (network) {
+        (network.known_addresses || []).forEach(function (address) {
+          (address.exclusions || []).forEach(function (match) {
+            if (!result.byId[match.id]) return;
+            var key = match.id + "|" + network.name + "|" + address.ip;
+            if (seen[key]) return;
+            seen[key] = true;
+            result.byId[match.id].matched += 1;
+            result.matched += 1;
+            if (address.status !== "excluded") {
+              result.byId[match.id].inUse += 1;
+              result.inUse += 1;
+            }
+          });
+        });
+      });
+    }
+    for (var i = 0; i < exclusionRules.length; i += 1) {
+      for (var j = i + 1; j < exclusionRules.length; j += 1) {
+        if (exclusionRulesOverlap(exclusionRules[i], exclusionRules[j])) {
+          result.overlaps.push([exclusionRules[i], exclusionRules[j]]);
+        }
+      }
+    }
+    return result;
+  }
+
+  function selectedExclusionIds() {
+    return Array.from(document.querySelectorAll("[data-exclusion-select]:checked")).map(function (node) {
+      return node.getAttribute("data-exclusion-select");
+    });
+  }
+
+  function updateExclusionBulkToolbar() {
+    var selected = selectedExclusionIds();
+    var total = exclusionRules.length;
+    var count = document.getElementById("exclusion-selected-count");
+    var selectAll = document.getElementById("exclusion-select-all");
+    if (count) count.textContent = selected.length + " selected";
+    if (selectAll) {
+      selectAll.checked = total > 0 && selected.length === total;
+      selectAll.indeterminate = selected.length > 0 && selected.length < total;
+    }
+    document.querySelectorAll("[data-exclusion-bulk]").forEach(function (button) {
+      button.disabled = selected.length === 0;
+    });
+  }
+
+  function exclusionNetworkOptions(selected) {
+    var names = currentSnapshot && Array.isArray(currentSnapshot.networks) ?
+      currentSnapshot.networks.map(function (network) { return network.name; }) : [];
+    if (selected !== "*" && names.indexOf(selected) === -1) names.push(selected);
+    return ['<option value="*"' + (selected === "*" ? " selected" : "") + '>All networks</option>']
+      .concat(names.map(function (name) {
+        return '<option value="' + escapeHtml(name) + '"' + (selected === name ? " selected" : "") + '>' + escapeHtml(name) + '</option>';
+      })).join("");
+  }
+
   function renderExclusionRules() {
     var list = document.getElementById("exclusion-list");
     if (!list) return;
     var active = exclusionRules.filter(function (rule) { return rule.enabled; }).length;
+    var audit = getExclusionAudit();
     document.getElementById("exclusion-total").textContent = String(exclusionRules.length);
     document.getElementById("exclusion-active").textContent = String(active);
+    document.getElementById("exclusion-hit-count").textContent = String(audit.matched);
+    document.getElementById("exclusion-in-use-count").textContent = String(audit.inUse);
+    document.getElementById("exclusion-overlap-count").textContent = String(audit.overlaps.length);
+    var overlapById = {};
+    audit.overlaps.forEach(function (pair) {
+      pair.forEach(function (rule) {
+        overlapById[rule.id] = (overlapById[rule.id] || 0) + 1;
+      });
+    });
     list.innerHTML = exclusionRules.length ? exclusionRules.map(function (rule) {
       var match = rule.match_type === "cidr" ? "CIDR · " + rule.value : "IP · " + rule.value;
-      return '<tr data-rule-id="' + escapeHtml(rule.id) + '"><td>' + escapeHtml(rule.network === "*" ? "All networks" : rule.network) + '</td>' +
+      var stats = audit.byId[rule.id] || { matched: 0, inUse: 0 };
+      var warnings = overlapById[rule.id] || 0;
+      var warningText = warnings ? '<span class="audit-warning" title="Overlaps another enabled rule">Overlap · ' + warnings + '</span>' : '<span class="audit-clean">No overlap</span>';
+      var row = '<tr data-rule-id="' + escapeHtml(rule.id) + '">' +
+        '<td class="exclusion-check-cell"><input type="checkbox" data-exclusion-select="' + escapeHtml(rule.id) + '" aria-label="Select rule"></td>' +
+        '<td>' + escapeHtml(rule.network === "*" ? "All networks" : rule.network) + '</td>' +
         '<td class="ip-cell">' + escapeHtml(match) + '</td>' +
         '<td>' + escapeHtml(rule.reason) + '</td>' +
-        '<td><span class="status-pill ' + (rule.enabled ? "status-available" : "status-system") + '">' +
-          (rule.enabled ? "Enabled" : "Disabled") + '</span></td>' +
-        '<td class="exclusion-actions"><button type="button" class="exclusion-action" data-exclusion-toggle="' +
-          escapeHtml(rule.id) + '">' + (rule.enabled ? "Disable" : "Enable") + '</button>' +
-          '<button type="button" class="exclusion-action is-danger" data-exclusion-delete="' +
-          escapeHtml(rule.id) + '">Delete</button></td></tr>';
-    }).join("") : '<tr><td colspan="5" class="table-empty">No exclusion rules yet. Add an IP or CIDR range above.</td></tr>';
+        '<td><strong>' + stats.matched + '</strong> addresses</td>' +
+        '<td>' + warningText + (stats.inUse ? '<span class="audit-in-use">' + stats.inUse + ' in use</span>' : '') + '</td>' +
+        '<td><span class="status-pill ' + (rule.enabled ? "status-available" : "status-system") + '">' + (rule.enabled ? "Enabled" : "Disabled") + '</span></td>' +
+        '<td class="exclusion-actions"><button type="button" class="exclusion-action" data-exclusion-edit="' + escapeHtml(rule.id) + '">Edit</button>' +
+        '<button type="button" class="exclusion-action" data-exclusion-toggle="' + escapeHtml(rule.id) + '">' + (rule.enabled ? "Disable" : "Enable") + '</button>' +
+        '<button type="button" class="exclusion-action is-danger" data-exclusion-delete="' + escapeHtml(rule.id) + '">Delete</button></td></tr>';
+      if (editingExclusionId !== rule.id) return row;
+      var editRow = '<tr class="exclusion-edit-row" data-edit-row="' + escapeHtml(rule.id) + '"><td colspan="8">' +
+        '<form class="exclusion-edit-form" data-exclusion-edit-form="' + escapeHtml(rule.id) + '">' +
+        '<label>Network<select name="network">' + exclusionNetworkOptions(rule.network) + '</select></label>' +
+        '<label>Type<select name="match_type"><option value="ip"' + (rule.match_type === "ip" ? " selected" : "") + '>Single IPv4</option><option value="cidr"' + (rule.match_type === "cidr" ? " selected" : "") + '>CIDR subnet</option></select></label>' +
+        '<label>Address / subnet<input name="value" value="' + escapeHtml(rule.value) + '" maxlength="32" required></label>' +
+        '<label>Reason<input name="reason" value="' + escapeHtml(rule.reason) + '" maxlength="160" required></label>' +
+        '<div class="exclusion-edit-actions"><button type="submit" class="exclusion-action is-save">Save changes</button><button type="button" class="exclusion-action" data-exclusion-edit-cancel>Cancel</button></div>' +
+        '</form></td></tr>';
+      return row + editRow;
+    }).join("") : '<tr><td colspan="8" class="table-empty">No exclusion rules yet. Add an IP or CIDR range above.</td></tr>';
+    updateExclusionBulkToolbar();
   }
 
   function loadExclusionRules() {
@@ -347,6 +463,7 @@
     if (submit) submit.disabled = true;
     if (triggerButton) triggerButton.disabled = true;
     exclusionRequest("POST", nextRules).then(function (body) {
+      editingExclusionId = null;
       exclusionRules = body.rules || [];
       renderExclusionRules();
       setExclusionFeedback(successMessage, false);
@@ -480,6 +597,24 @@
     }
   });
   document.addEventListener("submit", function (event) {
+    var editForm = event.target.closest("[data-exclusion-edit-form]");
+    if (editForm) {
+      event.preventDefault();
+      var editId = editForm.getAttribute("data-exclusion-edit-form");
+      var values = new FormData(editForm);
+      var updated = exclusionRules.map(function (rule) {
+        if (rule.id !== editId) return rule;
+        return Object.assign({}, rule, {
+          network: String(values.get("network") || "*"),
+          match_type: String(values.get("match_type") || "ip"),
+          value: String(values.get("value") || "").trim(),
+          reason: String(values.get("reason") || "").trim()
+        });
+      });
+      editingExclusionId = null;
+      saveExclusionRules(updated, "Exclusion rule updated.");
+      return;
+    }
     if (event.target.matches("[data-detail-exclusion-form]")) {
       event.preventDefault();
       var form = event.target;
@@ -504,7 +639,47 @@
     else card.dataset.page = String(Math.max(0, Number(card.dataset.page || 0) + (next ? 1 : -1)));
     filterAddressRows(false);
   });
+  document.addEventListener("change", function (event) {
+    if (event.target.matches("[data-exclusion-select]") || event.target.id === "exclusion-select-all") {
+      if (event.target.id === "exclusion-select-all") {
+        document.querySelectorAll("[data-exclusion-select]").forEach(function (node) {
+          node.checked = event.target.checked;
+        });
+      }
+      updateExclusionBulkToolbar();
+    }
+  });
   document.addEventListener("click", function (event) {
+    var cancelEdit = event.target.closest("[data-exclusion-edit-cancel]");
+    if (cancelEdit) {
+      editingExclusionId = null;
+      renderExclusionRules();
+      return;
+    }
+    var editRule = event.target.closest("[data-exclusion-edit]");
+    if (editRule) {
+      editingExclusionId = editRule.getAttribute("data-exclusion-edit");
+      renderExclusionRules();
+      var editRow = document.querySelector('[data-edit-row="' + editingExclusionId + '"]');
+      if (editRow) editRow.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      return;
+    }
+    var bulkAction = event.target.closest("[data-exclusion-bulk]");
+    if (bulkAction) {
+      var action = bulkAction.getAttribute("data-exclusion-bulk");
+      var selected = selectedExclusionIds();
+      if (!selected.length) return;
+      if (action === "delete" && !window.confirm("Delete " + selected.length + " selected exclusion rule(s)?")) return;
+      var selectedMap = {};
+      selected.forEach(function (id) { selectedMap[id] = true; });
+      var nextRules = action === "delete" ?
+        exclusionRules.filter(function (rule) { return !selectedMap[rule.id]; }) :
+        exclusionRules.map(function (rule) {
+          return selectedMap[rule.id] ? Object.assign({}, rule, { enabled: action === "enable" }) : rule;
+        });
+      saveExclusionRules(nextRules, action === "delete" ? "Selected rules deleted." : (action === "enable" ? "Selected rules enabled." : "Selected rules disabled."), bulkAction);
+      return;
+    }
     var enableDetailRule = event.target.closest("[data-enable-exclusion]");
     if (enableDetailRule) {
       var enableId = enableDetailRule.getAttribute("data-enable-exclusion");
