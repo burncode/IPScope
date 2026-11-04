@@ -276,7 +276,7 @@
 
   function ipToNumber(ip) {
     var parts = String(ip || "").split(".");
-    if (parts.length !== 4 || parts.some(function (part) { return !/^\\d{1,3}$/.test(part) || Number(part) > 255; })) return null;
+    if (parts.length !== 4 || parts.some(function (part) { return !/^\d{1,3}$/.test(part) || Number(part) > 255; })) return null;
     return parts.reduce(function (value, part) { return value * 256 + Number(part); }, 0);
   }
 
