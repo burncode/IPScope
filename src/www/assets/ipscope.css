@@ -416,3 +416,5 @@ tbody tr:last-child td { border-bottom: 0; }
 .detail-exclusion-state { align-items: center; color: var(--muted); font-size: 11px; }
 
 .exclusion-match-tag { display: inline-block; margin-left: 6px; padding: 2px 6px; border-radius: 4px; background: #fff7df; color: #946200; font-size: 10px; font-weight: 650; white-space: nowrap; }
+
+.exclusion-table tr.is-highlighted td { background: #fff7df; transition: background .2s ease; }

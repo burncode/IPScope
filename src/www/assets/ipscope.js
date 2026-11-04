@@ -147,7 +147,7 @@
         var exclusionAction = matchingExclusions.length ?
           '<div class="detail-exclusion-state"><span class="status-pill status-excluded">Excluded by rule</span>' +
           '<span>' + escapeHtml(matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ")) + '</span>' +
-          '<button type="button" class="detail-link-button" data-open-view="exclusions">View rules</button></div>' :
+          '<button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">View rule</button></div>' :
           (disabledRule ?
             '<div class="detail-exclusion-action"><span class="muted-inline">A matching rule is disabled.</span>' +
             '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">Enable rule</button></div>' :
@@ -318,7 +318,7 @@
     document.getElementById("exclusion-active").textContent = String(active);
     list.innerHTML = exclusionRules.length ? exclusionRules.map(function (rule) {
       var match = rule.match_type === "cidr" ? "CIDR · " + rule.value : "IP · " + rule.value;
-      return '<tr><td>' + escapeHtml(rule.network === "*" ? "All networks" : rule.network) + '</td>' +
+      return '<tr data-rule-id="' + escapeHtml(rule.id) + '"><td>' + escapeHtml(rule.network === "*" ? "All networks" : rule.network) + '</td>' +
         '<td class="ip-cell">' + escapeHtml(match) + '</td>' +
         '<td>' + escapeHtml(rule.reason) + '</td>' +
         '<td><span class="status-pill ' + (rule.enabled ? "status-available" : "status-system") + '">' +
@@ -456,6 +456,17 @@
     if (!viewButton) return;
     var viewName = viewButton.getAttribute("data-view") || viewButton.getAttribute("data-open-view");
     activateView(viewName);
+    var ruleId = viewButton.getAttribute("data-open-rule");
+    if (ruleId) {
+      window.setTimeout(function () {
+        var ruleRow = document.querySelector('[data-rule-id="' + ruleId.replace(/["\\\\]/g, "") + '"]');
+        if (ruleRow) {
+          ruleRow.scrollIntoView({ behavior: "smooth", block: "center" });
+          ruleRow.classList.add("is-highlighted");
+          window.setTimeout(function () { ruleRow.classList.remove("is-highlighted"); }, 1800);
+        }
+      }, 0);
+    }
     var networkName = viewButton.getAttribute("data-open-network");
     if (networkName) {
       window.setTimeout(function () {
