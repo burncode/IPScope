@@ -63,8 +63,10 @@ if [[ -f "$PLUGIN_MANIFEST" ]]; then
       } else {
         $tag = preg_replace("/>$/", " launch=\"Settings/IPScope\">", $tag);
       }
-      if (!preg_match("/\\bicon\\s*=/", $tag)) {
-        $tag = preg_replace("/>$/", " icon=\"network-wired\">", $tag);
+      if (preg_match("/\\bicon\\s*=\\s*([\\\"\\x27])[^\\\"\\x27]*\\\\1/", $tag)) {
+        $tag = preg_replace("/\\bicon\\s*=\\s*([\\\"\\x27])[^\\\"\\x27]*\\\\1/", "icon=\\\"images/ipscope.png\\\"", $tag, 1);
+      } else {
+        $tag = preg_replace("/>$/", " icon=\\\"images/ipscope.png\\\">", $tag);
       }
       return $tag;
     }, $xml, 1, $count);
@@ -73,7 +75,14 @@ if [[ -f "$PLUGIN_MANIFEST" ]]; then
       exit(1);
     }
   ' "$PLUGIN_MANIFEST"
-  echo "Updated installed plugin launch target: Settings/IPScope"
+  php -r '
+    $xml = simplexml_load_file($argv[1]);
+    if ($xml === false || (string)$xml["launch"] !== "Settings/IPScope" || (string)$xml["icon"] !== "images/ipscope.png") {
+      fwrite(STDERR, "Installed PLG metadata verification failed.\\n");
+      exit(1);
+    }
+  ' "$PLUGIN_MANIFEST"
+  echo "Updated installed plugin metadata: launch=Settings/IPScope icon=images/ipscope.png"
 else
   echo "Warning: $PLUGIN_MANIFEST not found; plugin-list launch target was not updated." >&2
 fi
