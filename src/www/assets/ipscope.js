@@ -139,6 +139,22 @@
             '<span>' + escapeHtml(owner.kind || "unknown") + '</span>' +
             '<span>' + escapeHtml(owner.state || "unknown state") + '</span></div>';
         }).join("");
+        var matchingExclusions = address.exclusions || [];
+        var disabledRule = exclusionRules.find(function (rule) {
+          return !rule.enabled && (rule.network === "*" || rule.network === network.name) &&
+            (rule.match_type === "ip" ? rule.value === address.ip : cidrContains(rule.value, address.ip));
+        });
+        var exclusionAction = matchingExclusions.length ?
+          '<div class="detail-exclusion-state"><span class="status-pill status-excluded">Excluded by rule</span>' +
+          '<span>' + escapeHtml(matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ")) + '</span>' +
+          '<button type="button" class="detail-link-button" data-open-view="exclusions">View rules</button></div>' :
+          (disabledRule ?
+            '<div class="detail-exclusion-action"><span class="muted-inline">A matching rule is disabled.</span>' +
+            '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">Enable rule</button></div>' :
+            '<form class="detail-exclusion-action" data-detail-exclusion-form>' +
+            '<label class="detail-exclusion-reason"><span class="detail-label">Exclude this IP</span>' +
+            '<input type="text" data-exclusion-reason maxlength="160" placeholder="Reason (e.g. DHCP reservation)" required></label>' +
+            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">Add rule</button></form>');
         var detailContent = '<div class="address-detail-content">' +
           '<div><span class="detail-label">Network</span><strong>' + escapeHtml(network.name) + '</strong></div>' +
           '<div><span class="detail-label">Address state</span><strong>' + escapeHtml(label) + '</strong></div>' +
@@ -146,6 +162,7 @@
           '<div><span class="detail-label">Reservation owners</span><strong>' + escapeHtml(address.reservation_owner_count || 0) + '</strong></div>' +
           (reason ? '<div><span class="detail-label">System reason</span><strong>' + escapeHtml(reason) + '</strong></div>' : '') +
           (exclusionReasons.length ? '<div><span class="detail-label">Exclusion reason</span><strong>' + escapeHtml(exclusionReasons.join(", ")) + '</strong></div>' : '') +
+          '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>' +
           '<div class="detail-owner-list">' + (ownerDetails || '<span class="muted-inline">No known owner. Candidate is based on Docker and saved-template data only.</span>') + '</div>' +
           '</div>';
         return '<tr class="address-row" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
@@ -257,6 +274,23 @@
   }
 
 
+  function ipToNumber(ip) {
+    var parts = String(ip || "").split(".");
+    if (parts.length !== 4 || parts.some(function (part) { return !/^\\d{1,3}$/.test(part) || Number(part) > 255; })) return null;
+    return parts.reduce(function (value, part) { return value * 256 + Number(part); }, 0);
+  }
+
+  function cidrContains(cidr, ip) {
+    var parts = String(cidr || "").split("/");
+    if (parts.length !== 2) return false;
+    var base = ipToNumber(parts[0]);
+    var candidate = ipToNumber(ip);
+    var prefix = Number(parts[1]);
+    if (base === null || candidate === null || !Number.isInteger(prefix) || prefix < 0 || prefix > 32) return false;
+    var blockSize = Math.pow(2, 32 - prefix);
+    return Math.floor(base / blockSize) === Math.floor(candidate / blockSize);
+  }
+
   function setExclusionFeedback(message, failed) {
     var node = document.getElementById("exclusion-feedback");
     if (!node) return;
@@ -308,9 +342,10 @@
     });
   }
 
-  function saveExclusionRules(nextRules, successMessage) {
+  function saveExclusionRules(nextRules, successMessage, triggerButton) {
     var submit = document.getElementById("exclusion-submit");
     if (submit) submit.disabled = true;
+    if (triggerButton) triggerButton.disabled = true;
     exclusionRequest("POST", nextRules).then(function (body) {
       exclusionRules = body.rules || [];
       renderExclusionRules();
@@ -333,6 +368,7 @@
       setExclusionFeedback(error.message, true);
     }).finally(function () {
       if (submit) submit.disabled = false;
+      if (triggerButton) triggerButton.disabled = false;
     });
   }
 
@@ -431,6 +467,21 @@
       }, 0);
     }
   });
+  document.addEventListener("submit", function (event) {
+    if (event.target.matches("[data-detail-exclusion-form]")) {
+      var submitEvent = new Event("detail-exclusion-submit", { bubbles: true, cancelable: true });
+      event.preventDefault();
+      var form = event.target;
+      var button = form.querySelector("[data-add-exclusion]");
+      var reason = form.querySelector("[data-exclusion-reason]");
+      if (!reason || !reason.value.trim()) { if (reason) reason.focus(); return; }
+      var ip = button.getAttribute("data-ip");
+      var network = button.getAttribute("data-network");
+      saveExclusionRules(exclusionRules.concat([{
+        network: network, match_type: "ip", value: ip, reason: reason.value.trim(), enabled: true
+      }]), "Exclusion rule added for " + ip + ".", button);
+    }
+  });
   document.addEventListener("click", function (event) {
     var previous = event.target.closest("[data-page-prev]");
     var next = event.target.closest("[data-page-next]");
@@ -443,6 +494,14 @@
     filterAddressRows(false);
   });
   document.addEventListener("click", function (event) {
+    var enableDetailRule = event.target.closest("[data-enable-exclusion]");
+    if (enableDetailRule) {
+      var enableId = enableDetailRule.getAttribute("data-enable-exclusion");
+      saveExclusionRules(exclusionRules.map(function (rule) {
+        return rule.id === enableId ? Object.assign({}, rule, { enabled: true }) : rule;
+      }), "Exclusion rule enabled.", enableDetailRule);
+      return;
+    }
     var toggleExclusion = event.target.closest("[data-exclusion-toggle]");
     var deleteExclusion = event.target.closest("[data-exclusion-delete]");
     if (toggleExclusion) {

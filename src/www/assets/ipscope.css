@@ -382,3 +382,35 @@ tbody tr:last-child td { border-bottom: 0; }
   .exclusion-summary { flex-wrap: wrap; gap: 9px 16px; }
   .exclusion-table { min-width: 640px; }
 }
+
+
+/* T017-C: align the rule form and expose exclusion actions in address details */
+.exclusion-form { grid-template-columns: minmax(140px,.9fr) minmax(140px,.8fr) minmax(190px,1fr) minmax(190px,1.2fr) 132px; }
+.exclusion-form .button-primary {
+  align-self: end;
+  justify-self: stretch;
+  width: 100%;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px;
+  border: 1px solid #f05a36;
+  border-radius: 6px;
+  background: #fff;
+  color: #e85b24;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  line-height: 34px;
+}
+.exclusion-form .button-primary:hover:not(:disabled) { background: #fff5ef; border-color: #e85b24; }
+.exclusion-form .button-primary:disabled { opacity: .55; }
+.detail-exclusion-wrap { flex: 1 1 100%; min-width: 260px; }
+.detail-exclusion-action, .detail-exclusion-state { display: flex; align-items: end; flex-wrap: wrap; gap: 9px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+.detail-exclusion-reason { display: flex; flex-direction: column; gap: 5px; min-width: min(280px, 100%); flex: 1; color: var(--muted); font-size: 10px; font-weight: 650; }
+.detail-exclusion-reason input { width: 100%; height: 32px; padding: 0 9px; border: 1px solid var(--line); border-radius: 5px; color: var(--text); font: inherit; font-size: 12px; }
+.detail-exclusion-reason input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.detail-exclude-button, .detail-link-button { height: 32px; padding: 0 12px; border: 1px solid #f05a36; border-radius: 5px; background: #fff; color: #e85b24; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.detail-exclude-button:hover, .detail-link-button:hover { background: #fff5ef; }
+.detail-exclude-button:disabled { opacity: .55; cursor: wait; }
+.detail-exclusion-state { align-items: center; color: var(--muted); font-size: 11px; }
