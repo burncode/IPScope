@@ -361,6 +361,7 @@
         }())
       }).then(readApiResponse).then(function (scan) {
         render(scan.snapshot);
+        statusNode.textContent = successMessage;
       }).catch(function (error) {
         setExclusionFeedback(successMessage + " Inventory refresh failed: " + error.message, true);
       });
