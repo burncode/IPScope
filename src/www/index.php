@@ -190,7 +190,7 @@ declare(strict_types=1);
         <div class="exclusion-summary">
           <span><strong id="exclusion-total">0</strong> rules</span>
           <span><strong id="exclusion-active">0</strong> enabled</span>
-          <span><strong id="exclusion-hit-count">0</strong> matched addresses</span>
+          <span><strong id="exclusion-hit-count">0</strong> rule matches</span>
           <span><strong id="exclusion-in-use-count">0</strong> in-use matches</span>
           <span><strong id="exclusion-overlap-count">0</strong> overlapping pairs</span>
         </div>
