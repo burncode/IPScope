@@ -15,7 +15,7 @@ final class AddressInventory
      * @param list<array<string,mixed>> $templates
      * @return array{networks:list<array<string,mixed>>,conflicts:list<array<string,mixed>>}
      */
-    public function build(array $networks, array $containers, array $templates): array
+    public function build(array $networks, array $containers, array $templates, array $exclusionRules = []): array
     {
         $containerByName = [];
         foreach ($containers as $container) {
@@ -293,6 +293,34 @@ final class AddressInventory
                 }
                 }
             }
+
+            foreach ($addressMap as $ip => &$address) {
+                foreach ($exclusionRules as $rule) {
+                    if (empty($rule['enabled'])) continue;
+                    $ruleNetwork = (string)($rule['network'] ?? '*');
+                    if ($ruleNetwork !== '*' && $ruleNetwork !== $networkName) continue;
+                    $matchType = (string)($rule['match_type'] ?? '');
+                    $value = (string)($rule['value'] ?? '');
+                    $matches = $matchType === 'ip' ? $ip === $value
+                        : ($matchType === 'cidr' && (new IPv4Calculator())->contains($value, $ip));
+                    if (!$matches) continue;
+                    $address['exclusions'] ??= [];
+                    $address['exclusions'][] = ['id'=>(string)($rule['id']??''),'match_type'=>$matchType,'value'=>$value,'reason'=>(string)($rule['reason']??'')];
+                    if (($address['status'] ?? '') === 'available') {
+                        $address['status'] = 'excluded';
+                        $address['available'] = false;
+                    } else {
+                        $conflicts[] = [
+                            'type'=>'excluded_address_in_use',
+                            'severity'=>in_array(($address['status']??''),['occupied','system','conflict'],true)?'critical':'warning',
+                            'network'=>$networkName,'ip'=>$ip,'status'=>(string)($address['status']??'unknown'),
+                            'rule_id'=>(string)($rule['id']??''),'reason'=>(string)($rule['reason']??''),
+                            'owners'=>array_values(array_unique(array_map(static fn(array $owner):string=>(string)($owner['container']??''),$address['owners']??[]))),
+                        ];
+                    }
+                }
+            }
+            unset($address);
 
             $addresses = array_values($addressMap);
             usort($addresses, static function (array $a, array $b): int {

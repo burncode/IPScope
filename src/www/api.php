@@ -8,6 +8,7 @@ require_once __DIR__ . '/../lib/ContainerCollector.php';
 require_once __DIR__ . '/../lib/TemplateParser.php';
 require_once __DIR__ . '/../lib/IPv4Calculator.php';
 require_once __DIR__ . '/../lib/AddressInventory.php';
+require_once __DIR__ . '/../lib/AddressExclusionStore.php';
 require_once __DIR__ . '/../lib/SnapshotBuilder.php';
 require_once __DIR__ . '/../lib/SnapshotStore.php';
 

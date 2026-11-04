@@ -16,6 +16,7 @@ done
 php tests/smoke.php
 php tests/template-parser.php
 php tests/address-inventory.php
+php tests/address-exclusions.php
 php tests/snapshot-store.php
 
 if command -v node >/dev/null 2>&1; then
