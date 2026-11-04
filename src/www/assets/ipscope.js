@@ -121,7 +121,9 @@
         }).filter(Boolean)));
         var ownerText = ownerNames.length ? ownerNames.join(", ") : "—";
         var reason = address.system_reason ? address.system_reason.replace(/_/g, " ") : "";
-        var searchText = [address.ip, status, ownerText, reason, network.name].join(" ").toLowerCase();
+        var exclusionReasons = (address.exclusions || []).map(function (rule) { return rule.reason; }).filter(Boolean);
+        var reasonText = [reason].concat(exclusionReasons).filter(Boolean).join(" · ");
+        var searchText = [address.ip, status, ownerText, reasonText, network.name].join(" ").toLowerCase();
         var label = {
           available: "Available",
           occupied: "Occupied",
@@ -143,6 +145,7 @@
           '<div><span class="detail-label">Runtime owners</span><strong>' + escapeHtml(address.runtime_owner_count || 0) + '</strong></div>' +
           '<div><span class="detail-label">Reservation owners</span><strong>' + escapeHtml(address.reservation_owner_count || 0) + '</strong></div>' +
           (reason ? '<div><span class="detail-label">System reason</span><strong>' + escapeHtml(reason) + '</strong></div>' : '') +
+          (exclusionReasons.length ? '<div><span class="detail-label">Exclusion reason</span><strong>' + escapeHtml(exclusionReasons.join(", ")) + '</strong></div>' : '') +
           '<div class="detail-owner-list">' + (ownerDetails || '<span class="muted-inline">No known owner. Candidate is based on Docker and saved-template data only.</span>') + '</div>' +
           '</div>';
         return '<tr class="address-row" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
@@ -220,12 +223,16 @@
           " · Reserved: " + (item.reserved_containers || []).join(", ");
       } else if (item.type === "multiple_runtime_owners") {
         details = "Running containers: " + (item.running_containers || item.containers || []).join(", ");
+      } else if (item.type === "excluded_address_in_use") {
+        details = (item.reason || "Address matches an exclusion rule") +
+          (item.owners && item.owners.length ? " · Owners: " + item.owners.join(", ") : "");
       } else {
         details = (item.container || "") + " · template " + (item.template_ip || "") + " → runtime " + (item.runtime_ip || "");
       }
-      var conflictLabel = item.type === "reservation_conflict" ? "Reservation conflict" :
+      var conflictLabel = item.type === "excluded_address_in_use" ? "Excluded address in use" :
+        (item.type === "reservation_conflict" ? "Reservation conflict" :
         (item.type === "active_reservation_collision" ? "Active / reserved collision" :
-        (item.type === "multiple_runtime_owners" ? "Multiple runtime owners" : item.type));
+        (item.type === "multiple_runtime_owners" ? "Multiple runtime owners" : item.type)));
       return "<tr><td>" + escapeHtml(conflictLabel) + "</td><td>" + escapeHtml(item.network) +
         "</td><td>" + escapeHtml(item.ip || item.template_ip || "—") +
         "</td><td>" + escapeHtml(details) + "</td></tr>";
