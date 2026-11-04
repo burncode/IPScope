@@ -48,7 +48,7 @@ $dockerBinary = getenv('IPSCOPE_DOCKER_BIN') ?: '/usr/bin/docker';
 try {
 
     if ($action === 'exclusions') {
-        $exclusionStore = new \\IPScope\\AddressExclusionStore($exclusionPath);
+        $exclusionStore = new \IPScope\AddressExclusionStore($exclusionPath);
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         if ($method === 'GET') {
             ipscopeRespond(200, ['ok' => true, 'rules' => $exclusionStore->load()]);
