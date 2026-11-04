@@ -63,10 +63,10 @@ if [[ -f "$PLUGIN_MANIFEST" ]]; then
       } else {
         $tag = preg_replace("/>$/", " launch=\"Settings/IPScope\">", $tag);
       }
-      if (preg_match("/\\bicon\\s*=\\s*[\\\"\\x27][^\\\"\\x27]*[\\\"\\x27]/", $tag)) {
-        $tag = preg_replace("/\\bicon\\s*=\\s*([\\\"\\x27])[^\\\"\\x27]*\\\\1/", "icon=\\\"images/ipscope.png\\\"", $tag, 1);
+      if (preg_match("/\\bicon\\s*=\\s*[\"\\x27][^\"\\x27]*[\"\\x27]/", $tag)) {
+        $tag = preg_replace("/\\bicon\\s*=\\s*([\"\\x27])[^\"\\x27]*\\1/", "icon=\"images/ipscope.png\"", $tag, 1);
       } else {
-        $tag = preg_replace("/>$/", " icon=\\\"images/ipscope.png\\\">", $tag);
+        $tag = preg_replace("/>$/", " icon=\"images/ipscope.png\">", $tag);
       }
       return $tag;
     }, $xml, 1, $count);
