@@ -34,17 +34,50 @@ function ipscopeRespond(int $status, array $payload): void
 }
 
 $action = isset($_GET['action']) ? (string)$_GET['action'] : 'snapshot';
-$allowedActions = ['snapshot', 'scan'];
+$allowedActions = ['snapshot', 'scan', 'exclusions'];
 if (!in_array($action, $allowedActions, true)) {
     ipscopeRespond(400, ['ok' => false, 'error' => 'Unsupported action.']);
 }
 
 $defaultStore = '/var/local/emhttp/plugins/ipscope/snapshot.json';
+$exclusionPath = '/boot/config/plugins/ipscope/exclusions.json';
 $storePath = getenv('IPSCOPE_SNAPSHOT_PATH') ?: $defaultStore;
 $templateDirectory = getenv('IPSCOPE_TEMPLATE_DIR') ?: '/boot/config/plugins/dockerMan/templates-user';
 $dockerBinary = getenv('IPSCOPE_DOCKER_BIN') ?: '/usr/bin/docker';
 
 try {
+
+    if ($action === 'exclusions') {
+        $exclusionStore = new \\IPScope\\AddressExclusionStore($exclusionPath);
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        if ($method === 'GET') {
+            ipscopeRespond(200, ['ok' => true, 'rules' => $exclusionStore->load()]);
+        }
+        if ($method !== 'POST') {
+            header('Allow: GET, POST');
+            ipscopeRespond(405, ['ok' => false, 'error' => 'Exclusion rules support GET and POST.']);
+        }
+
+        $raw = file_get_contents('php://input');
+        if ($raw === false || strlen($raw) > 65536) {
+            ipscopeRespond(400, ['ok' => false, 'error' => 'Invalid or oversized exclusion request.']);
+        }
+        try {
+            $payload = json_decode($raw, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException $error) {
+            ipscopeRespond(400, ['ok' => false, 'error' => 'Request body must be valid JSON.']);
+        }
+        if (!is_array($payload) || !is_array($payload['rules'] ?? null)) {
+            ipscopeRespond(400, ['ok' => false, 'error' => 'Request must contain a rules array.']);
+        }
+        try {
+            $rules = $exclusionStore->save($payload['rules']);
+            ipscopeRespond(200, ['ok' => true, 'rules' => $rules]);
+        } catch (InvalidArgumentException $error) {
+            ipscopeRespond(422, ['ok' => false, 'error' => $error->getMessage()]);
+        }
+    }
+
     $store = new SnapshotStore($storePath);
 
     if ($action === 'snapshot') {

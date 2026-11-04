@@ -8,6 +8,7 @@
   var addressFilter = document.getElementById("address-filter");
   var statusFilter = document.getElementById("status-filter");
   var currentSnapshot = null;
+  var exclusionRules = [];
 
   function escapeHtml(value) {
     return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
@@ -100,6 +101,7 @@
 
   function render(snapshot) {
     currentSnapshot = snapshot;
+    populateExclusionNetworks(snapshot);
     var summary = snapshot.summary || {};
     setMetric("metric-networks", summary.network_count || 0);
     setMetric("metric-containers", summary.container_count || 0);
@@ -125,7 +127,8 @@
           occupied: "Occupied",
           reserved: "Reserved",
           system: "System",
-          conflict: "Conflict"
+          conflict: "Conflict",
+          excluded: "Excluded"
         }[status] || status;
         var detailKey = network.name + "|" + address.ip;
         var ownerDetails = (address.owners || []).map(function (owner) {
@@ -166,14 +169,14 @@
 
     document.getElementById("network-overview").innerHTML = networks.map(function (network) {
       var addresses = network.known_addresses || [];
-      var counts = { available: 0, occupied: 0, reserved: 0, system: 0, conflict: 0 };
+      var counts = { available: 0, occupied: 0, reserved: 0, system: 0, conflict: 0, excluded: 0 };
       addresses.forEach(function (address) { counts[address.status] = (counts[address.status] || 0) + 1; });
       var subnet = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
       return '<article class="overview-network"><div><strong>' + escapeHtml(network.name) + '</strong><span>' +
         escapeHtml(subnet || network.driver || "No IPv4 subnet") + '</span></div>' +
         '<div class="overview-counts"><span><b>' + counts.available + '</b> available</span>' +
         '<span><b>' + counts.occupied + '</b> occupied</span><span><b>' + counts.reserved + '</b> reserved</span>' +
-        '<span><b>' + counts.conflict + '</b> conflicts</span></div>' +
+        '<span><b>' + counts.conflict + '</b> conflicts</span><span><b>' + counts.excluded + '</b> excluded</span></div>' +
         '<button type="button" class="text-action" data-open-view="addresses" data-open-network="' + escapeHtml(network.name) + '">Manage IPs</button></article>';
     }).join("") || '<div class="empty-state">No networks found.</div>';
 
@@ -246,6 +249,98 @@
     statusNode.textContent = "Snapshot loaded";
   }
 
+
+  function setExclusionFeedback(message, failed) {
+    var node = document.getElementById("exclusion-feedback");
+    if (!node) return;
+    node.textContent = message || "";
+    node.classList.toggle("is-error", !!failed);
+    node.hidden = !message;
+  }
+
+  function exclusionRequest(method, rules) {
+    var headers = { "Accept": "application/json" };
+    var options = { method: method, credentials: "same-origin", headers: headers };
+    if (method === "POST") {
+      headers["Content-Type"] = "application/json";
+      if (typeof csrf_token !== "undefined" && csrf_token) headers["X-CSRF-Token"] = csrf_token;
+      options.body = JSON.stringify({ rules: rules });
+    }
+    return fetch(apiUrl + "?action=exclusions", options).then(readApiResponse);
+  }
+
+  function renderExclusionRules() {
+    var list = document.getElementById("exclusion-list");
+    if (!list) return;
+    var active = exclusionRules.filter(function (rule) { return rule.enabled; }).length;
+    document.getElementById("exclusion-total").textContent = String(exclusionRules.length);
+    document.getElementById("exclusion-active").textContent = String(active);
+    list.innerHTML = exclusionRules.length ? exclusionRules.map(function (rule) {
+      var match = rule.match_type === "cidr" ? "CIDR · " + rule.value : "IP · " + rule.value;
+      return '<tr><td>' + escapeHtml(rule.network === "*" ? "All networks" : rule.network) + '</td>' +
+        '<td class="ip-cell">' + escapeHtml(match) + '</td>' +
+        '<td>' + escapeHtml(rule.reason) + '</td>' +
+        '<td><span class="status-pill ' + (rule.enabled ? "status-available" : "status-system") + '">' +
+          (rule.enabled ? "Enabled" : "Disabled") + '</span></td>' +
+        '<td class="exclusion-actions"><button type="button" class="exclusion-action" data-exclusion-toggle="' +
+          escapeHtml(rule.id) + '">' + (rule.enabled ? "Disable" : "Enable") + '</button>' +
+          '<button type="button" class="exclusion-action is-danger" data-exclusion-delete="' +
+          escapeHtml(rule.id) + '">Delete</button></td></tr>';
+    }).join("") : '<tr><td colspan="5" class="table-empty">No exclusion rules yet. Add an IP or CIDR range above.</td></tr>';
+  }
+
+  function loadExclusionRules() {
+    exclusionRequest("GET").then(function (body) {
+      exclusionRules = body.rules || [];
+      renderExclusionRules();
+      setExclusionFeedback("", false);
+    }).catch(function (error) {
+      setExclusionFeedback("Could not load rules: " + error.message, true);
+      var list = document.getElementById("exclusion-list");
+      if (list) list.innerHTML = '<tr><td colspan="5" class="table-empty">Rules could not be loaded.</td></tr>';
+    });
+  }
+
+  function saveExclusionRules(nextRules, successMessage) {
+    var submit = document.getElementById("exclusion-submit");
+    if (submit) submit.disabled = true;
+    exclusionRequest("POST", nextRules).then(function (body) {
+      exclusionRules = body.rules || [];
+      renderExclusionRules();
+      setExclusionFeedback(successMessage, false);
+      // Refresh the inventory so exclusions are reflected immediately.
+      return fetch(apiUrl + "?action=scan", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: (function () {
+          var headers = { "Accept": "application/json" };
+          if (typeof csrf_token !== "undefined" && csrf_token) headers["X-CSRF-Token"] = csrf_token;
+          return headers;
+        }())
+      }).then(readApiResponse).then(function (scan) {
+        render(scan.snapshot);
+      }).catch(function (error) {
+        setExclusionFeedback(successMessage + " Inventory refresh failed: " + error.message, true);
+      });
+    }).catch(function (error) {
+      setExclusionFeedback(error.message, true);
+    }).finally(function () {
+      if (submit) submit.disabled = false;
+    });
+  }
+
+  function populateExclusionNetworks(snapshot) {
+    var select = document.getElementById("exclusion-network");
+    if (!select) return;
+    var selected = select.value || "*";
+    var options = ['<option value="*">All networks</option>'];
+    (snapshot.networks || []).forEach(function (network) {
+      options.push('<option value="' + escapeHtml(network.name) + '">' + escapeHtml(network.name) + '</option>');
+    });
+    select.innerHTML = options.join("");
+    select.value = options.some(function (option) { return option.indexOf('value="' + selected + '"') !== -1; }) ? selected : "*";
+  }
+
   function requestSnapshot() {
     statusNode.textContent = "Loading snapshot…";
     fetch(apiUrl + "?action=snapshot", { credentials: "same-origin", headers: { "Accept": "application/json" } })
@@ -286,6 +381,20 @@
   }
 
   scanButton.addEventListener("click", runScan);
+  loadExclusionRules();
+  var exclusionForm = document.getElementById("exclusion-form");
+  if (exclusionForm) exclusionForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var rule = {
+      network: document.getElementById("exclusion-network").value,
+      match_type: document.getElementById("exclusion-type").value,
+      value: document.getElementById("exclusion-value").value.trim(),
+      reason: document.getElementById("exclusion-reason").value.trim(),
+      enabled: true
+    };
+    saveExclusionRules(exclusionRules.concat([rule]), "Exclusion rule added.");
+    exclusionForm.reset();
+  });
   if (addressFilter) addressFilter.addEventListener("input", function () { filterAddressRows(true); });
   if (statusFilter) statusFilter.addEventListener("change", function () { filterAddressRows(true); });
   var pageSizeNode = document.getElementById("page-size");
@@ -327,6 +436,20 @@
     filterAddressRows(false);
   });
   document.addEventListener("click", function (event) {
+    var toggleExclusion = event.target.closest("[data-exclusion-toggle]");
+    var deleteExclusion = event.target.closest("[data-exclusion-delete]");
+    if (toggleExclusion) {
+      var toggleId = toggleExclusion.getAttribute("data-exclusion-toggle");
+      saveExclusionRules(exclusionRules.map(function (rule) {
+        return rule.id === toggleId ? Object.assign({}, rule, { enabled: !rule.enabled }) : rule;
+      }), "Exclusion rule updated.");
+      return;
+    }
+    if (deleteExclusion) {
+      var deleteId = deleteExclusion.getAttribute("data-exclusion-delete");
+      saveExclusionRules(exclusionRules.filter(function (rule) { return rule.id !== deleteId; }), "Exclusion rule deleted.");
+      return;
+    }
     var detailsButton = event.target.closest("[data-toggle-details]");
     if (detailsButton) {
       var detailKey = detailsButton.getAttribute("data-toggle-details");

@@ -31,6 +31,7 @@ declare(strict_types=1);
       <button class="workspace-tab" type="button" data-view="templates">Templates</button>
       <button class="workspace-tab" type="button" data-view="conflicts">Conflicts</button>
       <button class="workspace-tab" type="button" data-view="containers">Containers</button>
+      <button class="workspace-tab" type="button" data-view="exclusions">Exclusions</button>
     </nav>
 
     <section class="view-panel is-active" data-panel="overview">
@@ -85,6 +86,7 @@ declare(strict_types=1);
             <option value="reserved">Reserved</option>
             <option value="system">System</option>
             <option value="conflict">Conflict</option>
+            <option value="excluded">Excluded</option>
           </select>
         </div>
         <div class="address-list-tools">
@@ -153,6 +155,51 @@ declare(strict_types=1);
       </div>
     </section>
 
+    </section>
+
+
+    <section class="view-panel" data-panel="exclusions">
+      <section class="panel exclusion-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>IP exclusion rules</h2>
+            <p>Keep selected IPv4 addresses or subnets out of the available-address suggestions</p>
+          </div>
+        </div>
+        <form id="exclusion-form" class="exclusion-form">
+          <label>Docker network
+            <select id="exclusion-network" required>
+              <option value="*">All networks</option>
+            </select>
+          </label>
+          <label>Rule type
+            <select id="exclusion-type">
+              <option value="ip">Single IPv4</option>
+              <option value="cidr">IPv4 subnet (CIDR)</option>
+            </select>
+          </label>
+          <label class="exclusion-value-field">Address / subnet
+            <input id="exclusion-value" type="text" placeholder="192.168.50.20" maxlength="32" required>
+          </label>
+          <label class="exclusion-reason-field">Reason
+            <input id="exclusion-reason" type="text" placeholder="e.g. DHCP reservation" maxlength="160" required>
+          </label>
+          <button id="exclusion-submit" class="button button-primary" type="submit">Add rule</button>
+        </form>
+        <div id="exclusion-feedback" class="exclusion-feedback" role="status" aria-live="polite" hidden></div>
+        <div class="exclusion-summary">
+          <span><strong id="exclusion-total">0</strong> rules</span>
+          <span><strong id="exclusion-active">0</strong> enabled</span>
+          <span>Saved on this Unraid server</span>
+        </div>
+        <div class="table-wrap exclusion-table-wrap">
+          <table class="exclusion-table">
+            <thead><tr><th>Network</th><th>Match</th><th>Reason</th><th>State</th><th>Actions</th></tr></thead>
+            <tbody id="exclusion-list"><tr><td colspan="5" class="table-empty">Loading exclusion rules…</td></tr></tbody>
+          </table>
+        </div>
+        <div class="exclusion-footnote">Excluded addresses remain visible in the inventory. If an excluded address is already occupied, reserved or assigned to a system service, IPScope reports it as a conflict instead of hiding the owner.</div>
+      </section>
     </section>
 
     <footer class="footer">

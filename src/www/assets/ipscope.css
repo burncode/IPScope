@@ -334,3 +334,51 @@ tbody tr:last-child td { border-bottom: 0; }
     justify-content: flex-start;
   }
 }
+
+
+/* T017-B: persistent IP exclusion rule manager */
+.status-excluded { color: #64748b; background: #eef1f4; }
+.exclusion-panel { overflow: hidden; }
+.exclusion-form {
+  display: grid;
+  grid-template-columns: minmax(140px, .9fr) minmax(140px, .8fr) minmax(190px, 1fr) minmax(190px, 1.2fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 17px 19px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfcfd;
+}
+.exclusion-form label { display: flex; flex-direction: column; gap: 6px; color: var(--muted); font-size: 11px; font-weight: 600; }
+.exclusion-form input, .exclusion-form select {
+  width: 100%; min-width: 0; height: 36px; padding: 0 10px;
+  border: 1px solid var(--line); border-radius: 6px; background: #fff;
+  color: var(--text); font: inherit; font-size: 12px;
+}
+.exclusion-form input:focus, .exclusion-form select:focus {
+  outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.exclusion-form .button { height: 36px; white-space: nowrap; }
+.exclusion-feedback { margin: 12px 19px 0; padding: 9px 12px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font-size: 12px; }
+.exclusion-feedback.is-error { background: var(--danger-soft); color: var(--danger); }
+.exclusion-feedback[hidden] { display: none; }
+.exclusion-summary { display: flex; align-items: center; gap: 20px; padding: 13px 19px; color: var(--muted); font-size: 11px; }
+.exclusion-summary strong { color: var(--text); font-size: 14px; margin-right: 3px; }
+.exclusion-table th, .exclusion-table td { padding: 11px 14px; }
+.exclusion-table td:nth-child(3) { white-space: normal; }
+.exclusion-actions { white-space: nowrap; text-align: right; }
+.exclusion-action {
+  appearance: none; border: 1px solid var(--line); background: #fff; color: var(--text);
+  border-radius: 5px; padding: 6px 9px; margin-left: 6px; font: 600 11px/1.2 inherit; cursor: pointer;
+}
+.exclusion-action:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.exclusion-action.is-danger:hover { border-color: var(--danger); color: var(--danger); background: var(--danger-soft); }
+.exclusion-footnote { padding: 12px 19px 15px; color: var(--muted); font-size: 11px; line-height: 1.6; border-top: 1px solid var(--line); }
+@media (max-width: 1000px) {
+  .exclusion-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .exclusion-form .button { width: fit-content; }
+}
+@media (max-width: 600px) {
+  .exclusion-form { grid-template-columns: 1fr; }
+  .exclusion-summary { flex-wrap: wrap; gap: 9px 16px; }
+  .exclusion-table { min-width: 640px; }
+}
