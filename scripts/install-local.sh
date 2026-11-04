@@ -38,10 +38,17 @@ fi
 PACKAGE_CONTENTS="$(tar -tJf "$PACKAGE")"
 grep -Fxq './usr/local/emhttp/plugins/ipscope/IPScope.page' <<< "$PACKAGE_CONTENTS"
 grep -Fxq './usr/local/emhttp/plugins/ipscope/api.php' <<< "$PACKAGE_CONTENTS"
+grep -Fxq './usr/local/emhttp/plugins/ipscope/images/ipscope.png' <<< "$PACKAGE_CONTENTS"
+
 
 echo "==> Installing/replacing IPScope locally"
 echo "Package: $PACKAGE"
 upgradepkg --install-new "$PACKAGE"
+
+if [[ ! -s /usr/local/emhttp/plugins/ipscope/images/ipscope.png ]]; then
+  echo "Installed IPScope launcher icon is missing." >&2
+  exit 1
+fi
 
 # The launch target belongs to the installed PLG manifest, not the Slackware
 # package payload. Local package upgrades do not replace that manifest, so
