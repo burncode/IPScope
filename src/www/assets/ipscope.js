@@ -831,9 +831,27 @@
       }
       return;
     }
-    var button = event.target.closest("[data-copy-ip]");
-    if (!button) return;
-    var ip = button.getAttribute("data-copy-ip");
+    var singleCopyButton = event.target.closest("[data-copy-ip]");
+    var copyAllButton = event.target.closest("[data-copy-ips]");
+    if (!singleCopyButton && !copyAllButton) return;
+    var copyValue = "";
+    var successMessage = "";
+    if (copyAllButton) {
+      try {
+        var ipList = JSON.parse(copyAllButton.getAttribute("data-copy-ips") || "[]");
+        if (!Array.isArray(ipList) || !ipList.length || ipList.some(function (ip) {
+          return typeof ip !== "string" || !/^\\d{1,3}(?:\\.\\d{1,3}){3}$/.test(ip);
+        })) throw new Error("Invalid IP list");
+        copyValue = ipList.join("\\n");
+        successMessage = "Copied " + ipList.length + " IP addresses";
+      } catch (error) {
+        showCopyNotice("Could not copy this IP list.", true);
+        return;
+      }
+    } else {
+      copyValue = singleCopyButton.getAttribute("data-copy-ip") || "";
+      successMessage = "Copied " + copyValue;
+    }
     function showCopyNotice(message, failed) {
       var toast = document.getElementById("copy-toast");
       if (!toast) return;
@@ -845,7 +863,7 @@
     }
     function fallbackCopy() {
       var field = document.createElement("textarea");
-      field.value = ip;
+      field.value = copyValue;
       field.setAttribute("readonly", "");
       field.style.position = "fixed";
       field.style.opacity = "0";
@@ -857,15 +875,15 @@
       return copied;
     }
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(ip).then(function () {
-        showCopyNotice("Copied " + ip, false);
+      navigator.clipboard.writeText(copyValue).then(function () {
+        showCopyNotice(successMessage, false);
       }).catch(function () {
         var copied = fallbackCopy();
-        showCopyNotice(copied ? "Copied " + ip : "Copy failed. Select the IP manually.", !copied);
+        showCopyNotice(copied ? successMessage : "Copy failed. Select the IP manually.", !copied);
       });
     } else {
       var copied = fallbackCopy();
-      showCopyNotice(copied ? "Copied " + ip : "Copy failed. Select the IP manually.", !copied);
+      showCopyNotice(copied ? successMessage : "Copy failed. Select the IP manually.", !copied);
     }
   });
   requestSnapshot();
