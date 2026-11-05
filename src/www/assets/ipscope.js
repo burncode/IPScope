@@ -840,9 +840,9 @@
       try {
         var ipList = JSON.parse(copyAllButton.getAttribute("data-copy-ips") || "[]");
         if (!Array.isArray(ipList) || !ipList.length || ipList.some(function (ip) {
-          return typeof ip !== "string" || !/^\\d{1,3}(?:\\.\\d{1,3}){3}$/.test(ip);
+          return typeof ip !== "string" || !/^\d{1,3}(?:\.\d{1,3}){3}$/.test(ip);
         })) throw new Error("Invalid IP list");
-        copyValue = ipList.join("\\n");
+        copyValue = ipList.join("\n");
         successMessage = "Copied " + ipList.length + " IP addresses";
       } catch (error) {
         showCopyNotice("Could not copy this IP list.", true);
