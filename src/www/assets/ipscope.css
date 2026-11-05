@@ -564,8 +564,8 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 
 
-/* T018-B2: unify primary action buttons with Scan now */
-.ipscope #scan-button,
+/* T018-B2: match secondary actions to the existing Scan now primary button.
+   Scan now itself is intentionally left unchanged. */
 .ipscope #exclusion-submit,
 .ipscope #recommendation-run,
 .ipscope .exclusion-action,
@@ -580,38 +580,37 @@ tbody tr:last-child td { border-bottom: 0; }
   min-height: 36px !important;
   height: 36px !important;
   margin: 0 !important;
-  padding: 0 14px !important;
-  border: 1px solid #f05a36 !important;
-  border-radius: 6px !important;
-  background: #fff !important;
-  color: #e85b24 !important;
-  font: 700 11px/1 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-  letter-spacing: .08em !important;
-  text-transform: uppercase !important;
+  padding: 9px 14px !important;
+  border: 1px solid var(--accent) !important;
+  border-radius: 7px !important;
+  background: var(--accent) !important;
+  color: #fff !important;
+  font: inherit !important;
+  font-weight: 650 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
   text-decoration: none !important;
   white-space: nowrap !important;
   box-shadow: none !important;
   cursor: pointer !important;
 }
-.ipscope #scan-button:hover:not(:disabled),
 .ipscope #exclusion-submit:hover:not(:disabled),
 .ipscope #recommendation-run:hover:not(:disabled),
 .ipscope .exclusion-action:hover:not(:disabled),
 .ipscope .detail-exclude-button:hover:not(:disabled),
 .ipscope .detail-link-button:hover:not(:disabled) {
-  border-color: #e85b24 !important;
-  background: #fff5ef !important;
-  color: #e85b24 !important;
+  border-color: #125544 !important;
+  background: #125544 !important;
+  color: #fff !important;
 }
-.ipscope #scan-button:active:not(:disabled),
 .ipscope #exclusion-submit:active:not(:disabled),
 .ipscope #recommendation-run:active:not(:disabled),
 .ipscope .exclusion-action:active:not(:disabled),
 .ipscope .detail-exclude-button:active:not(:disabled),
 .ipscope .detail-link-button:active:not(:disabled) {
-  background: #ffede3 !important;
+  border-color: #0b3d2e !important;
+  background: #0b3d2e !important;
 }
-.ipscope #scan-button:disabled,
 .ipscope #exclusion-submit:disabled,
 .ipscope #recommendation-run:disabled,
 .ipscope .exclusion-action:disabled,
@@ -620,7 +619,6 @@ tbody tr:last-child td { border-bottom: 0; }
   opacity: .55 !important;
   cursor: wait !important;
 }
-.ipscope #scan-button:focus-visible,
 .ipscope #exclusion-submit:focus-visible,
 .ipscope #recommendation-run:focus-visible,
 .ipscope .exclusion-action:focus-visible,
@@ -628,9 +626,4 @@ tbody tr:last-child td { border-bottom: 0; }
 .ipscope .detail-link-button:focus-visible {
   outline: 2px solid var(--accent) !important;
   outline-offset: 2px !important;
-}
-.ipscope .exclusion-action.is-save {
-  border-color: #f05a36 !important;
-  background: #fff !important;
-  color: #e85b24 !important;
 }
