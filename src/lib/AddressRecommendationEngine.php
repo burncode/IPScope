@@ -149,7 +149,7 @@ final class AddressRecommendationEngine
         $snapshotAgeSeconds = null;
         if ($generatedAt !== '') {
             try {
-                $snapshotTimestamp = (new \\DateTimeImmutable($generatedAt))->getTimestamp();
+                $snapshotTimestamp = (new \DateTimeImmutable($generatedAt))->getTimestamp();
                 $now = time();
                 if ($snapshotTimestamp > $now + 60) {
                     $snapshotTimeStatus = 'future';
@@ -157,7 +157,7 @@ final class AddressRecommendationEngine
                     $snapshotTimeStatus = 'valid';
                     $snapshotAgeSeconds = max(0, $now - $snapshotTimestamp);
                 }
-            } catch (\\Exception $error) {
+            } catch (\Exception $error) {
                 $snapshotTimeStatus = 'invalid';
             }
         }
