@@ -79,6 +79,11 @@ $checks = [
     str_contains($result['notice'], 'DHCP'),
     str_contains($result['notice'], 'explicitly managed'),
     ($bond0['candidates'][0]['reason'] ?? '') !== '',
+    ($bond0['candidates'][0]['evidence']['inventory_status'] ?? '') === 'available',
+    ($bond0['candidates'][0]['evidence']['subnet_membership'] ?? '') === 'verified',
+    ($bond0['candidates'][0]['evidence']['known_claims'] ?? '') === 'none_recorded_by_inventory',
+    ($result['snapshot_time_status'] ?? '') === 'valid',
+    is_int($result['snapshot_age_seconds'] ?? null),
 ];
 
 $filtered = $engine->recommend($snapshot, 'bond0', 1);
@@ -101,6 +106,23 @@ try {
     $invalidLimitRejected = true;
 }
 $checks[] = $invalidLimitRejected;
+
+$invalidTimeSnapshot = $snapshot;
+$invalidTimeSnapshot['generated_at'] = 'not-a-timestamp';
+$invalidTimeResult = $engine->recommend($invalidTimeSnapshot);
+$checks[] = $invalidTimeResult['snapshot_time_status'] === 'invalid';
+$checks[] = $invalidTimeResult['snapshot_age_seconds'] === null;
+
+$missingTimeSnapshot = $snapshot;
+unset($missingTimeSnapshot['generated_at']);
+$missingTimeResult = $engine->recommend($missingTimeSnapshot);
+$checks[] = $missingTimeResult['snapshot_time_status'] === 'missing';
+
+$futureTimeSnapshot = $snapshot;
+$futureTimeSnapshot['generated_at'] = '2099-01-01T00:00:00+00:00';
+$futureTimeResult = $engine->recommend($futureTimeSnapshot);
+$checks[] = $futureTimeResult['snapshot_time_status'] === 'future';
+$checks[] = $futureTimeResult['snapshot_age_seconds'] === null;
 
 foreach ($checks as $index => $passed) {
     if (!$passed) {
