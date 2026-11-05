@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../src/lib/IPv4Calculator.php';
 require_once __DIR__ . '/../src/lib/AddressRecommendationEngine.php';
 
 use IPScope\AddressRecommendationEngine;
@@ -21,6 +22,10 @@ $snapshot = [
                 ['ip' => '192.168.50.5', 'status' => 'reserved', 'available' => false],
                 ['ip' => '192.168.50.6', 'status' => 'conflict', 'available' => false],
                 ['ip' => '192.168.50.7', 'status' => 'excluded', 'available' => false],
+                // Malformed snapshots must not smuggle non-host/out-of-pool IPs into results.
+                ['ip' => '192.168.50.0', 'status' => 'available', 'available' => true],
+                ['ip' => '192.168.50.255', 'status' => 'available', 'available' => true],
+                ['ip' => '192.168.51.10', 'status' => 'available', 'available' => true],
             ],
         ],
         [
@@ -30,6 +35,24 @@ $snapshot = [
             'ipv4' => [['subnet' => '172.17.0.0/16']],
             'known_addresses' => [
                 ['ip' => '172.17.0.2', 'status' => 'available', 'available' => true],
+            ],
+        ],
+        [
+            // Missing managed flag must fail closed, not default to managed.
+            'name' => 'unknown-pool',
+            'driver' => 'macvlan',
+            'ipv4' => [['subnet' => '10.0.0.0/24']],
+            'known_addresses' => [
+                ['ip' => '10.0.0.10', 'status' => 'available', 'available' => true],
+            ],
+        ],
+        [
+            'name' => 'invalid-pool',
+            'driver' => 'macvlan',
+            'address_space_managed' => true,
+            'ipv4' => [['subnet' => 'not-a-cidr']],
+            'known_addresses' => [
+                ['ip' => '10.0.1.10', 'status' => 'available', 'available' => true],
             ],
         ],
     ],
@@ -47,6 +70,8 @@ $checks = [
     ($bond0['candidates'][1]['ip'] ?? null) === '192.168.50.8',
     ($bond0['candidate_count'] ?? null) === 2,
     str_contains($result['notice'], 'DHCP'),
+    str_contains($result['notice'], 'explicitly managed'),
+    ($bond0['candidates'][0]['reason'] ?? '') !== '',
 ];
 
 $filtered = $engine->recommend($snapshot, 'bond0', 1);
