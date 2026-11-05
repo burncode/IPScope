@@ -220,7 +220,7 @@ declare(strict_types=1);
         <div class="panel-heading">
           <div>
             <h2>Available IP suggestions</h2>
-            <p>Ranked from the latest Docker inventory and enabled exclusion rules</p>
+            <p>Available addresses from the latest Docker inventory and enabled exclusion rules</p>
           </div>
         </div>
         <div class="recommendation-toolbar">
