@@ -564,13 +564,12 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 
 
-/* T018-B2: match secondary actions to Scan now's orange outlined style.
-   The existing #scan-button styles are intentionally untouched. */
-.ipscope #exclusion-submit,
-.ipscope #recommendation-run,
-.ipscope .exclusion-action,
-.ipscope .detail-exclude-button,
-.ipscope .detail-link-button {
+/* T018-B3: Unraid native orange-gradient hover. Scan Now remains untouched. */
+.ipscope button#exclusion-submit.button-primary,
+.ipscope button#recommendation-run,
+.ipscope button.exclusion-action,
+.ipscope button.detail-exclude-button,
+.ipscope button.detail-link-button {
   appearance: none !important;
   -webkit-appearance: none !important;
   display: inline-flex !important;
@@ -592,38 +591,40 @@ tbody tr:last-child td { border-bottom: 0; }
   white-space: nowrap !important;
   box-shadow: none !important;
   cursor: pointer !important;
+  transition: color .16s ease, background .16s ease, border-color .16s ease !important;
 }
-.ipscope #exclusion-submit:hover:not(:disabled),
-.ipscope #recommendation-run:hover:not(:disabled),
-.ipscope .exclusion-action:hover:not(:disabled),
-.ipscope .detail-exclude-button:hover:not(:disabled),
-.ipscope .detail-link-button:hover:not(:disabled) {
-  border-color: #e85b24 !important;
-  background: #fff5ef !important;
-  color: #e85b24 !important;
+.ipscope button#exclusion-submit.button-primary:hover:not(:disabled),
+.ipscope button#recommendation-run:hover:not(:disabled),
+.ipscope button.exclusion-action:hover:not(:disabled),
+.ipscope button.detail-exclude-button:hover:not(:disabled),
+.ipscope button.detail-link-button:hover:not(:disabled) {
+  border-color: var(--hover-button-border, var(--brand-orange, #ff8c2f)) !important;
+  background: var(--hover-button-background, linear-gradient(90deg, #e22828 0, #ff8c2f)) !important;
+  color: var(--hover-button-text-color, #fff) !important;
+  box-shadow: none !important;
 }
-.ipscope #exclusion-submit:active:not(:disabled),
-.ipscope #recommendation-run:active:not(:disabled),
-.ipscope .exclusion-action:active:not(:disabled),
-.ipscope .detail-exclude-button:active:not(:disabled),
-.ipscope .detail-link-button:active:not(:disabled) {
-  border-color: #e85b24 !important;
-  background: #ffede3 !important;
-  color: #e85b24 !important;
+.ipscope button#exclusion-submit.button-primary:active:not(:disabled),
+.ipscope button#recommendation-run:active:not(:disabled),
+.ipscope button.exclusion-action:active:not(:disabled),
+.ipscope button.detail-exclude-button:active:not(:disabled),
+.ipscope button.detail-link-button:active:not(:disabled) {
+  border-color: var(--brand-red, #e22828) !important;
+  background: linear-gradient(90deg, #c91f25 0, #e87525) !important;
+  color: #fff !important;
 }
-.ipscope #exclusion-submit:disabled,
-.ipscope #recommendation-run:disabled,
-.ipscope .exclusion-action:disabled,
-.ipscope .detail-exclude-button:disabled,
-.ipscope .detail-link-button:disabled {
+.ipscope button#exclusion-submit.button-primary:disabled,
+.ipscope button#recommendation-run:disabled,
+.ipscope button.exclusion-action:disabled,
+.ipscope button.detail-exclude-button:disabled,
+.ipscope button.detail-link-button:disabled {
   opacity: .55 !important;
   cursor: wait !important;
 }
-.ipscope #exclusion-submit:focus-visible,
-.ipscope #recommendation-run:focus-visible,
-.ipscope .exclusion-action:focus-visible,
-.ipscope .detail-exclude-button:focus-visible,
-.ipscope .detail-link-button:focus-visible {
+.ipscope button#exclusion-submit.button-primary:focus-visible,
+.ipscope button#recommendation-run:focus-visible,
+.ipscope button.exclusion-action:focus-visible,
+.ipscope button.detail-exclude-button:focus-visible,
+.ipscope button.detail-link-button:focus-visible {
   outline: 2px solid var(--accent) !important;
   outline-offset: 2px !important;
 }
