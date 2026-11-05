@@ -328,9 +328,8 @@
 
     results.innerHTML = networks.map(function (network) {
       var candidates = network.candidates || [];
-      var candidateMarkup = candidates.length ? candidates.map(function (candidate, index) {
+      var candidateMarkup = candidates.length ? candidates.map(function (candidate) {
         return '<div class="recommendation-candidate" title="' + escapeHtml(candidate.reason || "Inventory candidate; verify on your LAN before assigning.") + '">' +
-          '<span class="recommendation-rank">' + (index + 1) + '</span>' +
           '<code title="' + escapeHtml(candidate.reason || "Inventory candidate; verify on your LAN before assigning.") + '">' + escapeHtml(candidate.ip) + '</code>' +
           '<span class="recommendation-candidate-state" role="img" aria-label="Available" title="Available"></span>' +
           '<button type="button" class="copy-ip recommendation-copy" data-copy-ip="' +
