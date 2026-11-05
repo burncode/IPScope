@@ -246,7 +246,7 @@ declare(strict_types=1);
           <div class="recommendation-empty">No suggestions loaded yet.</div>
         </div>
         <div class="recommendation-notice">
-          Suggestions are advisory only. IPScope can identify addresses not claimed by Docker, saved templates, system addresses or enabled exclusions, but cannot see DHCP leases, offline devices or hosts outside Docker. Verify an address on your LAN before assigning it.
+          Suggestions are advisory only and are listed in numeric IP order, not safety rank. IPScope can identify addresses not claimed by Docker, saved templates, system addresses or enabled exclusions, but cannot see DHCP leases, offline devices or hosts outside Docker. Verify an address on your LAN before assigning it.
         </div>
       </section>
     </section>
