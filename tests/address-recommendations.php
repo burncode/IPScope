@@ -47,6 +47,13 @@ $snapshot = [
             ],
         ],
         [
+            'name' => 'malformed-collections',
+            'driver' => 'macvlan',
+            'address_space_managed' => true,
+            'ipv4' => 'not-an-array',
+            'known_addresses' => 'not-an-array',
+        ],
+        [
             'name' => 'invalid-pool',
             'driver' => 'macvlan',
             'address_space_managed' => true,
