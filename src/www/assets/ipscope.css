@@ -564,67 +564,21 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 
 
-/* T018-B3: Unraid native orange-gradient hover. Scan Now remains untouched. */
+/* T018-B4: Unraid-style gradient frame on actions. */
 .ipscope button#exclusion-submit.button-primary,
 .ipscope button#recommendation-run,
 .ipscope button.exclusion-action,
 .ipscope button.detail-exclude-button,
 .ipscope button.detail-link-button {
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-sizing: border-box !important;
-  min-height: 36px !important;
-  height: 36px !important;
-  margin-top: 0 !important;
-  padding: 0 14px !important;
-  border: 1px solid #f05a36 !important;
-  border-radius: 6px !important;
-  background: #fff !important;
-  color: #e85b24 !important;
-  font: 700 11px/1 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
-  letter-spacing: .08em !important;
-  text-transform: uppercase !important;
-  text-decoration: none !important;
-  white-space: nowrap !important;
-  box-shadow: none !important;
-  cursor: pointer !important;
-  transition: color .16s ease, background .16s ease, border-color .16s ease !important;
+ border:0!important;border-radius:4px!important;
+ color:var(--brand-orange,#ff8c2f)!important;
+ background:linear-gradient(90deg,var(--brand-red,#e22828) 0,var(--brand-orange,#ff8c2f)) 0 0 no-repeat,linear-gradient(90deg,var(--brand-red,#e22828) 0,var(--brand-orange,#ff8c2f)) 0 100% no-repeat,linear-gradient(0deg,var(--brand-red,#e22828) 0,var(--brand-red,#e22828)) 0 100% no-repeat,linear-gradient(0deg,var(--brand-orange,#ff8c2f) 0,var(--brand-orange,#ff8c2f)) 100% 100% no-repeat,#fff!important;
+ background-size:100% 2px,100% 2px,2px 100%,2px 100%,auto!important;
 }
 .ipscope button#exclusion-submit.button-primary:hover:not(:disabled),
 .ipscope button#recommendation-run:hover:not(:disabled),
 .ipscope button.exclusion-action:hover:not(:disabled),
 .ipscope button.detail-exclude-button:hover:not(:disabled),
 .ipscope button.detail-link-button:hover:not(:disabled) {
-  border-color: var(--hover-button-border, var(--brand-orange, #ff8c2f)) !important;
-  background: var(--hover-button-background, linear-gradient(90deg, #e22828 0, #ff8c2f)) !important;
-  color: var(--hover-button-text-color, #fff) !important;
-  box-shadow: none !important;
-}
-.ipscope button#exclusion-submit.button-primary:active:not(:disabled),
-.ipscope button#recommendation-run:active:not(:disabled),
-.ipscope button.exclusion-action:active:not(:disabled),
-.ipscope button.detail-exclude-button:active:not(:disabled),
-.ipscope button.detail-link-button:active:not(:disabled) {
-  border-color: var(--brand-red, #e22828) !important;
-  background: linear-gradient(90deg, #c91f25 0, #e87525) !important;
-  color: #fff !important;
-}
-.ipscope button#exclusion-submit.button-primary:disabled,
-.ipscope button#recommendation-run:disabled,
-.ipscope button.exclusion-action:disabled,
-.ipscope button.detail-exclude-button:disabled,
-.ipscope button.detail-link-button:disabled {
-  opacity: .55 !important;
-  cursor: wait !important;
-}
-.ipscope button#exclusion-submit.button-primary:focus-visible,
-.ipscope button#recommendation-run:focus-visible,
-.ipscope button.exclusion-action:focus-visible,
-.ipscope button.detail-exclude-button:focus-visible,
-.ipscope button.detail-link-button:focus-visible {
-  outline: 2px solid var(--accent) !important;
-  outline-offset: 2px !important;
+ color:#fff!important;background:linear-gradient(90deg,#e22828 0,#ff8c2f)!important;
 }
