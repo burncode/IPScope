@@ -301,11 +301,25 @@
     if (!summary || !results) return;
 
     var networks = data.networks || [];
+    var snapshotLabel = "Snapshot time unavailable";
+    if (data.generated_at) {
+      snapshotLabel = "Snapshot: " + data.generated_at;
+      if (data.snapshot_time_status === "valid" && Number.isFinite(Number(data.snapshot_age_seconds))) {
+        var age = Number(data.snapshot_age_seconds);
+        var ageLabel = age < 60 ? "less than a minute ago" :
+          (age < 3600 ? Math.floor(age / 60) + " min ago" :
+          (age < 86400 ? Math.floor(age / 3600) + " hr ago" : Math.floor(age / 86400) + " days ago"));
+        snapshotLabel += " · " + ageLabel;
+      } else if (data.snapshot_time_status === "future") {
+        snapshotLabel += " · system clock may be behind";
+      } else {
+        snapshotLabel += " · age unknown";
+      }
+    }
     summary.innerHTML = '<strong>' + escapeHtml(data.candidate_count || 0) +
       '</strong> available candidates across <strong>' + networks.length +
       '</strong> managed networks' +
-      (data.generated_at ? '<span class="recommendation-generated">Snapshot: ' +
-        escapeHtml(data.generated_at) + '</span>' : '');
+      '<span class="recommendation-generated">' + escapeHtml(snapshotLabel) + '</span>';
 
     if (!networks.length) {
       results.innerHTML = '<div class="recommendation-empty">No managed Docker network pools were found in this snapshot.</div>';
@@ -315,9 +329,9 @@
     results.innerHTML = networks.map(function (network) {
       var candidates = network.candidates || [];
       var candidateMarkup = candidates.length ? candidates.map(function (candidate, index) {
-        return '<div class="recommendation-candidate">' +
+        return '<div class="recommendation-candidate" title="' + escapeHtml(candidate.reason || "Inventory candidate; verify on your LAN before assigning.") + '">' +
           '<span class="recommendation-rank">' + (index + 1) + '</span>' +
-          '<code>' + escapeHtml(candidate.ip) + '</code>' +
+          '<code title="' + escapeHtml(candidate.reason || "Inventory candidate; verify on your LAN before assigning.") + '">' + escapeHtml(candidate.ip) + '</code>' +
           '<span class="recommendation-candidate-state" role="img" aria-label="Available" title="Available"></span>' +
           '<button type="button" class="copy-ip recommendation-copy" data-copy-ip="' +
           escapeHtml(candidate.ip) + '" aria-label="Copy ' + escapeHtml(candidate.ip) +
