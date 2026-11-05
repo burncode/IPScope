@@ -340,12 +340,15 @@
           '</svg></button></div>';
       }).join("") : '<div class="recommendation-empty">No known available addresses in this network.</div>';
 
+      var copyAllButton = candidates.length ? '<button type="button" class="recommendation-copy-all" data-copy-ips="' +
+        escapeHtml(JSON.stringify(candidates.map(function (candidate) { return candidate.ip; }))) +
+        '" aria-label="Copy all suggested IP addresses">Copy all</button>' : '';
       return '<article class="recommendation-network">' +
         '<div class="recommendation-network-head"><div><h3>' + escapeHtml(network.network) +
         '</h3><p>' + escapeHtml(network.driver || "unknown driver") +
         (network.subnets && network.subnets.length ? ' · ' + escapeHtml(network.subnets.join(", ")) : '') +
-        '</p></div><span><strong>' + escapeHtml(network.candidate_count || 0) +
-        '</strong> candidates</span></div>' +
+        '</p></div><div class="recommendation-network-tools"><span><strong>' + escapeHtml(network.candidate_count || 0) +
+        '</strong> candidates</span>' + copyAllButton + '</div></div>' +
         '<div class="recommendation-candidate-list">' + candidateMarkup + '</div></article>';
     }).join("");
   }
