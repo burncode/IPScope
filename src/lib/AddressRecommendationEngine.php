@@ -18,12 +18,12 @@ final class AddressRecommendationEngine
     public function recommend(array $snapshot, ?string $networkName = null, int $limit = 20): array
     {
         if ($limit < 1 || $limit > 100) {
-            throw new InvalidArgumentException('Recommendation limit must be between 1 and 100.');
+            throw new \InvalidArgumentException('Recommendation limit must be between 1 and 100.');
         }
 
         $networks = $snapshot['networks'] ?? null;
         if (!is_array($networks)) {
-            throw new InvalidArgumentException('Snapshot does not contain a valid network inventory.');
+            throw new \InvalidArgumentException('Snapshot does not contain a valid network inventory.');
         }
 
         $calculator = new IPv4Calculator();
@@ -61,7 +61,7 @@ final class AddressRecommendationEngine
                 }
                 try {
                     $range = $calculator->range($subnet);
-                } catch (InvalidArgumentException $error) {
+                } catch (\InvalidArgumentException $error) {
                     continue;
                 }
                 // The inventory only expands conventional host ranges. Match that
@@ -129,7 +129,7 @@ final class AddressRecommendationEngine
         }
 
         if ($networkName !== null && $networkName !== '' && !$knownNetwork) {
-            throw new InvalidArgumentException('The requested Docker network was not found in the snapshot.');
+            throw new \InvalidArgumentException('The requested Docker network was not found in the snapshot.');
         }
 
         $candidateCount = array_sum(array_map(
