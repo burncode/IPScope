@@ -51,7 +51,8 @@ final class AddressRecommendationEngine
 
             $subnets = [];
             $hostRanges = [];
-            foreach (($network['ipv4'] ?? []) as $config) {
+            $ipConfigs = is_array($network['ipv4'] ?? null) ? $network['ipv4'] : [];
+            foreach ($ipConfigs as $config) {
                 if (!is_array($config)) {
                     continue;
                 }
@@ -82,7 +83,8 @@ final class AddressRecommendationEngine
             }
 
             $candidates = [];
-            foreach (($network['known_addresses'] ?? []) as $address) {
+            $knownAddresses = is_array($network['known_addresses'] ?? null) ? $network['known_addresses'] : [];
+            foreach ($knownAddresses as $address) {
                 if (!is_array($address)
                     || ($address['status'] ?? '') !== 'available'
                     || ($address['available'] ?? false) !== true) {
