@@ -342,7 +342,7 @@
 
       var copyAllButton = candidates.length ? '<button type="button" class="recommendation-copy-all" data-copy-ips="' +
         escapeHtml(JSON.stringify(candidates.map(function (candidate) { return candidate.ip; }))) +
-        '" aria-label="Copy all suggested IP addresses">Copy all</button>' : '';
+        '" aria-label="Copy all displayed IP addresses">Copy shown</button>' : '';
       return '<article class="recommendation-network">' +
         '<div class="recommendation-network-head"><div><h3>' + escapeHtml(network.network) +
         '</h3><p>' + escapeHtml(network.driver || "unknown driver") +
@@ -843,7 +843,7 @@
           return typeof ip !== "string" || !/^\d{1,3}(?:\.\d{1,3}){3}$/.test(ip);
         })) throw new Error("Invalid IP list");
         copyValue = ipList.join("\n");
-        successMessage = "Copied " + ipList.length + " IP addresses";
+        successMessage = "Copied " + ipList.length + " displayed IP addresses";
       } catch (error) {
         showCopyNotice("Could not copy this IP list.", true);
         return;
