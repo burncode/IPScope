@@ -111,7 +111,12 @@ final class AddressRecommendationEngine
                 $candidates[$ip] = [
                     'ip' => $ip,
                     'status' => 'available',
-                    'reason' => 'Marked available by the inventory and verified inside a managed IPv4 host range.',
+                    'evidence' => [
+                        'inventory_status' => 'available',
+                        'subnet_membership' => 'verified',
+                        'known_claims' => 'none_recorded_by_inventory',
+                    ],
+                    'reason' => 'The snapshot marks this address available, and the address falls inside a managed subnet host range. No Docker, template, system, or exclusion claim is recorded in the inventory.',
                 ];
             }
 
@@ -139,8 +144,28 @@ final class AddressRecommendationEngine
             $selected
         ));
 
+        $generatedAt = (string)($snapshot['generated_at'] ?? '');
+        $snapshotTimeStatus = 'missing';
+        $snapshotAgeSeconds = null;
+        if ($generatedAt !== '') {
+            try {
+                $snapshotTimestamp = (new \\DateTimeImmutable($generatedAt))->getTimestamp();
+                $now = time();
+                if ($snapshotTimestamp > $now + 60) {
+                    $snapshotTimeStatus = 'future';
+                } else {
+                    $snapshotTimeStatus = 'valid';
+                    $snapshotAgeSeconds = max(0, $now - $snapshotTimestamp);
+                }
+            } catch (\\Exception $error) {
+                $snapshotTimeStatus = 'invalid';
+            }
+        }
+
         return [
-            'generated_at' => (string)($snapshot['generated_at'] ?? ''),
+            'generated_at' => $generatedAt,
+            'snapshot_time_status' => $snapshotTimeStatus,
+            'snapshot_age_seconds' => $snapshotAgeSeconds,
             'network_filter' => $networkName,
             'limit_per_network' => $limit,
             'candidate_count' => $candidateCount,
