@@ -94,6 +94,7 @@
     }
 
     var candidateButtons = [];
+    var suggestionsLoaded = false;
 
     function currentNetwork() {
       return String(networkSelect.value || "").trim();
@@ -103,29 +104,48 @@
     // edited values in Unraid's native Fixed IP field.
     function syncSelectedCandidate() {
       var currentIp = String(ipInput.value || "").trim();
+      var matchingButton = null;
+      var snapshotFresh = candidateButtons.length > 0 &&
+        candidateButtons[0].dataset.snapshotFresh === "true";
 
       candidateButtons.forEach(function (button) {
         var selected = button.dataset.ip === currentIp;
-        var snapshotFresh = button.dataset.snapshotFresh === "true";
+        var buttonSnapshotFresh = button.dataset.snapshotFresh === "true";
+        if (selected) matchingButton = button;
 
-        button.classList.toggle("is-selected", selected);
-        button.disabled = !snapshotFresh || selected;
+        // A stale recommendation must never look like a verified selection.
+        button.classList.toggle("is-selected", selected && buttonSnapshotFresh);
+        button.disabled = !buttonSnapshotFresh || selected;
         button.setAttribute("aria-pressed", selected ? "true" : "false");
         button.setAttribute(
           "aria-label",
           selected ? "Selected IP " + button.dataset.ip : "Use suggested IP " + button.dataset.ip
         );
 
-        if (selected) {
+        if (selected && buttonSnapshotFresh) {
           button.title = "Currently selected in Fixed IP field";
-        } else if (!snapshotFresh) {
+        } else if (!buttonSnapshotFresh) {
           button.title = "Rescan IPScope before using this address";
         } else {
           button.title = "Select this IP address";
         }
 
-        button.textContent = selected ? button.dataset.ip + " · Selected" : button.dataset.ip;
+        button.textContent = selected && buttonSnapshotFresh
+          ? button.dataset.ip + " · Selected"
+          : button.dataset.ip;
       });
+
+      if (!suggestionsLoaded) return;
+
+      if (!currentIp) {
+        setMessage("Select an address to fill the Fixed IP address field. IPScope will not apply or save the container.", false);
+      } else if (matchingButton && snapshotFresh) {
+        setMessage("Selected " + currentIp + ". Review the container settings before applying.", false);
+      } else if (matchingButton) {
+        setMessage("Fixed IP " + currentIp + " matches an old suggestion, but the inventory snapshot is stale. Rescan IPScope before relying on it.", true);
+      } else {
+        setMessage("Fixed IP " + currentIp + " is not in the current IPScope suggestions. Its availability has not been verified by this snapshot.", true);
+      }
     }
 
     ipInput.addEventListener("input", syncSelectedCandidate);
@@ -146,6 +166,7 @@
 
       findButton.disabled = true;
       findButton.textContent = "Checking…";
+      suggestionsLoaded = false;
       candidateButtons = [];
       candidates.textContent = "";
       candidates.hidden = true;
@@ -181,11 +202,16 @@
         var selected = networkResults.find(function (item) { return item.network === network; });
         candidates.textContent = "";
         candidateButtons = [];
+        suggestionsLoaded = true;
 
         if (!selected || !Array.isArray(selected.candidates) || !selected.candidates.length) {
           candidates.hidden = true;
-          setMessage("No available candidates were found for " + network + ". Check the latest scan and exclusion rules in IPScope.", false);
           meta.textContent = "0 candidates";
+          if (String(ipInput.value || "").trim()) {
+            syncSelectedCandidate();
+          } else {
+            setMessage("No available candidates were found for " + network + ". Check the latest scan and exclusion rules in IPScope.", false);
+          }
           return;
         }
 
@@ -229,12 +255,13 @@
         var count = candidates.children.length;
         candidates.hidden = count === 0;
         meta.textContent = count + " shown · snapshot " + ageLabel;
-        if (!snapshotFresh) {
+        if (!snapshotFresh && !String(ipInput.value || "").trim()) {
           setMessage("Suggestions are disabled because the inventory snapshot is older than 5 minutes or its timestamp is unavailable. Run Scan Now in IPScope, then check again.", true);
         } else {
-          setMessage("Select an address to fill the Fixed IP address field. IPScope will not apply or save the container.", false);
+          syncSelectedCandidate();
         }
       }).catch(function (error) {
+        suggestionsLoaded = false;
         candidates.hidden = true;
         setMessage(error.message || "Could not load available IPs.", true);
         meta.textContent = "Suggestions unavailable";
@@ -245,6 +272,7 @@
     }
 
     networkSelect.addEventListener("change", function () {
+      suggestionsLoaded = false;
       candidateButtons = [];
       candidates.textContent = "";
       candidates.hidden = true;
