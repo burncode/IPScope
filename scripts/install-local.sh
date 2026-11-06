@@ -39,6 +39,10 @@ PACKAGE_CONTENTS="$(tar -tJf "$PACKAGE")"
 grep -Fxq './usr/local/emhttp/plugins/ipscope/IPScope.page' <<< "$PACKAGE_CONTENTS"
 grep -Fxq './usr/local/emhttp/plugins/ipscope/api.php' <<< "$PACKAGE_CONTENTS"
 grep -Fxq './usr/local/emhttp/plugins/ipscope/images/ipscope.png' <<< "$PACKAGE_CONTENTS"
+grep -Fxq './usr/local/emhttp/plugins/ipscope/IPScopeDockerHook.page' <<< "$PACKAGE_CONTENTS"
+grep -Fxq './usr/local/emhttp/plugins/ipscope/include/docker-hook.php' <<< "$PACKAGE_CONTENTS"
+grep -Fxq './usr/local/emhttp/plugins/ipscope/src/www/assets/docker-ip-assistant.js' <<< "$PACKAGE_CONTENTS"
+grep -Fxq './usr/local/emhttp/plugins/ipscope/src/www/assets/docker-ip-assistant.css' <<< "$PACKAGE_CONTENTS"
 
 
 echo "==> Installing/replacing IPScope locally"
