@@ -27,7 +27,7 @@ $checks = [
     'selected candidate styling uses current freshness instead of a frozen button flag' => str_contains($source, 'candidateButtons.length > 0 && isSnapshotFresh()') && !str_contains($source, 'candidateButtons[0].dataset.snapshotFresh === "true"'),
     'each recommendation request receives a monotonically increasing request id' => str_contains($source, 'var requestSequence = 0;') && str_contains($source, 'var requestId = ++requestSequence;'),
     'stale recommendation responses are ignored even if the network changes back' => str_contains($source, 'if (requestId !== requestSequence) return;'),
-    'stale request errors cannot overwrite the current UI' => str.contains($source, 'if (requestId !== requestSequence) return;') && str_contains($source, '.catch(function (error) {\n        if (requestId !== requestSequence) return;'),
+    'stale request errors cannot overwrite the current UI' => str_contains($source, 'if (requestId !== requestSequence) return;') && str_contains($source, '.catch(function (error) {\n        if (requestId !== requestSequence) return;'),
     'stale request completion cannot re-enable a newer request button' => str_contains($source, '.finally(function () {\n        if (requestId !== requestSequence) return;'),
     'network changes invalidate in-flight recommendation requests' => str_contains($source, 'requestSequence += 1;') && str_contains($source, 'networkSelect.addEventListener("change", function () {'),
 ];
