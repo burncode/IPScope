@@ -93,9 +93,43 @@
       window.addEventListener("resize", syncPanelWidth);
     }
 
+    var candidateButtons = [];
+
     function currentNetwork() {
       return String(networkSelect.value || "").trim();
     }
+
+    // Keep the visual selection synchronized with both suggested and manually
+    // edited values in Unraid's native Fixed IP field.
+    function syncSelectedCandidate() {
+      var currentIp = String(ipInput.value || "").trim();
+
+      candidateButtons.forEach(function (button) {
+        var selected = button.dataset.ip === currentIp;
+        var snapshotFresh = button.dataset.snapshotFresh === "true";
+
+        button.classList.toggle("is-selected", selected);
+        button.disabled = !snapshotFresh || selected;
+        button.setAttribute("aria-pressed", selected ? "true" : "false");
+        button.setAttribute(
+          "aria-label",
+          selected ? "Selected IP " + button.dataset.ip : "Use suggested IP " + button.dataset.ip
+        );
+
+        if (selected) {
+          button.title = "Currently selected in Fixed IP field";
+        } else if (!snapshotFresh) {
+          button.title = "Rescan IPScope before using this address";
+        } else {
+          button.title = "Select this IP address";
+        }
+
+        button.textContent = selected ? button.dataset.ip + " · Selected" : button.dataset.ip;
+      });
+    }
+
+    ipInput.addEventListener("input", syncSelectedCandidate);
+    ipInput.addEventListener("change", syncSelectedCandidate);
 
     function setMessage(text, error) {
       message.textContent = text;
@@ -112,6 +146,8 @@
 
       findButton.disabled = true;
       findButton.textContent = "Checking…";
+      candidateButtons = [];
+      candidates.textContent = "";
       candidates.hidden = true;
       setMessage("Checking the latest IPScope inventory…", false);
 
@@ -144,6 +180,7 @@
         var networkResults = recommendation.networks || [];
         var selected = networkResults.find(function (item) { return item.network === network; });
         candidates.textContent = "";
+        candidateButtons = [];
 
         if (!selected || !Array.isArray(selected.candidates) || !selected.candidates.length) {
           candidates.hidden = true;
@@ -174,14 +211,20 @@
             ipInput.dispatchEvent(new Event("change", { bubbles: true }));
             setMessage("Selected " + ip + ". Review the container settings before applying.", false);
           });
+          useButton.dataset.ip = ip;
+          useButton.dataset.snapshotFresh = snapshotFresh ? "true" : "false";
           useButton.disabled = !snapshotFresh;
           if (!snapshotFresh) {
             useButton.setAttribute("aria-disabled", "true");
             useButton.title = "Rescan IPScope before using this address";
           }
+          useButton.setAttribute("aria-pressed", "false");
           useButton.setAttribute("aria-label", (snapshotFresh ? "Use suggested IP " : "Unavailable until a fresh scan: ") + ip);
+          candidateButtons.push(useButton);
           candidates.appendChild(useButton);
         });
+
+        syncSelectedCandidate();
 
         var count = candidates.children.length;
         candidates.hidden = count === 0;
@@ -202,6 +245,7 @@
     }
 
     networkSelect.addEventListener("change", function () {
+      candidateButtons = [];
       candidates.textContent = "";
       candidates.hidden = true;
       meta.textContent = "Suggestions are advisory";
