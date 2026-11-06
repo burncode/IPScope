@@ -99,3 +99,12 @@
   opacity: 1;
   cursor: not-allowed;
 }
+
+.ipscope-docker-ip-assistant button.ipscope-docker-ip-candidate.is-selected,
+.ipscope-docker-ip-assistant button.ipscope-docker-ip-candidate.is-selected:disabled {
+  border-color: #176c55;
+  background: #176c55;
+  color: #fff;
+  opacity: 1;
+  cursor: default;
+}
