@@ -67,9 +67,11 @@
     panel.appendChild(message);
     panel.appendChild(candidates);
 
+    // Keep the helper inside the native Fixed IP input cell. Inserting it as
+    // a sibling of that cell makes Unraid's Markdown grid place it in column 1.
     var anchor = ipInput.parentElement;
-    if (anchor && anchor.parentElement) {
-      anchor.parentElement.insertBefore(panel, anchor.nextSibling);
+    if (anchor) {
+      anchor.appendChild(panel);
     } else {
       ipContainer.appendChild(panel);
     }
@@ -133,10 +135,19 @@
           return;
         }
 
+        var age = recommendation.snapshot_age_seconds == null ? NaN : Number(recommendation.snapshot_age_seconds);
+        var timeStatus = String(recommendation.snapshot_time_status || "");
+        var snapshotFresh = timeStatus === "valid" && Number.isFinite(age) && age <= 300;
+        var ageLabel = Number.isFinite(age) ? (age < 60 ? "just now" : Math.floor(age / 60) + " min ago") : "unknown age";
+
         selected.candidates.forEach(function (candidate) {
           var ip = String(candidate.ip || "");
           if (!/^\d{1,3}(?:\.\d{1,3}){3}$/.test(ip)) return;
           var useButton = makeButton(ip, "ipscope-docker-ip-candidate", function () {
+            if (!snapshotFresh) {
+              setMessage("This inventory snapshot is not fresh enough. Rescan in IPScope before assigning an address.", true);
+              return;
+            }
             if (currentNetwork() !== network) {
               setMessage("The selected network changed. Please check suggestions again.", true);
               return;
@@ -146,17 +157,20 @@
             ipInput.dispatchEvent(new Event("change", { bubbles: true }));
             setMessage("Selected " + ip + ". Review the container settings before applying.", false);
           });
-          useButton.setAttribute("aria-label", "Use suggested IP " + ip);
+          useButton.disabled = !snapshotFresh;
+          if (!snapshotFresh) {
+            useButton.setAttribute("aria-disabled", "true");
+            useButton.title = "Rescan IPScope before using this address";
+          }
+          useButton.setAttribute("aria-label", (snapshotFresh ? "Use suggested IP " : "Unavailable until a fresh scan: ") + ip);
           candidates.appendChild(useButton);
         });
 
         var count = candidates.children.length;
         candidates.hidden = count === 0;
-        var age = recommendation.snapshot_age_seconds == null ? NaN : Number(recommendation.snapshot_age_seconds);
-        var ageLabel = Number.isFinite(age) ? (age < 60 ? "just now" : Math.floor(age / 60) + " min ago") : "unknown age";
         meta.textContent = count + " shown · snapshot " + ageLabel;
-        if (Number.isFinite(age) && age > 300) {
-          setMessage("The inventory snapshot is older than 5 minutes. These suggestions may be stale; rescan in IPScope before assigning an address.", true);
+        if (!snapshotFresh) {
+          setMessage("Suggestions are disabled because the inventory snapshot is older than 5 minutes or its timestamp is unavailable. Run Scan Now in IPScope, then check again.", true);
         } else {
           setMessage("Select an address to fill the Fixed IP address field. IPScope will not apply or save the container.", false);
         }
