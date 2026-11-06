@@ -22,6 +22,9 @@ $checks = [
     'network changes invalidate the previous suggestion state' => str_contains($source, 'networkSelect.addEventListener("change", function () {') && str_contains($source, 'suggestionsLoaded = false;'),
     'unverified manual values use a distinct warning style' => str_contains($css, '.ipscope-docker-ip-message.is-warning'),
     'warning state is applied and cleared independently from errors' => str_contains($source, 'message.classList.toggle("is-warning", !!warning && !error);'),
+    'snapshot freshness is recalculated from the live clock' => str_contains($source, 'function isSnapshotFresh()') && str_contains($source, 'Date.now() - snapshotGeneratedAt <= 300000'),
+    'candidate selection rechecks freshness at click time' => str_contains($source, 'if (!isSnapshotFresh()) {') && str_contains($source, 'This inventory snapshot is not fresh enough.'),
+    'selected candidate styling uses current freshness instead of a frozen button flag' => str_contains($source, 'candidateButtons.length > 0 && isSnapshotFresh()') && !str_contains($source, 'candidateButtons[0].dataset.snapshotFresh === "true"'),
 ];
 
 foreach ($checks as $label => $passed) {
