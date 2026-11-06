@@ -280,6 +280,10 @@
         var count = candidates.children.length;
         candidates.hidden = count === 0;
         meta.textContent = count + " shown · snapshot " + ageLabel;
+        if (count === 0 && selected.candidates.length > 0) {
+          setMessage("IPScope returned no valid, evidence-backed IPv4 candidates for this network. Rescan and check the IPScope inventory.", true);
+          return;
+        }
         if (!snapshotFresh && !String(ipInput.value || "").trim()) {
           setMessage("Suggestions are disabled because the inventory snapshot is older than 5 minutes or its timestamp is unavailable. Run Scan Now in IPScope, then check again.", true);
         } else {
