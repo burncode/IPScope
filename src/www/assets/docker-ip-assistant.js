@@ -142,18 +142,19 @@
       } else if (matchingButton && snapshotFresh) {
         setMessage("Selected " + currentIp + ". Review the container settings before applying.", false);
       } else if (matchingButton) {
-        setMessage("Fixed IP " + currentIp + " matches an old suggestion, but the inventory snapshot is stale. Rescan IPScope before relying on it.", true);
+        setMessage("Fixed IP " + currentIp + " matches an old suggestion, but the inventory snapshot is stale. Rescan IPScope before relying on it.", false, true);
       } else {
-        setMessage("Fixed IP " + currentIp + " is not in the current IPScope suggestions. Its availability has not been verified by this snapshot.", true);
+        setMessage("Fixed IP " + currentIp + " is not in the current IPScope suggestions. Its availability has not been verified by this snapshot.", false, true);
       }
     }
 
     ipInput.addEventListener("input", syncSelectedCandidate);
     ipInput.addEventListener("change", syncSelectedCandidate);
 
-    function setMessage(text, error) {
+    function setMessage(text, error, warning) {
       message.textContent = text;
       message.classList.toggle("is-error", !!error);
+      message.classList.toggle("is-warning", !!warning && !error);
     }
 
     function loadCandidates() {
