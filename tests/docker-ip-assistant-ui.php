@@ -11,7 +11,7 @@ if (!is_string($source) || !is_string($css)) {
 $checks = [
     'helper is appended inside the native Fixed IP input cell' => str_contains($source, 'anchor.appendChild(panel)'),
     'helper does not become a sibling grid cell' => !str_contains($source, 'anchor.parentElement.insertBefore(panel, anchor.nextSibling)'),
-    'freshness requires a valid timestamp' => str_contains($source, 'timeStatus === \'valid\' && Number.isFinite(age) && age <= 300'),
+    'freshness requires a valid timestamp' => str_contains($source, 'timeStatus === "valid" && Number.isFinite(age) && age <= 300'),
     'stale candidates are disabled' => str_contains($source, 'useButton.disabled = !snapshotFresh'),
     'stale candidate action has a second safety guard' => str_contains($source, 'if (!snapshotFresh) {'),
     'helper uses the full width of its native input column' => str_contains($css, 'width: 100%;') && str_contains($css, 'max-width: 100%;'),
