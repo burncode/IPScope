@@ -22,6 +22,13 @@ $checks = [
     'network changes invalidate the previous suggestion state' => str_contains($source, 'networkSelect.addEventListener("change", function () {') && str_contains($source, 'suggestionsLoaded = false;'),
     'unverified manual values use a distinct warning style' => str_contains($css, '.ipscope-docker-ip-message.is-warning'),
     'warning state is applied and cleared independently from errors' => str_contains($source, 'message.classList.toggle("is-warning", !!warning && !error);'),
+    'candidate IPv4 validation rejects malformed octets' => str_contains($source, 'function isValidIPv4(value)') && str_contains($source, 'octet <= 255'),
+    'recommendation response must contain a networks array' => str_contains($source, 'Array.isArray(recommendation.networks)'),
+    'candidate status and evidence must confirm availability' => str_contains($source, 'candidate.status !== "available"') && str_contains($source, 'evidence.subnet_membership !== "verified"') && str_contains($source, 'evidence.known_claims !== "none_recorded_by_inventory"'),
+    'candidate list is capped and duplicate IPs are discarded' => str_contains($source, 'selected.candidates.slice(0, 20)') && str_contains($source, 'seenCandidates[ip]'),
+    'negative snapshot age cannot be considered fresh' => str_contains($source, 'age >= 0 && age <= 300'),
+    'stale selection is not exposed as pressed to assistive technology' => str_contains($source, 'verifiedSelected ? "true" : "false"'),
+    'invalid candidate payload cannot silently appear as a valid empty result' => str_contains($source, 'no valid, evidence-backed IPv4 candidates'),
 ];
 
 foreach ($checks as $label => $passed) {
