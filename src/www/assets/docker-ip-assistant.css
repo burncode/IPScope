@@ -108,3 +108,7 @@
   opacity: 1;
   cursor: default;
 }
+
+.ipscope-docker-ip-message.is-warning {
+  color: #8a5a00;
+}
