@@ -291,6 +291,8 @@
     networkSelect.addEventListener("change", function () {
       suggestionsLoaded = false;
       candidateButtons = [];
+      snapshotGeneratedAt = null;
+      snapshotTimeStatus = "";
       candidates.textContent = "";
       candidates.hidden = true;
       meta.textContent = "Suggestions are advisory";
