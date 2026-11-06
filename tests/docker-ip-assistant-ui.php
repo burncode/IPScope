@@ -14,7 +14,7 @@ $checks = [
     'freshness requires a valid timestamp' => str_contains($source, 'timeStatus === "valid" && Number.isFinite(age) && age <= 300'),
     'stale candidates are disabled' => str_contains($source, 'useButton.disabled = !snapshotFresh'),
     'stale candidate action has a second safety guard' => str_contains($source, 'if (!snapshotFresh) {'),
-    'helper uses the full width of its native input column' => str_contains($css, 'width: 100%;') && str_contains($css, 'max-width: 100%;'),
+    'helper width follows the actual Fixed IP input width' => str_contains($source, 'ipInput.getBoundingClientRect().width') && str_contains($source, 'panel.style.width = Math.round(inputWidth) + "px";'),
     'disabled candidates communicate unavailable state' => str_contains($css, 'button.ipscope-docker-ip-candidate:disabled'),
 ];
 
