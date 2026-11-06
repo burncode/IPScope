@@ -16,6 +16,11 @@ $checks = [
     'stale candidate action has a second safety guard' => str_contains($source, 'if (!snapshotFresh) {'),
     'helper width follows the actual Fixed IP input width' => str_contains($source, 'ipInput.getBoundingClientRect().width') && str_contains($source, 'panel.style.width = Math.round(inputWidth) + "px";'),
     'disabled candidates communicate unavailable state' => str_contains($css, 'button.ipscope-docker-ip-candidate:disabled'),
+    'manual Fixed IP values outside suggestions are marked unverified' => str_contains($source, 'is not in the current IPScope suggestions') && str_contains($source, 'Its availability has not been verified'),
+    'stale matching suggestions are not styled as verified selections' => str_contains($source, 'selected && buttonSnapshotFresh') && str_contains($source, 'matches an old suggestion, but the inventory snapshot is stale'),
+    'manual value status updates when the input changes' => str_contains($source, 'ipInput.addEventListener("input", syncSelectedCandidate)') && str_contains($source, 'ipInput.addEventListener("change", syncSelectedCandidate)'),
+    'network changes invalidate the previous suggestion state' => str_contains($source, 'networkSelect.addEventListener("change", function () {\n      suggestionsLoaded = false;'),
+    'unverified manual values use a distinct warning style' => str_contains($css, '.ipscope-docker-ip-message.is-warning'),
 ];
 
 foreach ($checks as $label => $passed) {
