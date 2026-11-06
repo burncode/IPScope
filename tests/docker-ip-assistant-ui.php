@@ -21,6 +21,7 @@ $checks = [
     'manual value status updates when the input changes' => str_contains($source, 'ipInput.addEventListener("input", syncSelectedCandidate)') && str_contains($source, 'ipInput.addEventListener("change", syncSelectedCandidate)'),
     'network changes invalidate the previous suggestion state' => str_contains($source, 'networkSelect.addEventListener("change", function () {\n      suggestionsLoaded = false;'),
     'unverified manual values use a distinct warning style' => str_contains($css, '.ipscope-docker-ip-message.is-warning'),
+    'warning state is applied and cleared independently from errors' => str_contains($source, 'message.classList.toggle("is-warning", !!warning && !error);'),
 ];
 
 foreach ($checks as $label => $passed) {
