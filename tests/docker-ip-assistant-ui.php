@@ -11,9 +11,9 @@ if (!is_string($source) || !is_string($css)) {
 $checks = [
     'helper is appended inside the native Fixed IP input cell' => str_contains($source, 'anchor.appendChild(panel)'),
     'helper does not become a sibling grid cell' => !str_contains($source, 'anchor.parentElement.insertBefore(panel, anchor.nextSibling)'),
-    'freshness requires a valid timestamp' => str_contains($source, 'timeStatus === "valid" && Number.isFinite(age) && age <= 300'),
+    'freshness requires a valid timestamp and live-clock expiry' => str_contains($source, 'snapshotTimeStatus === "valid"') && str_contains($source, 'now - snapshotGeneratedAt <= 300000'),
     'stale candidates are disabled' => str_contains($source, 'useButton.disabled = !snapshotFresh'),
-    'stale candidate action has a second safety guard' => str_contains($source, 'if (!snapshotFresh) {'),
+    'candidate action rechecks freshness at click time' => str_contains($source, 'if (!isSnapshotFresh()) {'),
     'helper width follows the actual Fixed IP input width' => str_contains($source, 'ipInput.getBoundingClientRect().width') && str_contains($source, 'panel.style.width = Math.round(inputWidth) + "px";'),
     'disabled candidates communicate unavailable state' => str_contains($css, 'button.ipscope-docker-ip-candidate:disabled'),
     'manual Fixed IP values outside suggestions are marked unverified' => str_contains($source, 'is not in the current IPScope suggestions') && str_contains($source, 'Its availability has not been verified'),
