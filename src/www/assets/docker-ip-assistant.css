@@ -1,0 +1,89 @@
+.ipscope-docker-ip-assistant {
+  margin: 10px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid #dce4e9;
+  border-radius: 6px;
+  background: #f8fafb;
+  color: #303b46;
+  font-size: 12px;
+}
+.ipscope-docker-ip-assistant[hidden] { display: none !important; }
+.ipscope-docker-ip-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+.ipscope-docker-ip-heading strong {
+  color: #26343d;
+  font-size: 12px;
+  font-weight: 700;
+}
+.ipscope-docker-ip-meta {
+  color: #718397;
+  font-size: 11px;
+}
+.ipscope-docker-ip-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ipscope-docker-ip-assistant button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  min-height: 30px;
+  margin: 0;
+  padding: 0 11px;
+  border: 1px solid #f05a36;
+  border-radius: 5px;
+  background: #fff;
+  color: #e85b24;
+  font: 700 10px/1 Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ipscope-docker-ip-assistant button:hover:not(:disabled) {
+  border-color: #f05a36;
+  background: linear-gradient(180deg, #fff7f1 0%, #ffe4d3 100%);
+  color: #d94b1c;
+}
+.ipscope-docker-ip-assistant button:focus-visible {
+  outline: 2px solid #f05a36;
+  outline-offset: 2px;
+}
+.ipscope-docker-ip-assistant button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+.ipscope-docker-ip-message {
+  margin: 8px 0 0;
+  color: #718397;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.ipscope-docker-ip-message.is-error { color: #a33a2b; }
+.ipscope-docker-ip-candidates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ipscope-docker-ip-candidates[hidden] { display: none !important; }
+.ipscope-docker-ip-assistant button.ipscope-docker-ip-candidate {
+  min-height: 28px;
+  padding: 0 9px;
+  border-color: #cbded5;
+  background: #edf6f1;
+  color: #176c55;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ipscope-docker-ip-assistant button.ipscope-docker-ip-candidate:hover:not(:disabled) {
+  border-color: #176c55;
+  background: #dcefe5;
+  color: #125b48;
+}
