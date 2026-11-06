@@ -95,9 +95,22 @@
 
     var candidateButtons = [];
     var suggestionsLoaded = false;
+    var snapshotGeneratedAt = null;
+    var snapshotTimeStatus = "";
 
     function currentNetwork() {
       return String(networkSelect.value || "").trim();
+    }
+
+    // Re-evaluate freshness against the live clock whenever the user interacts.
+    // The API age is captured when the response arrives, so the deadline keeps
+    // advancing instead of freezing the original boolean for the page lifetime.
+    function isSnapshotFresh() {
+      var now = Date.now();
+      return snapshotTimeStatus === "valid" &&
+        Number.isFinite(snapshotGeneratedAt) &&
+        snapshotGeneratedAt <= now + 60000 &&
+        now - snapshotGeneratedAt <= 300000;
     }
 
     // Keep the visual selection synchronized with both suggested and manually
@@ -105,12 +118,11 @@
     function syncSelectedCandidate() {
       var currentIp = String(ipInput.value || "").trim();
       var matchingButton = null;
-      var snapshotFresh = candidateButtons.length > 0 &&
-        candidateButtons[0].dataset.snapshotFresh === "true";
+      var snapshotFresh = candidateButtons.length > 0 && isSnapshotFresh();
 
       candidateButtons.forEach(function (button) {
         var selected = button.dataset.ip === currentIp;
-        var buttonSnapshotFresh = button.dataset.snapshotFresh === "true";
+        var buttonSnapshotFresh = isSnapshotFresh();
         if (selected) matchingButton = button;
 
         // A stale recommendation must never look like a verified selection.
@@ -169,6 +181,8 @@
       findButton.textContent = "Checking…";
       suggestionsLoaded = false;
       candidateButtons = [];
+      snapshotGeneratedAt = null;
+      snapshotTimeStatus = "";
       candidates.textContent = "";
       candidates.hidden = true;
       setMessage("Checking the latest IPScope inventory…", false);
@@ -218,14 +232,17 @@
 
         var age = recommendation.snapshot_age_seconds == null ? NaN : Number(recommendation.snapshot_age_seconds);
         var timeStatus = String(recommendation.snapshot_time_status || "");
-        var snapshotFresh = timeStatus === "valid" && Number.isFinite(age) && age <= 300;
+        snapshotTimeStatus = timeStatus;
+        snapshotGeneratedAt = Number.isFinite(age) ? Date.now() - age * 1000 : null;
+        var snapshotFresh = isSnapshotFresh();
         var ageLabel = Number.isFinite(age) ? (age < 60 ? "just now" : Math.floor(age / 60) + " min ago") : "unknown age";
 
         selected.candidates.forEach(function (candidate) {
           var ip = String(candidate.ip || "");
           if (!/^\d{1,3}(?:\.\d{1,3}){3}$/.test(ip)) return;
           var useButton = makeButton(ip, "ipscope-docker-ip-candidate", function () {
-            if (!snapshotFresh) {
+            if (!isSnapshotFresh()) {
+              syncSelectedCandidate();
               setMessage("This inventory snapshot is not fresh enough. Rescan in IPScope before assigning an address.", true);
               return;
             }
@@ -239,7 +256,6 @@
             setMessage("Selected " + ip + ". Review the container settings before applying.", false);
           });
           useButton.dataset.ip = ip;
-          useButton.dataset.snapshotFresh = snapshotFresh ? "true" : "false";
           useButton.disabled = !snapshotFresh;
           if (!snapshotFresh) {
             useButton.setAttribute("aria-disabled", "true");
