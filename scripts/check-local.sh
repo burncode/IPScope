@@ -18,10 +18,14 @@ php tests/template-parser.php
 php tests/address-inventory.php
 php tests/address-exclusions.php
 php tests/address-recommendations.php
+php tests/docker-ip-hook.php
 php tests/snapshot-store.php
 
 if command -v node >/dev/null 2>&1; then
   node --check src/www/assets/ipscope.js
+  node --check src/www/assets/docker-ip-assistant.js
 fi
+
+php -l packaging/include/docker-hook.php
 
 echo "All local IPScope checks passed."
