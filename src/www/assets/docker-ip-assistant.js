@@ -152,7 +152,7 @@
 
         var count = candidates.children.length;
         candidates.hidden = count === 0;
-        var age = Number(recommendation.snapshot_age_seconds);
+        var age = recommendation.snapshot_age_seconds == null ? NaN : Number(recommendation.snapshot_age_seconds);
         var ageLabel = Number.isFinite(age) ? (age < 60 ? "just now" : Math.floor(age / 60) + " min ago") : "unknown age";
         meta.textContent = count + " shown · snapshot " + ageLabel;
         if (Number.isFinite(age) && age > 300) {
@@ -180,13 +180,12 @@
     // Unraid's showSubnet() toggles the Fixed IP section when network type changes.
     // Keep the helper hidden whenever the native Fixed IP field is not applicable.
     var visibilityObserver = new MutationObserver(function () {
-      var hidden = ipContainer.classList.contains("noshow") ||
-        ipContainer.hidden ||
+      var hidden = ipContainer.hidden ||
         window.getComputedStyle(ipContainer).display === "none";
       panel.hidden = hidden;
     });
     visibilityObserver.observe(ipContainer, { attributes: true, attributeFilter: ["class", "style", "hidden"] });
-    panel.hidden = ipContainer.classList.contains("noshow") ||
+    panel.hidden = ipContainer.hidden ||
       window.getComputedStyle(ipContainer).display === "none";
   }
 
