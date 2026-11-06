@@ -40,6 +40,9 @@ cp -a "$ROOT/src/ipscope-scan.php" "$DEST/"
 # The page and API live at stable plugin URLs; implementation remains under src/www.
 cp "$ROOT/packaging/IPScope.page" "$DEST/IPScope.page"
 cp "$ROOT/packaging/api.php" "$DEST/api.php"
+cp "$ROOT/packaging/IPScopeDockerHook.page" "$DEST/IPScopeDockerHook.page"
+mkdir -p "$DEST/include"
+cp "$ROOT/packaging/include/docker-hook.php" "$DEST/include/docker-hook.php"
 mkdir -p "$STAGE/install"
 cat > "$STAGE/install/slack-desc" <<'EOF'
 ipscope: IPScope (Unraid Docker IPv4 inventory)
