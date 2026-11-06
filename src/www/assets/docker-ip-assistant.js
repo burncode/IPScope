@@ -14,6 +14,16 @@
     }
   }
 
+  function isValidIPv4(value) {
+    if (typeof value !== "string" || !/^(0|[1-9]\\d{0,2})(\\.(0|[1-9]\\d{0,2})){3}$/.test(value)) {
+      return false;
+    }
+    return value.split(".").every(function (part) {
+      var octet = Number(part);
+      return Number.isInteger(octet) && octet >= 0 && octet <= 255;
+    });
+  }
+
   function makeButton(label, className, handler) {
     var button = document.createElement("button");
     button.type = "button";
@@ -116,10 +126,11 @@
         // A stale recommendation must never look like a verified selection.
         button.classList.toggle("is-selected", selected && buttonSnapshotFresh);
         button.disabled = !buttonSnapshotFresh || selected;
-        button.setAttribute("aria-pressed", selected ? "true" : "false");
+        var verifiedSelected = selected && buttonSnapshotFresh;
+        button.setAttribute("aria-pressed", verifiedSelected ? "true" : "false");
         button.setAttribute(
           "aria-label",
-          selected ? "Selected IP " + button.dataset.ip : "Use suggested IP " + button.dataset.ip
+          verifiedSelected ? "Selected IP " + button.dataset.ip : "Use suggested IP " + button.dataset.ip
         );
 
         if (selected && buttonSnapshotFresh) {
@@ -198,9 +209,14 @@
           return;
         }
 
-        var recommendation = body.recommendations || {};
-        var networkResults = recommendation.networks || [];
-        var selected = networkResults.find(function (item) { return item.network === network; });
+        var recommendation = body.recommendations;
+        if (!recommendation || !Array.isArray(recommendation.networks)) {
+          throw new Error("IPScope returned an incomplete recommendation response. Check the installed plugin version.");
+        }
+        var networkResults = recommendation.networks;
+        var selected = networkResults.find(function (item) {
+          return item && typeof item.network === "string" && item.network === network;
+        });
         candidates.textContent = "";
         candidateButtons = [];
         suggestionsLoaded = true;
@@ -218,12 +234,20 @@
 
         var age = recommendation.snapshot_age_seconds == null ? NaN : Number(recommendation.snapshot_age_seconds);
         var timeStatus = String(recommendation.snapshot_time_status || "");
-        var snapshotFresh = timeStatus === "valid" && Number.isFinite(age) && age <= 300;
+        var snapshotFresh = timeStatus === "valid" && Number.isFinite(age) && age >= 0 && age <= 300;
         var ageLabel = Number.isFinite(age) ? (age < 60 ? "just now" : Math.floor(age / 60) + " min ago") : "unknown age";
 
-        selected.candidates.forEach(function (candidate) {
-          var ip = String(candidate.ip || "");
-          if (!/^\d{1,3}(?:\.\d{1,3}){3}$/.test(ip)) return;
+        var seenCandidates = Object.create(null);
+        selected.candidates.slice(0, 20).forEach(function (candidate) {
+          if (!candidate || candidate.status !== "available") return;
+          var evidence = candidate.evidence || {};
+          if (evidence.inventory_status !== "available"
+            || evidence.subnet_membership !== "verified"
+            || evidence.known_claims !== "none_recorded_by_inventory") return;
+
+          var ip = candidate.ip;
+          if (!isValidIPv4(ip) || seenCandidates[ip]) return;
+          seenCandidates[ip] = true;
           var useButton = makeButton(ip, "ipscope-docker-ip-candidate", function () {
             if (!snapshotFresh) {
               setMessage("This inventory snapshot is not fresh enough. Rescan in IPScope before assigning an address.", true);
