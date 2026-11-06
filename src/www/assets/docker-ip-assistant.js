@@ -95,6 +95,7 @@
 
     var candidateButtons = [];
     var suggestionsLoaded = false;
+    var requestSequence = 0;
     var snapshotGeneratedAt = null;
     var snapshotTimeStatus = "";
 
@@ -177,6 +178,7 @@
         return;
       }
 
+      var requestId = ++requestSequence;
       findButton.disabled = true;
       findButton.textContent = "Checking…";
       suggestionsLoaded = false;
@@ -207,6 +209,7 @@
           return body;
         });
       }).then(function (body) {
+        if (requestId !== requestSequence) return;
         if (currentNetwork() !== network) {
           setMessage("The selected Docker network changed. Check suggestions again.", true);
           return;
@@ -278,17 +281,20 @@
           syncSelectedCandidate();
         }
       }).catch(function (error) {
+        if (requestId !== requestSequence) return;
         suggestionsLoaded = false;
         candidates.hidden = true;
         setMessage(error.message || "Could not load available IPs.", true);
         meta.textContent = "Suggestions unavailable";
       }).finally(function () {
+        if (requestId !== requestSequence) return;
         findButton.disabled = false;
         findButton.textContent = "Find available IPs";
       });
     }
 
     networkSelect.addEventListener("change", function () {
+      requestSequence += 1;
       suggestionsLoaded = false;
       candidateButtons = [];
       snapshotGeneratedAt = null;
