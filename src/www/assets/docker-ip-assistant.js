@@ -15,7 +15,7 @@
   }
 
   function isValidIPv4(value) {
-    if (typeof value !== "string" || !/^(0|[1-9]\\d{0,2})(\\.(0|[1-9]\\d{0,2})){3}$/.test(value)) {
+    if (typeof value !== "string" || !/^(0|[1-9]\d{0,2})(\.(0|[1-9]\d{0,2})){3}$/.test(value)) {
       return false;
     }
     return value.split(".").every(function (part) {
