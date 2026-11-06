@@ -76,6 +76,23 @@
       ipContainer.appendChild(panel);
     }
 
+    // Match the helper to the actual Fixed IP input width, not the wider
+    // Unraid form column that contains the input.
+    function syncPanelWidth() {
+      var inputWidth = ipInput.getBoundingClientRect().width;
+      if (inputWidth > 0) {
+        panel.style.width = Math.round(inputWidth) + "px";
+        panel.style.maxWidth = "100%";
+      }
+    }
+    syncPanelWidth();
+    if (typeof ResizeObserver !== "undefined") {
+      var inputSizeObserver = new ResizeObserver(syncPanelWidth);
+      inputSizeObserver.observe(ipInput);
+    } else {
+      window.addEventListener("resize", syncPanelWidth);
+    }
+
     function currentNetwork() {
       return String(networkSelect.value || "").trim();
     }
