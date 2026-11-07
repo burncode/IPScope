@@ -49,7 +49,7 @@ final class DockerClient
         );
 
         if (!is_array($decoded)) {
-            throw new \\RuntimeException('Docker network inspect returned an invalid response.');
+            throw new \RuntimeException('Docker network inspect returned an invalid response.');
         }
 
         $networks = [];
