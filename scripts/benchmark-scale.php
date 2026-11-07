@@ -32,7 +32,7 @@ use IPScope\ProcessRunner;
 use IPScope\SnapshotBuilder;
 use IPScope\SnapshotStore;
 
-function benchmarkFail(string $message): never
+function benchmarkFail(string $message): void
 {
     fwrite(STDERR, 'ERROR: ' . $message . PHP_EOL);
     exit(1);
@@ -210,7 +210,9 @@ try {
         putenv('IPScope_FAKE_CONTAINERS=' . $scale['containers']);
 
         $startedAt = microtime(true);
-        $memoryBefore = memory_get_usage(true);
+        if (function_exists('memory_reset_peak_usage')) {
+            memory_reset_peak_usage();
+        }
 
         $docker = new DockerClient(new ProcessRunner(), $fakeDocker);
         $snapshot = (new SnapshotBuilder($docker, $templateDirectory, $exclusionPath))->build();
