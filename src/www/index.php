@@ -32,6 +32,7 @@ declare(strict_types=1);
       <button class="workspace-tab" type="button" data-view="conflicts">Conflicts</button>
       <button class="workspace-tab" type="button" data-view="containers">Containers</button>
       <button class="workspace-tab" type="button" data-view="exclusions">Exclusions</button>
+      <button class="workspace-tab" type="button" data-view="recommendations">IP Suggestions</button>
     </nav>
 
     <section class="view-panel is-active" data-panel="overview">
@@ -210,6 +211,43 @@ declare(strict_types=1);
           </table>
         </div>
         <div class="exclusion-footnote">Excluded addresses remain visible in the inventory. If an excluded address is already occupied, reserved or assigned to a system service, IPScope reports it as a conflict instead of hiding the owner.</div>
+      </section>
+    </section>
+
+
+    <section class="view-panel" data-panel="recommendations">
+      <section class="panel recommendation-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Available IP suggestions</h2>
+            <p>Ranked from the latest Docker inventory and enabled exclusion rules</p>
+          </div>
+        </div>
+        <div class="recommendation-toolbar">
+          <label>Docker network
+            <select id="recommendation-network">
+              <option value="*">All managed networks</option>
+            </select>
+          </label>
+          <label>Suggestions per network
+            <select id="recommendation-limit">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </label>
+          <button id="recommendation-run" class="button recommendation-run" type="button">Find available IPs</button>
+        </div>
+        <div id="recommendation-summary" class="recommendation-summary">
+          Select a network and request suggestions based on the latest snapshot.
+        </div>
+        <div id="recommendation-results" class="recommendation-results">
+          <div class="recommendation-empty">No suggestions loaded yet.</div>
+        </div>
+        <div class="recommendation-notice">
+          Suggestions are advisory only. IPScope can identify addresses not claimed by Docker, saved templates, system addresses or enabled exclusions, but cannot see DHCP leases, offline devices or hosts outside Docker. Verify an address on your LAN before assigning it.
+        </div>
       </section>
     </section>
 

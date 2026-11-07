@@ -103,6 +103,7 @@
   function render(snapshot) {
     currentSnapshot = snapshot;
     populateExclusionNetworks(snapshot);
+    populateRecommendationNetworks(snapshot);
     renderExclusionRules();
     var summary = snapshot.summary || {};
     setMetric("metric-networks", summary.network_count || 0);
@@ -274,6 +275,103 @@
 
     document.getElementById("generated-at").textContent = "Last scan: " + (snapshot.generated_at || "unknown");
     statusNode.textContent = "Snapshot loaded";
+  }
+
+
+  function populateRecommendationNetworks(snapshot) {
+    var select = document.getElementById("recommendation-network");
+    if (!select) return;
+    var selected = select.value || "*";
+    var options = ['<option value="*">All managed networks</option>'];
+    (snapshot.networks || []).forEach(function (network) {
+      if (network.address_space_managed === false) return;
+      options.push('<option value="' + escapeHtml(network.name) + '">' +
+        escapeHtml(network.name) + (network.ipv4 && network.ipv4.length ? ' · ' +
+        escapeHtml(network.ipv4.map(function (item) { return item.subnet; }).filter(Boolean).join(", ")) : '') +
+        '</option>');
+    });
+    select.innerHTML = options.join("");
+    var exists = Array.from(select.options).some(function (option) { return option.value === selected; });
+    select.value = exists ? selected : "*";
+  }
+
+  function renderRecommendations(data) {
+    var summary = document.getElementById("recommendation-summary");
+    var results = document.getElementById("recommendation-results");
+    if (!summary || !results) return;
+
+    var networks = data.networks || [];
+    summary.innerHTML = '<strong>' + escapeHtml(data.candidate_count || 0) +
+      '</strong> available candidates across <strong>' + networks.length +
+      '</strong> managed networks' +
+      (data.generated_at ? '<span class="recommendation-generated">Snapshot: ' +
+        escapeHtml(data.generated_at) + '</span>' : '');
+
+    if (!networks.length) {
+      results.innerHTML = '<div class="recommendation-empty">No managed Docker network pools were found in this snapshot.</div>';
+      return;
+    }
+
+    results.innerHTML = networks.map(function (network) {
+      var candidates = network.candidates || [];
+      var candidateMarkup = candidates.length ? candidates.map(function (candidate, index) {
+        return '<div class="recommendation-candidate">' +
+          '<span class="recommendation-rank">' + (index + 1) + '</span>' +
+          '<code>' + escapeHtml(candidate.ip) + '</code>' +
+          '<span class="recommendation-candidate-state" role="img" aria-label="Available" title="Available"></span>' +
+          '<button type="button" class="copy-ip recommendation-copy" data-copy-ip="' +
+          escapeHtml(candidate.ip) + '" aria-label="Copy ' + escapeHtml(candidate.ip) +
+          '" title="Copy IP address"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+          '<rect x="8" y="8" width="12" height="13" rx="2"></rect>' +
+          '<path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2"></path>' +
+          '</svg></button></div>';
+      }).join("") : '<div class="recommendation-empty">No known available addresses in this network.</div>';
+
+      return '<article class="recommendation-network">' +
+        '<div class="recommendation-network-head"><div><h3>' + escapeHtml(network.network) +
+        '</h3><p>' + escapeHtml(network.driver || "unknown driver") +
+        (network.subnets && network.subnets.length ? ' · ' + escapeHtml(network.subnets.join(", ")) : '') +
+        '</p></div><span><strong>' + escapeHtml(network.candidate_count || 0) +
+        '</strong> candidates</span></div>' +
+        '<div class="recommendation-candidate-list">' + candidateMarkup + '</div></article>';
+    }).join("");
+  }
+
+  function loadRecommendations() {
+    var button = document.getElementById("recommendation-run");
+    var results = document.getElementById("recommendation-results");
+    var summary = document.getElementById("recommendation-summary");
+    var networkSelect = document.getElementById("recommendation-network");
+    var limitSelect = document.getElementById("recommendation-limit");
+    if (!button || !results || !summary) return;
+    if (!currentSnapshot) {
+      summary.textContent = "Run a scan before requesting IP suggestions.";
+      return;
+    }
+
+    var network = networkSelect ? networkSelect.value : "*";
+    var limit = limitSelect ? limitSelect.value : "20";
+    var query = "?action=recommendations&limit=" + encodeURIComponent(limit);
+    if (network && network !== "*") query += "&network=" + encodeURIComponent(network);
+
+    button.disabled = true;
+    button.textContent = "Finding…";
+    summary.textContent = "Checking the latest inventory…";
+    results.innerHTML = '<div class="recommendation-empty">Evaluating known address claims and exclusions…</div>';
+
+    fetch(apiUrl + query, {
+      method: "GET",
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" }
+    }).then(readApiResponse).then(function (body) {
+      renderRecommendations(body.recommendations || {});
+    }).catch(function (error) {
+      summary.textContent = "Could not generate suggestions.";
+      results.innerHTML = '<div class="recommendation-empty is-error">' + escapeHtml(error.message) + '</div>';
+    }).finally(function () {
+      button.disabled = false;
+      button.textContent = "Find available IPs";
+    });
   }
 
 
@@ -544,6 +642,8 @@
 
   scanButton.addEventListener("click", runScan);
   loadExclusionRules();
+  var recommendationButton = document.getElementById("recommendation-run");
+  if (recommendationButton) recommendationButton.addEventListener("click", loadRecommendations);
   var exclusionForm = document.getElementById("exclusion-form");
   if (exclusionForm) exclusionForm.addEventListener("submit", function (event) {
     event.preventDefault();
