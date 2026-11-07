@@ -71,7 +71,7 @@ if ($action === 'network' && ($args[1] ?? '') === 'inspect') {
             'Internal' => false,
             'IPAM' => [
                 'Config' => [[
-                    'Subnet' => '10.' . $octet . '.0.0/16',
+                    'Subnet' => '10.' . $octet . '.0.0/24',
                     'Gateway' => '10.' . $octet . '.0.1',
                 ]],
             ],
