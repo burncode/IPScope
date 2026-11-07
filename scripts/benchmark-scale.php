@@ -182,6 +182,8 @@ $scales = [
     ['label' => 'baseline', 'networks' => 4, 'containers' => 38, 'templates' => 63],
     ['label' => 'medium', 'networks' => 10, 'containers' => 100, 'templates' => 200],
     ['label' => 'large', 'networks' => 20, 'containers' => 300, 'templates' => 500],
+    ['label' => 'xlarge', 'networks' => 50, 'containers' => 1000, 'templates' => 2000],
+    ['label' => 'stress', 'networks' => 100, 'containers' => 1000, 'templates' => 5000],
 ];
 
 $workspace = sys_get_temp_dir() . '/ipscope-scale-benchmark-' . getmypid();
