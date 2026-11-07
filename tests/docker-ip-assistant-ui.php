@@ -37,7 +37,7 @@ $checks = [
     'candidate records must be valid objects before rendering' => str_contains($source, 'candidate that is not an object') && str_contains($source, 'if (!candidate || typeof candidate !== "object" || Array.isArray(candidate))'),
     'candidate IPv4 addresses reject invalid and non-canonical octets' => str_contains($source, 'function isValidIPv4Address(value)') && str_contains($source, 'number <= 255') && str_contains($source, 'octet.charAt(0) === "0"'),
     'duplicate candidate IPs are rejected' => str_contains($source, 'seenCandidates[ip]'),
-    'candidate records must be valid objects' => str_contains($source, 'candidate must be an object'),
+    'candidate records must be valid objects' => str_contains($source, 'candidate that is not an object') && str_contains($source, 'if (!candidate || typeof candidate !== "object" || Array.isArray(candidate))'),
     'response must contain at most one matching network record' => str_contains($source, 'matches.length > 1'),
     'API failures clear candidate and snapshot state' => str_contains($source, 'function clearCandidateState()') && str_contains($source, 'candidateButtons = [];') && str_contains($source, 'snapshotGeneratedAt = null;'),
     'malformed payloads are validated before rendering candidates' => str_contains($source, 'var validated = validateRecommendationPayload(body, network);') && str_contains($source, 'var selected = validated.selected;'),
