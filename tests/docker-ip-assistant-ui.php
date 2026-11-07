@@ -32,7 +32,7 @@ $checks = [
     'network changes invalidate in-flight recommendation requests' => str_contains($source, 'requestSequence += 1;') && str_contains($source, 'networkSelect.addEventListener("change", function () {'),
     'recommendation payload requires an object response with ok true' => str_contains($source, 'function validateRecommendationPayload(body, expectedNetwork)') && str_contains($source, 'body.ok !== true'),
     'recommendation network collection must be an array' => str_contains($source, '!Array.isArray(recommendation.networks)'),
-    'candidate IPv4 addresses are validated octet by octet' => str_contains($source, 'function isValidIPv4Address(value)') && str_contains($source, 'octet > 255'),
+    'candidate IPv4 addresses reject invalid and non-canonical octets' => str_contains($source, 'function isValidIPv4Address(value)') && str_contains($source, 'number <= 255') && str_contains($source, 'octet.charAt(0) === "0"'),
     'duplicate candidate IPs are rejected' => str_contains($source, 'seenCandidates[ip]'),
     'candidate records must be valid objects' => str_contains($source, 'candidate must be an object'),
     'response must contain at most one matching network record' => str_contains($source, 'matches.length > 1'),
