@@ -140,7 +140,7 @@ PHP;
     }
 }
 
-function createTemplates(string $directory, int $count, int $networkCount): void
+function createTemplates(string $directory, int $count, int $networkCount, int $containerCount): void
 {
     if (!mkdir($directory, 0700, true) && !is_dir($directory)) {
         benchmarkFail('Unable to create synthetic template directory.');
@@ -151,8 +151,11 @@ function createTemplates(string $directory, int $count, int $networkCount): void
         $octet = ($networkIndex % 250) + 1;
         $host = (intdiv($i, max(1, $networkCount)) % 250) + 2;
         $ip = '10.' . $octet . '.0.' . $host;
+        $templateName = $i < $containerCount
+            ? sprintf('synthetic-container-%06d', $i)
+            : 'Synthetic Template ' . $i;
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'
-            . '<Container><Name>Synthetic Template ' . $i . '</Name>'
+            . '<Container><Name>' . $templateName . '</Name>'
             . '<Network>ipscope-net-' . $networkIndex . '</Network>'
             . '<MyIP>' . $ip . '</MyIP>'
             . '<MyMAC></MyMAC></Container>';
@@ -206,7 +209,7 @@ try {
         $snapshotPath = $workspace . '/snapshot-' . $scale['label'] . '.json';
         $exclusionPath = $workspace . '/exclusions-' . $scale['label'] . '.json';
 
-        createTemplates($templateDirectory, $scale['templates'], $scale['networks']);
+        createTemplates($templateDirectory, $scale['templates'], $scale['networks'], $scale['containers']);
 
         putenv('IPScope_FAKE_NETWORKS=' . $scale['networks']);
         putenv('IPScope_FAKE_CONTAINERS=' . $scale['containers']);
@@ -237,6 +240,60 @@ try {
             || $actualContainers !== $scale['containers']
             || $actualTemplates !== $scale['templates']) {
             benchmarkFail('Count mismatch for scale ' . $scale['label']);
+        }
+
+        $expectedMatched = min($scale['containers'], $scale['templates']);
+        $actualMatched = (int)($decoded['summary']['matched_template_count'] ?? -1);
+        $actualOrphans = count($decoded['orphan_templates'] ?? []);
+        if ($actualMatched !== $expectedMatched
+            || $actualOrphans !== ($scale['templates'] - $expectedMatched)) {
+            benchmarkFail('Template matching count mismatch for scale ' . $scale['label']);
+        }
+
+        $calculator = new \\IPScope\\IPv4Calculator();
+        $networkByName = [];
+        foreach (($decoded['networks'] ?? []) as $network) {
+            $networkByName[(string)($network['name'] ?? '')] = $network;
+        }
+
+        foreach (($decoded['containers'] ?? []) as $container) {
+            foreach (($container['networks'] ?? []) as $networkName => $details) {
+                $network = $networkByName[$networkName] ?? null;
+                $ip = (string)($details['ipv4'] ?? '');
+                if (!is_array($network) || !filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+                    benchmarkFail('Container network/IP data is invalid for scale ' . $scale['label']);
+                }
+                $inSubnet = false;
+                foreach (($network['ipv4'] ?? []) as $config) {
+                    if (!empty($config['subnet']) && $calculator->contains((string)$config['subnet'], $ip)) {
+                        $inSubnet = true;
+                        break;
+                    }
+                }
+                if (!$inSubnet) {
+                    benchmarkFail('Container IP is outside its network subnet: ' . $ip);
+                }
+            }
+        }
+
+        foreach (($decoded['templates'] ?? []) as $template) {
+            $networkName = (string)($template['network'] ?? '');
+            $network = $networkByName[$networkName] ?? null;
+            if (!is_array($network)) {
+                benchmarkFail('Template references an unknown network for scale ' . $scale['label']);
+            }
+            foreach (($template['ips'] ?? []) as $ip) {
+                $inSubnet = false;
+                foreach (($network['ipv4'] ?? []) as $config) {
+                    if (!empty($config['subnet']) && $calculator->contains((string)$config['subnet'], (string)$ip)) {
+                        $inSubnet = true;
+                        break;
+                    }
+                }
+                if (!$inSubnet) {
+                    benchmarkFail('Template IP is outside its network subnet: ' . $ip);
+                }
+            }
         }
 
         printf("%-10s %8d %10d %10d %12.1f %12.2f %12.1f\n",
