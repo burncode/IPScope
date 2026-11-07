@@ -6,6 +6,73 @@
   var INPUT_SELECTOR = 'input[name="contMyIP"]';
   var NETWORK_SELECTOR = 'select[name="contNetwork"]';
 
+  function isValidIPv4Address(value) {
+    if (typeof value !== "string") return false;
+    var octets = value.split(".");
+    if (octets.length !== 4) return false;
+    return octets.every(function (octet) {
+      if (!/^\\d{1,3}$/.test(octet)) return false;
+      var number = Number(octet);
+      return number >= 0 && number <= 255;
+    });
+  }
+
+  function validateRecommendationPayload(body, expectedNetwork) {
+    if (!body || typeof body !== "object" || Array.isArray(body) || body.ok !== true) {
+      throw new Error("IPScope returned an invalid recommendation response.");
+    }
+
+    var recommendation = body.recommendations;
+    if (!recommendation || typeof recommendation !== "object" || Array.isArray(recommendation)) {
+      throw new Error("IPScope recommendation data is missing or invalid.");
+    }
+    if (!Array.isArray(recommendation.networks)) {
+      throw new Error("IPScope recommendation networks are invalid.");
+    }
+
+    var timeStatus = recommendation.snapshot_time_status;
+    var age = recommendation.snapshot_age_seconds;
+    if (typeof timeStatus !== "string" ||
+        (age !== null && (typeof age !== "number" || !Number.isFinite(age) || age < 0)) ||
+        (timeStatus === "valid" && typeof age !== "number")) {
+      throw new Error("IPScope snapshot timestamp data is invalid.");
+    }
+
+    recommendation.networks.forEach(function (item) {
+      if (!item || typeof item !== "object" || Array.isArray(item) ||
+          typeof item.network !== "string" || !Array.isArray(item.candidates)) {
+        throw new Error("IPScope returned an invalid network recommendation.");
+      }
+    });
+
+    var matches = recommendation.networks.filter(function (item) {
+      return item.network === expectedNetwork;
+    });
+    if (matches.length > 1) {
+      throw new Error("IPScope returned duplicate records for the selected network.");
+    }
+
+    var selected = matches[0] || null;
+    if (selected) {
+      var seenCandidates = Object.create(null);
+      selected.candidates.forEach(function (candidate) {
+        if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+          throw new Error("IPScope returned a candidate that is not an object.");
+        }
+        var ip = candidate.ip;
+        if (!isValidIPv4Address(ip)) {
+          throw new Error("IPScope returned an invalid candidate IPv4 address.");
+        }
+        if (seenCandidates[ip]) {
+          throw new Error("IPScope returned duplicate candidate IP addresses.");
+        }
+        seenCandidates[ip] = true;
+      });
+    }
+
+    return { recommendation: recommendation, selected: selected };
+  }
+
   function ready(callback) {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", callback, { once: true });
@@ -164,6 +231,15 @@
     ipInput.addEventListener("input", syncSelectedCandidate);
     ipInput.addEventListener("change", syncSelectedCandidate);
 
+    function clearCandidateState() {
+      suggestionsLoaded = false;
+      candidateButtons = [];
+      snapshotGeneratedAt = null;
+      snapshotTimeStatus = "";
+      candidates.textContent = "";
+      candidates.hidden = true;
+    }
+
     function setMessage(text, error, warning) {
       message.textContent = text;
       message.classList.toggle("is-error", !!error);
@@ -203,8 +279,11 @@
           } catch (error) {
             throw new Error("IPScope returned an invalid response. Open IPScope and check its status.");
           }
-          if (!response.ok || !body || body.ok !== true) {
+          if (!response.ok) {
             throw new Error(body && body.error ? body.error : "Could not load available IPs.");
+          }
+          if (!body || body.ok !== true) {
+            throw new Error(body && body.error ? body.error : "IPScope returned an invalid response.");
           }
           return body;
         });
@@ -215,9 +294,9 @@
           return;
         }
 
-        var recommendation = body.recommendations || {};
-        var networkResults = recommendation.networks || [];
-        var selected = networkResults.find(function (item) { return item.network === network; });
+        var validated = validateRecommendationPayload(body, network);
+        var recommendation = validated.recommendation;
+        var selected = validated.selected;
         candidates.textContent = "";
         candidateButtons = [];
         suggestionsLoaded = true;
@@ -282,8 +361,7 @@
         }
       }).catch(function (error) {
         if (requestId !== requestSequence) return;
-        suggestionsLoaded = false;
-        candidates.hidden = true;
+        clearCandidateState();
         setMessage(error.message || "Could not load available IPs.", true);
         meta.textContent = "Suggestions unavailable";
       }).finally(function () {
