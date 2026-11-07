@@ -23,6 +23,7 @@ php tests/docker-ip-assistant-ui.php
 php tests/snapshot-store.php
 php tests/snapshot-store-concurrency.php
 php tests/snapshot-store-failures.php
+php tests/snapshot-store-recovery.php
 php tests/scan-cli-dependencies.php
 php tests/docker-client.php
 php tests/process-runner.php
