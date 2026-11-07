@@ -30,6 +30,14 @@ $checks = [
     'stale request errors cannot overwrite the current UI' => str_contains($source, '.catch(function (error) {') && str_contains($source, 'if (requestId !== requestSequence) return;'),
     'stale request completion cannot re-enable a newer request button' => str_contains($source, '.finally(function () {') && str_contains($source, 'if (requestId !== requestSequence) return;'),
     'network changes invalidate in-flight recommendation requests' => str_contains($source, 'requestSequence += 1;') && str_contains($source, 'networkSelect.addEventListener("change", function () {'),
+    'recommendation payload requires an object response with ok true' => str_contains($source, 'function validateRecommendationPayload(body, expectedNetwork)') && str_contains($source, 'body.ok !== true'),
+    'recommendation network collection must be an array' => str_contains($source, '!Array.isArray(recommendation.networks)'),
+    'candidate IPv4 addresses are validated octet by octet' => str_contains($source, 'function isValidIPv4Address(value)') && str_contains($source, 'octet > 255'),
+    'duplicate candidate IPs are rejected' => str_contains($source, 'seenCandidates[ip]'),
+    'candidate records must be valid objects' => str_contains($source, 'candidate must be an object'),
+    'response must contain at most one matching network record' => str_contains($source, 'matches.length > 1'),
+    'API failures clear candidate and snapshot state' => str_contains($source, 'function clearCandidateState()') && str_contains($source, 'candidateButtons = [];') && str_contains($source, 'snapshotGeneratedAt = null;'),
+    'malformed payloads are validated before rendering candidates' => str_contains($source, 'var validated = validateRecommendationPayload(body, network);') && str_contains($source, 'var selected = validated.selected;'),
 ];
 
 foreach ($checks as $label => $passed) {
