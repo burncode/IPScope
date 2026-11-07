@@ -250,7 +250,7 @@ try {
             benchmarkFail('Template matching count mismatch for scale ' . $scale['label']);
         }
 
-        $calculator = new \\IPScope\\IPv4Calculator();
+        $calculator = new \IPScope\IPv4Calculator();
         $networkByName = [];
         foreach (($decoded['networks'] ?? []) as $network) {
             $networkByName[(string)($network['name'] ?? '')] = $network;
