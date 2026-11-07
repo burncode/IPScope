@@ -33,8 +33,10 @@
     var timeStatus = recommendation.snapshot_time_status;
     var age = recommendation.snapshot_age_seconds;
     if (typeof timeStatus !== "string" ||
+        ["valid", "missing", "future", "invalid"].indexOf(timeStatus) === -1 ||
         (age !== null && (typeof age !== "number" || !Number.isFinite(age) || age < 0)) ||
-        (timeStatus === "valid" && typeof age !== "number")) {
+        (timeStatus === "valid" && typeof age !== "number") ||
+        (timeStatus !== "valid" && age !== null)) {
       throw new Error("IPScope snapshot timestamp data is invalid.");
     }
 
