@@ -56,11 +56,11 @@ putenv('IPSCOPE_DOCKER_TEST_MODE=normal');
 $client = new DockerClient(new ProcessRunner(), $binary);
 $networks = $client->inspectNetworks();
 assertDockerClient(count($networks) === 2, 'batch inspect returns both networks');
-assertDockerClient(($networks[0]['Name'] ?? null) === 'bridge', 'first network data is preserved');
-assertDockerClient(($networks[1]['Name'] ?? null) === 'bond0', 'second network data is preserved');
+assertDockerClient(($networks[0]['Name'] ?? null) === 'bond0', 'first network data is preserved');
+assertDockerClient(($networks[1]['Name'] ?? null) === 'bridge', 'second network data is preserved');
 $calls = file($log, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
 assertDockerClient(count($calls) === 2, 'multiple networks require one list and one inspect process');
-assertDockerClient(($calls[1] ?? '') === 'network inspect bridge bond0', 'network inspect receives all names in one command');
+assertDockerClient(($calls[1] ?? '') === 'network inspect bond0 bridge', 'network inspect receives all names in one command');
 
 file_put_contents($log, '');
 putenv('IPSCOPE_DOCKER_TEST_MODE=empty');
