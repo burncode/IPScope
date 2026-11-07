@@ -107,7 +107,7 @@ if ($action === 'inspect' && ($args[1] ?? '') === '--type' && ($args[2] ?? '') =
 
         $networkIndex = $index % $networkCount;
         $octet = ($networkIndex % 250) + 1;
-        $host = ($index % 250) + 2;
+        $host = (intdiv($index, $networkCount) % 250) + 2;
         $networkName = 'ipscope-net-' . $networkIndex;
         $containers[] = [
             'Id' => hash('sha256', $id),
@@ -116,7 +116,7 @@ if ($action === 'inspect' && ($args[1] ?? '') === '--type' && ($args[2] ?? '') =
             'NetworkSettings' => [
                 'Networks' => [
                     $networkName => [
-                        'IPAddress' => '10.' . $octet . '.' . intdiv($index, 250) . '.' . $host,
+                        'IPAddress' => '10.' . $octet . '.0.' . $host,
                         'IPAMConfig' => ['IPv4Address' => ''],
                         'MacAddress' => sprintf('02:00:%02x:%02x:%02x:%02x',
                             ($index >> 24) & 255, ($index >> 16) & 255,
@@ -149,8 +149,8 @@ function createTemplates(string $directory, int $count, int $networkCount): void
     for ($i = 0; $i < $count; $i++) {
         $networkIndex = $i % max(1, $networkCount);
         $octet = ($networkIndex % 250) + 1;
-        $host = ($i % 250) + 2;
-        $ip = '10.' . $octet . '.' . intdiv($i, 250) . '.' . $host;
+        $host = (intdiv($i, max(1, $networkCount)) % 250) + 2;
+        $ip = '10.' . $octet . '.0.' . $host;
         $xml = '<?xml version="1.0" encoding="UTF-8"?>'
             . '<Container><Name>Synthetic Template ' . $i . '</Name>'
             . '<Network>ipscope-net-' . $networkIndex . '</Network>'
