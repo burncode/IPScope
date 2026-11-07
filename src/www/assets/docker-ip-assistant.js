@@ -11,7 +11,7 @@
     var octets = value.split(".");
     if (octets.length !== 4) return false;
     return octets.every(function (octet) {
-      if (!/^\\d{1,3}$/.test(octet)) return false;
+      if (!/^\d{1,3}$/.test(octet) || (octet.length > 1 && octet.charAt(0) === "0")) return false;
       var number = Number(octet);
       return number >= 0 && number <= 255;
     });
