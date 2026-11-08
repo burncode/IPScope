@@ -35,11 +35,11 @@ $englishJsKeys = ipscopeTranslationKeys($englishJs);
 $chineseJsKeys = ipscopeTranslationKeys($chineseJs);
 $englishJsKeys = ipscopeTranslationKeys($englishJs);
 $chineseJsKeys = ipscopeTranslationKeys($chineseJs);
-preg_match_all('/_\("([^"]+)"\)/', $page, $phpMatches);
+preg_match_all('/_\((["\'])(.*?)\1\)/', $page, $phpMatches);
 preg_match_all('/\bt\("([^"]+)"\)/', $script, $jsMatches);
-$usedKeys = array_unique(array_merge($phpMatches[1] ?? [], $jsMatches[1] ?? []));
-$missingEnglish = array_values(array_diff($phpMatches[1] ?? [], array_keys($englishKeys)));
-$missingChinese = array_values(array_diff($phpMatches[1] ?? [], array_keys($chineseKeys)));
+$usedKeys = array_unique(array_merge($phpMatches[2] ?? [], $jsMatches[1] ?? []));
+$missingEnglish = array_values(array_diff($phpMatches[2] ?? [], array_keys($englishKeys)));
+$missingChinese = array_values(array_diff($phpMatches[2] ?? [], array_keys($chineseKeys)));
 $missingEnglishJs = array_values(array_diff($jsMatches[1] ?? [], array_keys($englishJsKeys)));
 $missingChineseJs = array_values(array_diff($jsMatches[1] ?? [], array_keys($chineseJsKeys)));
 
