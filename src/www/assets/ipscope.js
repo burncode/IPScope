@@ -177,7 +177,7 @@
           '<td class="ip-cell">' + escapeHtml(address.ip) + '</td>' +
           '<td><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></td>' +
           '<td title="' + escapeHtml(ownerText + (reason ? ' · ' + reason : '') + (exclusionReasons.length ? ' · ' + t("Exclusion:") + ' ' + exclusionReasons.join(', ') : '')) + '">' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + (exclusionReasons.length ? ' <span class="exclusion-match-tag" title="' + escapeHtml(exclusionReasons.join(', ')) + '">' + t("Rule match") + '</span>' : '') + '</td>' +
-          '<td class="address-actions"><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="Copy ' + escapeHtml(address.ip) + '">Copy</button>' +
+          '<td class="address-actions"><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="' + t("Copy") + ' ' + escapeHtml(address.ip) + '">' + t("Copy") + '</button>' +
           '<button class="details-ip" type="button" data-toggle-details="' + escapeHtml(detailKey) + '">' + t("Details") + '</button></td>' +
           '</tr><tr class="address-detail-row" data-detail-for="' + escapeHtml(detailKey) + '" hidden><td colspan="4">' + detailContent + '</td></tr>';
       }).join("");
