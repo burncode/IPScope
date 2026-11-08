@@ -279,7 +279,7 @@
     }).join("") : '<tr><td colspan="4" class="table-empty">No containers were discovered.</td></tr>';
 
     document.getElementById("generated-at").textContent = "Last scan: " + (snapshot.generated_at || "unknown");
-    statusNode.textContent = "Snapshot loaded";
+    statusNode.textContent = t("Snapshot loaded");
   }
 
 
@@ -376,7 +376,7 @@
     if (network && network !== "*") query += "&network=" + encodeURIComponent(network);
 
     button.disabled = true;
-    button.textContent = "Finding…";
+    button.textContent = t("Finding…");
     summary.textContent = "Checking the latest inventory…";
     results.innerHTML = '<div class="recommendation-empty">Evaluating known address claims and exclusions…</div>';
 
@@ -391,7 +391,7 @@
       results.innerHTML = '<div class="recommendation-empty is-error">' + escapeHtml(error.message) + '</div>';
     }).finally(function () {
       button.disabled = false;
-      button.textContent = "Find available IPs";
+      button.textContent = t("Find available IPs");
     });
   }
 
@@ -623,12 +623,12 @@
   }
 
   function requestSnapshot() {
-    statusNode.textContent = "Loading snapshot…";
+    statusNode.textContent = t("Loading snapshot…");
     fetch(apiUrl + "?action=snapshot", { credentials: "same-origin", headers: { "Accept": "application/json" } })
       .then(readApiResponse)
       .then(function (body) { render(body.snapshot); setNotice(""); })
       .catch(function (error) {
-        statusNode.textContent = "Snapshot unavailable";
+        statusNode.textContent = t("Snapshot unavailable");
         setNotice(error.message);
       });
   }
@@ -636,7 +636,7 @@
   function runScan() {
     scanButton.disabled = true;
     scanButton.textContent = t("Scanning…");
-    statusNode.textContent = "Collecting Docker data…";
+    statusNode.textContent = t("Collecting Docker data…");
     setNotice("");
 
     var scanHeaders = { "Accept": "application/json" };
@@ -653,7 +653,7 @@
     }).then(readApiResponse).then(function (body) {
       render(body.snapshot);
     }).catch(function (error) {
-      statusNode.textContent = "Scan failed";
+      statusNode.textContent = t("Scan failed");
       setNotice(error.message);
     }).finally(function () {
       scanButton.disabled = false;
