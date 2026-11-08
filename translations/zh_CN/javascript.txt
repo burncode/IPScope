@@ -29,6 +29,7 @@ Exclusion reason=排除原因
 No known owner Candidate is based on Docker and saved-template data only=没有已知使用者。候选判断仅基于 Docker 和已保存模板数据。
 Exclusion=排除原因：
 Rule match=规则匹配
+Copy=复制
 unknown driver=驱动类型未知
 built-in network, address pool not managed=内置网络，地址池不受管理
 IPv4 address=IPv4 地址
