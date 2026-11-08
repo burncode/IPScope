@@ -11,7 +11,7 @@ $chinese = file_get_contents($root . '/translations/zh_CN/ipscope.txt');
 function ipscopeTranslationKeys(string $contents): array
 {
     $keys = [];
-    foreach (preg_split('/\\R/', $contents) as $line) {
+    foreach (preg_split('/\R/', $contents) as $line) {
         $line = trim($line);
         if ($line === '' || str_starts_with($line, ';')) continue;
         $separator = strpos($line, '=');
@@ -27,8 +27,8 @@ function ipscopeTranslationKeys(string $contents): array
 
 $englishKeys = ipscopeTranslationKeys($english);
 $chineseKeys = ipscopeTranslationKeys($chinese);
-preg_match_all('/_\\("([^"]+)"\\)/', $page, $phpMatches);
-preg_match_all('/t\\("([^"]+)"\\)/', $script, $jsMatches);
+preg_match_all('/_\("([^"]+)"\)/', $page, $phpMatches);
+preg_match_all('/t\("([^"]+)"\)/', $script, $jsMatches);
 $usedKeys = array_unique(array_merge($phpMatches[1] ?? [], $jsMatches[1] ?? []));
 $missingEnglish = array_values(array_diff($usedKeys, array_keys($englishKeys)));
 $missingChinese = array_values(array_diff($usedKeys, array_keys($chineseKeys)));
