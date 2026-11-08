@@ -44,7 +44,7 @@ Configure exclusions for DHCP pools and infrastructure addresses before relying 
 - [ ] T014-B native WebGUI page and API route validation
 - [ ] T014-C install/uninstall/upgrade lifecycle validation
 - [ ] T015 Docker template integration (planned; not part of T014-A)
-- [ ] T022-A native Unraid i18n wiring and translation source files (local checks pending; Unraid locale-switch validation pending)
+- [ ] T022 native Unraid i18n: page and JavaScript translation coverage in progress; local checks and Unraid locale-switch validation pending
 
 ## Local checks (no Actions)
 
