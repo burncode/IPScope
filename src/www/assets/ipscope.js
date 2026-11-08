@@ -2,6 +2,11 @@
   "use strict";
 
   var apiUrl = "/plugins/ipscope/api.php";
+
+  function t(text) {
+    return typeof window._ === "function" ? window._(text) : text;
+  }
+
   var scanButton = document.getElementById("scan-button");
   var statusNode = document.getElementById("scan-status");
   var noticeNode = document.getElementById("notice");
@@ -630,7 +635,7 @@
 
   function runScan() {
     scanButton.disabled = true;
-    scanButton.textContent = "Scanning…";
+    scanButton.textContent = t("Scanning…");
     statusNode.textContent = "Collecting Docker data…";
     setNotice("");
 
@@ -652,7 +657,7 @@
       setNotice(error.message);
     }).finally(function () {
       scanButton.disabled = false;
-      scanButton.textContent = "Scan now";
+      scanButton.textContent = t("Scan now");
     });
   }
 
