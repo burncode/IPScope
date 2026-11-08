@@ -19,7 +19,7 @@ function ipscopeNormalizeTranslationKey(string $text): string
         '',
         $text
     );
-    $text = preg_replace('/<.+?\\/? >/', '', $text) ?? $text;
+    $text = preg_replace('/<[^>]*>/', '', $text) ?? $text;
     $text = preg_replace('/  +/', ' ', $text) ?? $text;
     return trim($text);
 }
@@ -45,9 +45,9 @@ $englishKeys = ipscopeTranslationKeys($english);
 $chineseKeys = ipscopeTranslationKeys($chinese);
 $englishJsKeys = ipscopeTranslationKeys($englishJs);
 $chineseJsKeys = ipscopeTranslationKeys($chineseJs);
-preg_match_all('/_\\((["\\'])(.*?)\\1\\)/', $page, $phpMatches);
-preg_match_all('/\\bt\\("([^"]+)"\\)/', $script . "\\n" . $dockerScript, $jsMatches);
-$phpSourceKeys = array_values(array_unique(array_map('ipscopeNormalizeTranslationKey', $phpMatches[2] ?? [])));
+preg_match_all('/_\("([^"]+)"\)/', $page, $phpMatches);
+preg_match_all('/\\bt\\("([^"]+)"\\)/', $script . "\n" . $dockerScript, $jsMatches);
+$phpSourceKeys = array_values(array_unique(array_map('ipscopeNormalizeTranslationKey', $phpMatches[1] ?? [])));
 $jsSourceKeys = array_values(array_unique(array_map('ipscopeNormalizeTranslationKey', $jsMatches[1] ?? [])));
 $missingEnglish = array_values(array_diff($phpSourceKeys, array_keys($englishKeys)));
 $missingChinese = array_values(array_diff($phpSourceKeys, array_keys($chineseKeys)));
@@ -76,9 +76,9 @@ $checks = [
 
 foreach ($checks as $label => $passed) {
     if (!$passed) {
-        fwrite(STDERR, "FAIL: {$label}\\n");
+        fwrite(STDERR, "FAIL: {$label}\n");
         exit(1);
     }
 }
 
-echo 'IPScope i18n smoke checks passed (' . count($checks) . " assertions).\\n";
+echo 'IPScope i18n smoke checks passed (' . count($checks) . " assertions).\n";
