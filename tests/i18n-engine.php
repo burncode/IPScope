@@ -5,8 +5,8 @@ require_once dirname(__DIR__) . '/src/i18n/I18n.php';
 
 $root = dirname(__DIR__);
 $engine = new IPScopeI18n('zh_CN', $root);
-$english = new IPScopeI18n('', $root . '/src/i18n');
-$unsupported = new IPScopeI18n('fr_FR', $root . '/src/i18n');
+$english = new IPScopeI18n('', $root);
+$unsupported = new IPScopeI18n('fr_FR', $root);
 
 $checks = [
     'Chinese locale resolves to zh' => $engine->locale() === 'zh',
