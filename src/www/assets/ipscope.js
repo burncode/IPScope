@@ -186,10 +186,10 @@
         '<div class="network-head"><div><div class="network-name">' + escapeHtml(network.name) + '</div>' +
         '<div class="network-meta">' + escapeHtml(network.driver || t("unknown driver")) +
         (subnet ? " · " + escapeHtml(subnet) : "") +
-        (managed ? "" : " · ' + t("built-in network, address pool not managed") + '") + '</div></div>' +
+        (managed ? "" : " · " + t("built-in network, address pool not managed")) + '</div></div>' +
         '<span class="network-count">' + addresses.length + ' ' + t("addresses") + '</span></div>' +
         '<div class="table-wrap address-table-wrap"><table class="address-table"><colgroup><col class="col-ip"><col class="col-status"><col class="col-owner"><col class="col-actions"></colgroup><thead><tr><th>' + t("IPv4 address") + '</th><th>' + t("Status") + '</th><th>' + t("Owner / reason") + '</th><th class="actions-heading">' + t("Actions") + '</th></tr></thead>' +
-        '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">' + t("No address records.") + '<</td></tr>') + '</tbody></table></div>' +
+        '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">' + t("No address records.") + '</td></tr>') + '</tbody></table></div>' +
         '<div class="address-pager"><span class="pager-label">—</span><div class="pager-controls"><button type="button" class="pager-button" data-page-prev disabled>' + t("Previous") + '</button><span class="pager-numbers"></span><button type="button" class="pager-button" data-page-next>' + t("Next") + '</button></div></div>' +
         '</article>';
     }).join("") || '<div class="empty-state">' + t("No Docker networks were discovered.") + '</div>';
@@ -323,7 +323,7 @@
     }
     summary.innerHTML = '<strong>' + escapeHtml(data.candidate_count || 0) +
       '</strong> ' + t("available candidates across") + '<strong>' + networks.length +
-      '</strong> ' + t("managed networks")' +
+      '</strong> ' + t("managed networks") +
       '<span class="recommendation-generated">' + escapeHtml(snapshotLabel) + '</span>';
 
     if (!networks.length) {
