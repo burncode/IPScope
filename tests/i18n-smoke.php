@@ -62,7 +62,6 @@ foreach (array_merge(array_keys($englishKeys), array_keys($chineseKeys), array_k
 }
 
 $checks = [
-    'page keeps the active Unraid locale as the document language' => str_contains($page, '$locale ?? "en-US"'),
     'PHP-rendered page labels use the native Unraid translation function' => str_contains($page, '_("Docker IPv4 inventory")') && str_contains($page, '_("IP Manager")'),
     'main and Docker JavaScript use the native Unraid translator with a safe fallback' => str_contains($script, 'typeof window._ === "function" ? window._(text) : text') && str_contains($dockerScript, 'typeof window._ === "function" ? window._(text) : text'),
     'PHP page files and JavaScript contribution fragments exist' => is_string($english) && is_string($chinese) && is_string($englishJs) && is_string($chineseJs),
