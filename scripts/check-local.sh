@@ -27,10 +27,12 @@ php tests/snapshot-store-recovery.php
 php tests/scan-cli-dependencies.php
 php tests/docker-client.php
 php tests/process-runner.php
+php tests/i18n-engine.php
 
 if command -v node >/dev/null 2>&1; then
   node --check src/www/assets/ipscope.js
   node --check src/www/assets/docker-ip-assistant.js
+  node --check src/www/assets/i18n.js
 fi
 
 php -l packaging/include/docker-hook.php
