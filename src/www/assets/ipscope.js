@@ -94,7 +94,7 @@
           numberHost.innerHTML = Array.from({ length: pageCount }, function (_, index) {
             return '<button type="button" class="pager-button pager-number' +
               (index === page ? ' is-current' : '') + '" data-page-index="' + index +
-              '" aria-label="Page ' + (index + 1) + '"' +
+              '" aria-label="' + t("Page") + ' ' + (index + 1) + '"' +
               (index === page ? ' aria-current="page"' : '') + '>' + (index + 1) + '</button>';
           }).join("");
         }
@@ -176,7 +176,7 @@
         return '<tr class="address-row" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
           '<td class="ip-cell">' + escapeHtml(address.ip) + '</td>' +
           '<td><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></td>' +
-          '<td title="' + escapeHtml(ownerText + (reason ? ' · ' + reason : '') + (exclusionReasons.length ? ' · Exclusion: ' + exclusionReasons.join(', ') : '')) + '">' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + (exclusionReasons.length ? ' <span class="exclusion-match-tag" title="' + escapeHtml(exclusionReasons.join(', ')) + '">' + t("Rule match") + '</span>' : '') + '</td>' +
+          '<td title="' + escapeHtml(ownerText + (reason ? ' · ' + reason : '') + (exclusionReasons.length ? ' · ' + t("Exclusion:") + ' ' + exclusionReasons.join(', ') : '')) + '">' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + (exclusionReasons.length ? ' <span class="exclusion-match-tag" title="' + escapeHtml(exclusionReasons.join(', ')) + '">' + t("Rule match") + '</span>' : '') + '</td>' +
           '<td class="address-actions"><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="Copy ' + escapeHtml(address.ip) + '">Copy</button>' +
           '<button class="details-ip" type="button" data-toggle-details="' + escapeHtml(detailKey) + '">' + t("Details") + '</button></td>' +
           '</tr><tr class="address-detail-row" data-detail-for="' + escapeHtml(detailKey) + '" hidden><td colspan="4">' + detailContent + '</td></tr>';
