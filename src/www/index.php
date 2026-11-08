@@ -16,23 +16,23 @@ declare(strict_types=1);
         <div class="brand-mark">IP</div>
         <div>
           <h1>IPScope</h1>
-          <p>Docker IPv4 inventory</p>
+          <p><?= _("Docker IPv4 inventory") ?></p>
         </div>
       </div>
       <div class="top-actions">
-        <span id="scan-status" class="status-text">Snapshot not loaded</span>
-        <button id="scan-button" class="button button-primary" type="button">Scan now</button>
+        <span id="scan-status" class="status-text"><?= _("Snapshot not loaded") ?></span>
+        <button id="scan-button" class="button button-primary" type="button"><?= _("Scan now") ?></button>
       </div>
     </header>
 
     <nav class="workspace-nav" aria-label="<?= htmlspecialchars(_("IPScope sections"), ENT_QUOTES, "UTF-8") ?>">
-      <button class="workspace-tab is-active" type="button" data-view="overview">Overview</button>
-      <button class="workspace-tab" type="button" data-view="addresses">IP Manager</button>
-      <button class="workspace-tab" type="button" data-view="templates">Templates</button>
-      <button class="workspace-tab" type="button" data-view="conflicts">Conflicts</button>
-      <button class="workspace-tab" type="button" data-view="containers">Containers</button>
-      <button class="workspace-tab" type="button" data-view="exclusions">Exclusions</button>
-      <button class="workspace-tab" type="button" data-view="recommendations">IP Suggestions</button>
+      <button class="workspace-tab is-active" type="button" data-view="overview"><?= _("Overview") ?></button>
+      <button class="workspace-tab" type="button" data-view="addresses"><?= _("IP Manager") ?></button>
+      <button class="workspace-tab" type="button" data-view="templates"><?= _("Templates") ?></button>
+      <button class="workspace-tab" type="button" data-view="conflicts"><?= _("Conflicts") ?></button>
+      <button class="workspace-tab" type="button" data-view="containers"><?= _("Containers") ?></button>
+      <button class="workspace-tab" type="button" data-view="exclusions"><?= _("Exclusions") ?></button>
+      <button class="workspace-tab" type="button" data-view="recommendations"><?= _("IP Suggestions") ?></button>
     </nav>
 
     <section class="view-panel is-active" data-panel="overview">
@@ -63,7 +63,7 @@ declare(strict_types=1);
 
     <section class="panel overview-panel">
       <div class="panel-heading">
-        <div><h2>Network overview</h2><p><?= _("Managed address pools and current inventory health") ?></p></div>
+        <div><h2><?= _("Network overview") ?></h2><p><?= _("Managed address pools and current inventory health") ?></p></div>
       </div>
       <div id="network-overview" class="network-overview"></div>
     </section>
@@ -73,7 +73,7 @@ declare(strict_types=1);
     <section class="panel">
       <div class="panel-heading">
         <div>
-          <h2>Network inventory</h2>
+          <h2><?= _("Network inventory") ?></h2>
           <p><?= _("Known addresses grouped by Docker network") ?></p>
         </div>
       </div>
@@ -108,7 +108,7 @@ declare(strict_types=1);
     <section class="panel">
       <div class="panel-heading">
         <div>
-          <h2>Template library audit</h2>
+          <h2><?= _("Template library audit") ?></h2>
           <p><?= _("Saved templates without a matching Docker container, plus duplicate template IPs") ?></p>
         </div>
       </div>
@@ -163,7 +163,7 @@ declare(strict_types=1);
       <section class="panel exclusion-panel">
         <div class="panel-heading">
           <div>
-            <h2>IP exclusion rules</h2>
+            <h2><?= _("IP exclusion rules") ?></h2>
             <p><?= _("Keep selected IPv4 addresses or subnets out of the available-address suggestions") ?></p>
           </div>
         </div>
@@ -180,7 +180,7 @@ declare(strict_types=1);
             </select>
           </label>
           <label class="exclusion-value-field"><?= _("Address / subnet") ?>
-            <input id="exclusion-value" type="text" placeholder="192.168.50.20" maxlength="32" required>
+            <input id="exclusion-value" type="text" placeholder="<?= htmlspecialchars(_("Example: 192.168.50.20"), ENT_QUOTES, "UTF-8") ?>" maxlength="32" required>
           </label>
           <label class="exclusion-reason-field"><?= _("Reason") ?>
             <input id="exclusion-reason" type="text" placeholder="<?= htmlspecialchars(_("e.g. DHCP reservation"), ENT_QUOTES, "UTF-8") ?>" maxlength="160" required>
@@ -219,7 +219,7 @@ declare(strict_types=1);
       <section class="panel recommendation-panel">
         <div class="panel-heading">
           <div>
-            <h2>Available IP suggestions</h2>
+            <h2><?= _("Available IP suggestions") ?></h2>
             <p><?= _("Available addresses from the latest Docker inventory and enabled exclusion rules") ?></p>
           </div>
         </div>
@@ -237,7 +237,7 @@ declare(strict_types=1);
               <option value="100">100</option>
             </select>
           </label>
-          <button id="recommendation-run" class="button recommendation-run" type="button">Find available IPs</button>
+          <button id="recommendation-run" class="button recommendation-run" type="button"><?= _("Find available IPs") ?></button>
         </div>
         <div id="recommendation-summary" class="recommendation-summary">
           <?= _("Select a network and request suggestions based on the latest snapshot.") ?>
