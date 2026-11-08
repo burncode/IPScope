@@ -22,7 +22,7 @@ final class IPScopeI18n
     {
         $this->locale = self::resolveLocale($unraidLocale);
         $root = $pluginRoot ?? dirname(__DIR__, 2);
-        $localeDir = $root . '/i18n/langs';
+        $localeDir = $root . '/src/i18n/langs';
 
         $this->english = self::readCatalog($localeDir . '/en.json');
         $selected = $this->locale === self::DEFAULT_LOCALE
