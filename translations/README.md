@@ -9,7 +9,7 @@ IPScope uses the native Unraid WebGUI translation system. It does not bundle lan
 - `javascript.txt`: English source strings used by IPScope JavaScript.
 - `zh_CN/javascript.txt`: Simplified Chinese JavaScript translations.
 
-The Unraid page route is `Utilities/IPScope`. The WebGUI translation loader uses the route segments and loads `ipscope.txt` from the active locale directory. PHP labels use the native `_()` function. Front-end JavaScript uses the global `_` translator supplied by the WebGUI layout.
+The Unraid page route is `Utilities/IPScope`. The WebGUI translation loader uses the route segments and loads `ipscope.txt` from the active locale directory. PHP labels use the native `_()` function. Front-end JavaScript uses the global `_` translator supplied by the WebGUI layout; Unraid generates `translate.{locale}.js` from the locale's `javascript*.txt` files.
 
 ## Local validation on Unraid
 
@@ -17,7 +17,9 @@ After selecting Simplified Chinese in Unraid Display Settings, copy the Chinese 
 
 ```bash
 install -D -m 0644 translations/zh_CN/ipscope.txt /usr/local/emhttp/languages/zh_CN/ipscope.txt
+install -D -m 0644 translations/zh_CN/javascript.txt /usr/local/emhttp/languages/zh_CN/javascript.txt
 rm -f /usr/local/emhttp/languages/zh_CN/ipscope.dot
+rm -f /usr/local/emhttp/webGui/javascript/translate.zh_CN.js
 ```
 
 To test English explicitly, copy `translations/ipscope.txt` to `/usr/local/emhttp/languages/en_US/ipscope.txt` and remove the matching `ipscope.dot` cache. The English text is identical to the source labels, so this is mainly a loader/path check.
