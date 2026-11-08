@@ -1,0 +1,19 @@
+{
+  "app.title": "IPScope",
+  "common.scan_now": "立即扫描",
+  "common.loading": "正在加载…",
+  "common.unknown": "未知",
+  "common.copy": "复制",
+  "common.cancel": "取消",
+  "common.save": "保存",
+  "common.delete": "删除",
+  "network.available": "可用",
+  "network.occupied": "已占用",
+  "network.reserved": "已保留",
+  "network.system": "系统",
+  "network.conflict": "冲突",
+  "network.excluded": "已排除",
+  "network.no_managed_networks": "此快照中没有发现受管理的 Docker 网络地址池。",
+  "suggestions.find": "查找可用 IP",
+  "suggestions.advisory": "地址建议仅供参考。分配前请在局域网中确认地址可用。"
+}
