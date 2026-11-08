@@ -6,10 +6,10 @@ $page = file_get_contents($root . '/src/www/index.php');
 $script = file_get_contents($root . '/src/www/assets/ipscope.js');
 $dockerScript = file_get_contents($root . '/src/www/assets/docker-ip-assistant.js');
 $api = file_get_contents($root . '/src/www/api.php');
-$english = file_get_contents($root . '/translations/ipscope.txt');
-$chinese = file_get_contents($root . '/translations/zh_CN/ipscope.txt');
-$englishJs = file_get_contents($root . '/translations/javascript.txt');
-$chineseJs = file_get_contents($root . '/translations/zh_CN/javascript.txt');
+$english = file_get_contents($root . '/translations/en_US/IPScope/ipscope.txt');
+$chinese = file_get_contents($root . '/translations/zh_CN/IPScope/ipscope.txt');
+$englishJs = file_get_contents($root . '/translations/en_US/javascript.fragment.txt');
+$chineseJs = file_get_contents($root . '/translations/zh_CN/javascript.fragment.txt');
 
 function ipscopeNormalizeTranslationKey(string $text): string
 {
@@ -65,13 +65,14 @@ $checks = [
     'page keeps the active Unraid locale as the document language' => str_contains($page, '$locale ?? "en-US"'),
     'PHP-rendered page labels use the native Unraid translation function' => str_contains($page, '_("Docker IPv4 inventory")') && str_contains($page, '_("IP Manager")'),
     'main and Docker JavaScript use the native Unraid translator with a safe fallback' => str_contains($script, 'typeof window._ === "function" ? window._(text) : text') && str_contains($dockerScript, 'typeof window._ === "function" ? window._(text) : text'),
-    'PHP and JavaScript English and Chinese translation files exist' => is_string($english) && is_string($chinese) && is_string($englishJs) && is_string($chineseJs),
+    'PHP page files and JavaScript contribution fragments exist' => is_string($english) && is_string($chinese) && is_string($englishJs) && is_string($chineseJs),
     'every PHP translation key exists in both page language files' => $missingEnglish === [] && $missingChinese === [],
     'every JavaScript translation key exists in both JavaScript language files' => $missingEnglishJs === [] && $missingChineseJs === [],
     'English and Simplified Chinese page files use the same key set' => array_keys($englishKeys) === array_keys($chineseKeys),
     'English and Simplified Chinese JavaScript files use the same key set' => array_keys($englishJsKeys) === array_keys($chineseJsKeys),
-    'all translation catalog keys follow Unraid normalization rules' => $allCatalogKeysNormalized,
+    'all translation fragment keys follow Unraid normalization rules' => $allCatalogKeysNormalized,
     'API remains independent from WebGUI translation bootstrap' => !str_contains($api, 'Translations.php') && !str_contains($api, 'function _('),
+    'package build does not install or bundle locale files' => !str_contains(file_get_contents($root . '/scripts/build-package.sh'), 'translations/') && !str_contains(file_get_contents($root . '/scripts/build-package.sh'), '/usr/local/emhttp/languages'),
 ];
 
 foreach ($checks as $label => $passed) {
