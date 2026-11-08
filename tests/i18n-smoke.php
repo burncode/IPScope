@@ -12,7 +12,7 @@ $checks = [
     'page keeps the active Unraid locale as the document language' => str_contains($page, '$locale ?? "en-US"'),
     'PHP-rendered page labels use the native Unraid translation function' => str_contains($page, '_("Docker IPv4 inventory")') && str_contains($page, '_("IP Manager")'),
     'JavaScript uses the native Unraid translator with an identity fallback' => str_contains($script, 'typeof window._ === "function" ? window._(text) : text'),
-    'JavaScript UI labels pass through the translation helper' => str_contains($script, 't("Snapshot not loaded")') && str_contains($script, 't("Scan now")'),
+    'JavaScript UI labels pass through the translation helper' => str_contains($script, 't("Scanning…")') && str_contains($script, 't("Scan now")') && str_contains($script, 't("Loading snapshot…")'),
     'English master and Simplified Chinese translations both exist' => is_string($english) && is_string($chinese) && str_contains($english, 'Docker IPv4 inventory=') && str_contains($chinese, 'Docker IPv4 inventory='),
     'API remains independent from WebGUI translation bootstrap' => !str_contains($api, 'Translations.php') && !str_contains($api, 'function _('),
 ];
