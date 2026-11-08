@@ -211,7 +211,7 @@
         if (selected && buttonSnapshotFresh) {
           button.title = t("Currently selected in Fixed IP field");
         } else if (!buttonSnapshotFresh) {
-          button.title = t(t("Rescan IPScope before using this address"));
+          button.title = t("Rescan IPScope before using this address");
         } else {
           button.title = t("Select this IP address");
         }
@@ -226,11 +226,11 @@
       if (!currentIp) {
         setMessage(t("Select an address to fill the Fixed IP address field. IPScope will not apply or save the container."), false);
       } else if (matchingButton && snapshotFresh) {
-        setMessage(t("Selected address. Review the container settings before applying.").replace("{ip}", currentIp), false);
+        setMessage(t("Selected {ip}. Review the container settings before applying.").replace("{ip}", currentIp), false);
       } else if (matchingButton) {
-        setMessage(t("Fixed IP matches an old suggestion, but the inventory snapshot is stale. Rescan IPScope before relying on it.").replace("{ip}", currentIp), false, true);
+        setMessage(t("Fixed IP {ip} matches an old suggestion, but the inventory snapshot is stale. Rescan IPScope before relying on it.").replace("{ip}", currentIp), false, true);
       } else {
-        setMessage(t("Fixed IP is not in the current IPScope suggestions. Its availability has not been verified by this snapshot.").replace("{ip}", currentIp), false, true);
+        setMessage(t("Fixed IP {ip} is not in the current IPScope suggestions. Its availability has not been verified by this snapshot.").replace("{ip}", currentIp), false, true);
       }
     }
 
