@@ -29,6 +29,7 @@ Exclusion reason=Exclusion reason
 No known owner Candidate is based on Docker and saved-template data only=No known owner. Candidate is based on Docker and saved-template data only.
 Exclusion=Exclusion:
 Rule match=Rule match
+Copy=Copy
 unknown driver=unknown driver
 built-in network, address pool not managed=built-in network, address pool not managed
 IPv4 address=IPv4 address
