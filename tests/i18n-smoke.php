@@ -28,7 +28,7 @@ function ipscopeTranslationKeys(string $contents): array
 $englishKeys = ipscopeTranslationKeys($english);
 $chineseKeys = ipscopeTranslationKeys($chinese);
 preg_match_all('/_\("([^"]+)"\)/', $page, $phpMatches);
-preg_match_all('/t\("([^"]+)"\)/', $script, $jsMatches);
+preg_match_all('/\bt\("([^"]+)"\)/', $script, $jsMatches);
 $usedKeys = array_unique(array_merge($phpMatches[1] ?? [], $jsMatches[1] ?? []));
 $missingEnglish = array_values(array_diff($usedKeys, array_keys($englishKeys)));
 $missingChinese = array_values(array_diff($usedKeys, array_keys($chineseKeys)));
