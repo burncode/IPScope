@@ -1,0 +1,19 @@
+; IPScope Simplified Chinese translation
+; Submit this file as ipscope.txt to unraid/lang-zh_CN.
+Docker IPv4 inventory=Docker IPv4 地址管理
+Snapshot not loaded=尚未加载扫描快照
+Scan now=立即扫描
+Scanning…=正在扫描…
+Scan completed=扫描完成
+Overview=概览
+IP Manager=IP 管理
+Templates=模板
+Conflicts=冲突
+Containers=容器
+Exclusions=排除规则
+IP Suggestions=IP 建议
+Network overview=网络概览
+Network inventory=网络地址清单
+Template library audit=模板审计
+IP exclusion rules=IP 排除规则
+Available IP suggestions=可用 IP 建议
