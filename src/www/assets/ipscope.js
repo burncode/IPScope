@@ -242,16 +242,16 @@
     document.getElementById("conflict-list").innerHTML = conflicts.length ? conflicts.map(function (item) {
       var details;
       if (item.type === "reservation_conflict") {
-        details = t("Stopped reservations: ") + (item.reserved_containers || item.containers || []).join(", ");
+        details = t("Stopped reservations:") + " " + (item.reserved_containers || item.containers || []).join(", ");
       } else if (item.type === "active_reservation_collision") {
-        details = t("Running: ") + (item.running_containers || []).join(", ") +
-          " · " + t("Reserved: ") + (item.reserved_containers || []).join(", ");
+        details = t("Running:") + " " + (item.running_containers || []).join(", ") +
+          " · " + t("Reserved:") + " " + (item.reserved_containers || []).join(", ");
       } else if (item.type === "multiple_runtime_owners") {
-        details = t("Running containers: ") + (item.running_containers || item.containers || []).join(", ");
+        details = t("Running containers:") + " " + (item.running_containers || item.containers || []).join(", ");
       } else if (item.type === "excluded_address_in_use") {
         details = (item.reason || t("Address matches an exclusion rule")) +
-          (item.rule_id ? " · " + t("Rule ID: ") + item.rule_id : "") +
-          (item.owners && item.owners.length ? " · " + t("Owners: ") + item.owners.join(", ") : "");
+          (item.rule_id ? " · " + t("Rule ID:") + " " + item.rule_id : "") +
+          (item.owners && item.owners.length ? " · " + t("Owners:") + " " + item.owners.join(", ") : "");
       } else {
         details = (item.container || "") + " · " + t("template") + " " + (item.template_ip || "") + " → " + t("runtime") + " " + (item.runtime_ip || "");
       }
@@ -278,7 +278,7 @@
       }).join("");
     }).join("") : '<tr><td colspan="4" class="table-empty">' + t("No containers were discovered.") + '</td></tr>';
 
-    document.getElementById("generated-at").textContent = t("Last scan: ") + (snapshot.generated_at || t("unknown"));
+    document.getElementById("generated-at").textContent = t("Last scan:") + " " + (snapshot.generated_at || t("unknown"));
     statusNode.textContent = t("Snapshot loaded");
   }
 
@@ -308,7 +308,7 @@
     var networks = data.networks || [];
     var snapshotLabel = t("Snapshot time unavailable");
     if (data.generated_at) {
-      snapshotLabel = t("Snapshot: ") + data.generated_at;
+      snapshotLabel = t("Snapshot:") + " " + data.generated_at;
       if (data.snapshot_time_status === "valid" && Number.isFinite(Number(data.snapshot_age_seconds))) {
         var age = Number(data.snapshot_age_seconds);
         var ageLabel = age < 60 ? t("less than a minute ago") :
@@ -572,7 +572,7 @@
       renderExclusionRules();
       setExclusionFeedback("", false);
     }).catch(function (error) {
-      setExclusionFeedback(t("Could not load rules: ") + error.message, true);
+      setExclusionFeedback(t("Could not load rules:") + " " + error.message, true);
       var list = document.getElementById("exclusion-list");
       if (list) list.innerHTML = '<tr><td colspan="8" class="table-empty">' + t("Rules could not be loaded.") + '</td></tr>';
     });
@@ -747,7 +747,7 @@
       var network = button.getAttribute("data-network");
       saveExclusionRules(exclusionRules.concat([{
         network: network, match_type: "ip", value: ip, reason: reason.value.trim(), enabled: true
-      }]), t("Exclusion rule added for ") + ip + ".", button);
+      }]), t("Exclusion rule added for") + " " + ip + ".", button);
     }
   });
   document.addEventListener("click", function (event) {
