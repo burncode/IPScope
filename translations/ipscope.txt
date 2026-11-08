@@ -1,0 +1,19 @@
+; IPScope English translation master
+; Submit this file as ipscope.txt to unraid/lang-en_US.
+Docker IPv4 inventory=Docker IPv4 inventory
+Snapshot not loaded=Snapshot not loaded
+Scan now=Scan now
+Scanning…=Scanning…
+Scan completed=Scan completed
+Overview=Overview
+IP Manager=IP Manager
+Templates=Templates
+Conflicts=Conflicts
+Containers=Containers
+Exclusions=Exclusions
+IP Suggestions=IP Suggestions
+Network overview=Network overview
+Network inventory=Network inventory
+Template library audit=Template library audit
+IP exclusion rules=IP exclusion rules
+Available IP suggestions=Available IP suggestions
