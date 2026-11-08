@@ -9,6 +9,8 @@ $english = file_get_contents($root . '/translations/ipscope.txt');
 $chinese = file_get_contents($root . '/translations/zh_CN/ipscope.txt');
 $englishJs = file_get_contents($root . '/translations/javascript.txt');
 $chineseJs = file_get_contents($root . '/translations/zh_CN/javascript.txt');
+$englishJs = file_get_contents($root . '/translations/javascript.txt');
+$chineseJs = file_get_contents($root . '/translations/zh_CN/javascript.txt');
 
 function ipscopeTranslationKeys(string $contents): array
 {
@@ -29,6 +31,8 @@ function ipscopeTranslationKeys(string $contents): array
 
 $englishKeys = ipscopeTranslationKeys($english);
 $chineseKeys = ipscopeTranslationKeys($chinese);
+$englishJsKeys = ipscopeTranslationKeys($englishJs);
+$chineseJsKeys = ipscopeTranslationKeys($chineseJs);
 $englishJsKeys = ipscopeTranslationKeys($englishJs);
 $chineseJsKeys = ipscopeTranslationKeys($chineseJs);
 preg_match_all('/_\("([^"]+)"\)/', $page, $phpMatches);
