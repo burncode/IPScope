@@ -25,37 +25,37 @@ declare(strict_types=1);
       </div>
     </header>
 
-    <nav class="workspace-nav" aria-label="IPScope sections">
+    <nav class="workspace-nav" aria-label="<?= htmlspecialchars(_('IPScope sections'), ENT_QUOTES, 'UTF-8') ?>">
       <button class="workspace-tab is-active" type="button" data-view="overview"><?= _("Overview") ?></button>
       <button class="workspace-tab" type="button" data-view="addresses"><?= _("IP Manager") ?></button>
       <button class="workspace-tab" type="button" data-view="templates"><?= _("Templates") ?></button>
-      <button class="workspace-tab" type="button" data-view="conflicts"><?= _("Conflicts") ?></button>
+      <button class="workspace-tab" type="button" data-view="conflicts"><?= _("<?= _('Conflict') ?>s") ?></button>
       <button class="workspace-tab" type="button" data-view="containers"><?= _("Containers") ?></button>
       <button class="workspace-tab" type="button" data-view="exclusions"><?= _("Exclusions") ?></button>
       <button class="workspace-tab" type="button" data-view="recommendations"><?= _("IP Suggestions") ?></button>
     </nav>
 
     <section class="view-panel is-active" data-panel="overview">
-    <section class="summary-grid" aria-label="Inventory summary">
+    <section class="summary-grid" aria-label="<?= htmlspecialchars(_('Inventory summary'), ENT_QUOTES, 'UTF-8') ?>">
       <article class="summary-card">
-        <span class="summary-label">Networks</span>
+        <span class="summary-label"><?= _('Networks') ?></span>
         <strong id="metric-networks">—</strong>
-        <span class="summary-note">Docker networks</span>
+        <span class="summary-note"><?= _('<?= _('Docker network') ?>s') ?></span>
       </article>
       <article class="summary-card">
-        <span class="summary-label">Containers</span>
+        <span class="summary-label"><?= _('Containers') ?></span>
         <strong id="metric-containers">—</strong>
-        <span class="summary-note">Running and stopped</span>
+        <span class="summary-note"><?= _('Running and stopped') ?></span>
       </article>
       <article class="summary-card">
-        <span class="summary-label">Known IPs</span>
+        <span class="summary-label"><?= _('Known IPs') ?></span>
         <strong id="metric-reservations">—</strong>
-        <span class="summary-note">Occupied and reserved addresses</span>
+        <span class="summary-note"><?= _('Occupied and reserved addresses') ?></span>
       </article>
       <article class="summary-card summary-card-alert">
-        <span class="summary-label">Conflicts</span>
+        <span class="summary-label"><?= _('<?= _('Conflict') ?>s') ?></span>
         <strong id="metric-conflicts">—</strong>
-        <span class="summary-note">Duplicate or mismatched claims</span>
+        <span class="summary-note"><?= _('Duplicate or mismatched claims') ?></span>
       </article>
     </section>
 
@@ -63,7 +63,7 @@ declare(strict_types=1);
 
     <section class="panel overview-panel">
       <div class="panel-heading">
-        <div><h2><?= _("Network overview") ?></h2><p>Managed address pools and current inventory health</p></div>
+        <div><h2><?= _("Network overview") ?></h2><p><?= _('Managed address pools and current inventory health') ?></p></div>
       </div>
       <div id="network-overview" class="network-overview"></div>
     </section>
@@ -74,31 +74,31 @@ declare(strict_types=1);
       <div class="panel-heading">
         <div>
           <h2><?= _("Network inventory") ?></h2>
-          <p>Known addresses grouped by Docker network</p>
+          <p><?= _('Known addresses grouped by <?= _('Docker network') ?>') ?></p>
         </div>
       </div>
       <div class="network-toolbar">
         <div class="address-controls">
-          <input id="address-filter" class="address-filter" type="search" placeholder="Search IP or container…" autocomplete="off">
-          <select id="status-filter" class="status-filter" aria-label="Filter by address status">
-            <option value="all">All statuses</option>
-            <option value="available">Available</option>
-            <option value="occupied">Occupied</option>
-            <option value="reserved">Reserved</option>
-            <option value="system">System</option>
-            <option value="conflict">Conflict</option>
-            <option value="excluded">Excluded</option>
+          <input id="address-filter" class="address-filter" type="search" placeholder="<?= htmlspecialchars(_('Search IP or container…'), ENT_QUOTES, 'UTF-8') ?>" autocomplete="off">
+          <select id="status-filter" class="status-filter" aria-label="<?= htmlspecialchars(_('Filter by address status'), ENT_QUOTES, 'UTF-8') ?>">
+            <option value="all"><?= _('All statuses') ?></option>
+            <option value="available"><?= _('Available') ?></option>
+            <option value="occupied"><?= _('Occupied') ?></option>
+            <option value="reserved"><?= _('Reserved') ?></option>
+            <option value="system"><?= _('System') ?></option>
+            <option value="conflict"><?= _('Conflict') ?></option>
+            <option value="excluded"><?= _('Excluded') ?></option>
           </select>
         </div>
         <div class="address-list-tools">
-          <label class="page-size-label">Rows
+          <label class="page-size-label"><?= _('Rows') ?>
             <select id="page-size" class="status-filter"><option value="25">25</option><option value="50">50</option><option value="100">100</option></select>
           </label>
           <span id="address-count" class="network-count">—</span>
         </div>
       </div>
       <div id="network-list" class="network-list">
-        <div class="empty-state">Run a scan to collect Docker network data.</div>
+        <div class="empty-state"><?= _('Run a scan to collect <?= _('Docker network') ?> data.') ?></div>
       </div>
     </section>
 
@@ -109,13 +109,13 @@ declare(strict_types=1);
       <div class="panel-heading">
         <div>
           <h2><?= _("Template library audit") ?></h2>
-          <p>Saved templates without a matching Docker container, plus duplicate template IPs</p>
+          <p><?= _('Saved templates without a matching Docker container, plus duplicate template IPs') ?></p>
         </div>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Template</th><th>Network</th><th>Saved IPv4</th><th>Audit</th></tr></thead>
-          <tbody id="template-list"><tr><td colspan="4" class="table-empty">No snapshot loaded.</td></tr></tbody>
+          <thead><tr><th><?= _('Template') ?></th><th><?= _('Network') ?></th><th><?= _('Saved IPv4') ?></th><th><?= _('Audit') ?></th></tr></thead>
+          <tbody id="template-list"><tr><td colspan="4" class="table-empty"><?= _('<?= _('No snapshot') ?> loaded.') ?></td></tr></tbody>
         </table>
       </div>
     </section>
@@ -126,14 +126,14 @@ declare(strict_types=1);
     <section class="panel">
       <div class="panel-heading">
         <div>
-          <h2>Conflicts</h2>
-          <p>Address ownership issues requiring review</p>
+          <h2><?= _('<?= _('Conflict') ?>s') ?></h2>
+          <p><?= _('Address ownership issues requiring review') ?></p>
         </div>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Type</th><th>Network</th><th>Address</th><th>Details</th></tr></thead>
-          <tbody id="conflict-list"><tr><td colspan="4" class="table-empty">No snapshot loaded.</td></tr></tbody>
+          <thead><tr><th><?= _('Type') ?></th><th><?= _('Network') ?></th><th><?= _('Address') ?></th><th><?= _('Details') ?></th></tr></thead>
+          <tbody id="conflict-list"><tr><td colspan="4" class="table-empty"><?= _('<?= _('No snapshot') ?> loaded.') ?></td></tr></tbody>
         </table>
       </div>
     </section>
@@ -144,14 +144,14 @@ declare(strict_types=1);
     <section class="panel">
       <div class="panel-heading">
         <div>
-          <h2>Containers</h2>
-          <p>Current Docker container state and attached addresses</p>
+          <h2><?= _('Containers') ?></h2>
+          <p><?= _('Current Docker container state and attached addresses') ?></p>
         </div>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Container</th><th>State</th><th>Network</th><th>IPv4</th></tr></thead>
-          <tbody id="container-list"><tr><td colspan="4" class="table-empty">No snapshot loaded.</td></tr></tbody>
+          <thead><tr><th><?= _('Container') ?></th><th><?= _('State') ?></th><th><?= _('Network') ?></th><th><?= _('IPv4') ?></th></tr></thead>
+          <tbody id="container-list"><tr><td colspan="4" class="table-empty"><?= _('<?= _('No snapshot') ?> loaded.') ?></td></tr></tbody>
         </table>
       </div>
     </section>
@@ -163,54 +163,54 @@ declare(strict_types=1);
       <section class="panel exclusion-panel">
         <div class="panel-heading">
           <div>
-            <h2><?= _("IP exclusion rules") ?></h2>
-            <p>Keep selected IPv4 addresses or subnets out of the available-address suggestions</p>
+            <h2><?= _("IP exclusion <?= _('rules') ?>") ?></h2>
+            <p><?= _('Keep <?= _('selected') ?> IPv4 addresses or subnets out of the available-address suggestions') ?></p>
           </div>
         </div>
         <form id="exclusion-form" class="exclusion-form">
-          <label>Docker network
+          <label><?= _('Docker network') ?>
             <select id="exclusion-network" required>
-              <option value="*">All networks</option>
+              <option value="*"><?= _('All networks') ?></option>
             </select>
           </label>
-          <label>Rule type
+          <label><?= _('Rule type') ?>
             <select id="exclusion-type">
-              <option value="ip">Single IPv4</option>
-              <option value="cidr">IPv4 subnet (CIDR)</option>
+              <option value="ip"><?= _('Single IPv4') ?></option>
+              <option value="cidr"><?= _('IPv4 subnet (CIDR)') ?></option>
             </select>
           </label>
-          <label class="exclusion-value-field">Address / subnet
+          <label class="exclusion-value-field"><?= _('Address / subnet') ?>
             <input id="exclusion-value" type="text" placeholder="192.168.50.20" maxlength="32" required>
           </label>
           <label class="exclusion-reason-field">Reason
-            <input id="exclusion-reason" type="text" placeholder="e.g. DHCP reservation" maxlength="160" required>
+            <input id="exclusion-reason" type="text" placeholder="<?= htmlspecialchars(_('e.g. DHCP reservation'), ENT_QUOTES, 'UTF-8') ?>" maxlength="160" required>
           </label>
-          <button id="exclusion-submit" class="button button-primary" type="submit">Add rule</button>
+          <button id="exclusion-submit" class="button button-primary" type="submit"><?= _('Add rule') ?></button>
         </form>
         <div id="exclusion-feedback" class="exclusion-feedback" role="status" aria-live="polite" hidden></div>
         <div class="exclusion-summary">
-          <span><strong id="exclusion-total">0</strong> rules</span>
-          <span><strong id="exclusion-active">0</strong> enabled</span>
-          <span><strong id="exclusion-hit-count">0</strong> rule matches</span>
-          <span><strong id="exclusion-in-use-count">0</strong> in-use matches</span>
-          <span><strong id="exclusion-overlap-count">0</strong> overlapping pairs</span>
+          <span><strong id="exclusion-total">0</strong> <?= _('rules') ?></span>
+          <span><strong id="exclusion-active">0</strong> <?= _('enabled') ?></span>
+          <span><strong id="exclusion-hit-count">0</strong> <?= _('rule matches') ?></span>
+          <span><strong id="exclusion-in-use-count">0</strong> <?= _('in-use matches') ?></span>
+          <span><strong id="exclusion-overlap-count">0</strong> <?= _('overlapping pairs') ?></span>
         </div>
         <div class="exclusion-bulk-toolbar">
-          <label class="exclusion-select-all"><input id="exclusion-select-all" type="checkbox"> Select all</label>
-          <span id="exclusion-selected-count">0 selected</span>
+          <label class="exclusion-select-all"><input id="exclusion-select-all" type="checkbox"> <?= _('Select all') ?></label>
+          <span id="exclusion-<?= _('selected') ?>-count">0 <?= _('selected') ?></span>
           <div class="exclusion-bulk-actions">
-            <button type="button" class="exclusion-action" data-exclusion-bulk="enable" disabled>Enable</button>
-            <button type="button" class="exclusion-action" data-exclusion-bulk="disable" disabled>Disable</button>
-            <button type="button" class="exclusion-action is-danger" data-exclusion-bulk="delete" disabled>Delete selected</button>
+            <button type="button" class="exclusion-action" data-exclusion-bulk="enable" disabled><?= _('Enable') ?></button>
+            <button type="button" class="exclusion-action" data-exclusion-bulk="disable" disabled><?= _('Disable') ?></button>
+            <button type="button" class="exclusion-action is-danger" data-exclusion-bulk="delete" disabled>Delete <?= _('selected') ?></button>
           </div>
         </div>
         <div class="table-wrap exclusion-table-wrap">
           <table class="exclusion-table">
-            <thead><tr><th class="exclusion-check-cell"></th><th>Network</th><th>Match</th><th>Reason</th><th>Coverage</th><th>Audit</th><th>State</th><th>Actions</th></tr></thead>
-            <tbody id="exclusion-list"><tr><td colspan="8" class="table-empty">Loading exclusion rules…</td></tr></tbody>
+            <thead><tr><th class="exclusion-check-cell"></th><th><?= _('Network') ?></th><th><?= _('Match') ?></th><th><?= _('Reason') ?></th><th><?= _('Coverage') ?></th><th><?= _('Audit') ?></th><th><?= _('State') ?></th><th><?= _('Actions') ?></th></tr></thead>
+            <tbody id="exclusion-list"><tr><td colspan="8" class="table-empty">Loading exclusion <?= _('rules') ?>…</td></tr></tbody>
           </table>
         </div>
-        <div class="exclusion-footnote">Excluded addresses remain visible in the inventory. If an excluded address is already occupied, reserved or assigned to a system service, IPScope reports it as a conflict instead of hiding the owner.</div>
+        <div class="exclusion-footnote"><?= _('Excluded addresses remain visible in the inventory. If an excluded address is already occupied, reserved or assigned to a system service, IPScope reports it as a conflict instead of hiding the owner.') ?></div>
       </section>
     </section>
 
@@ -220,19 +220,19 @@ declare(strict_types=1);
         <div class="panel-heading">
           <div>
             <h2><?= _("Available IP suggestions") ?></h2>
-            <p>Available addresses from the latest Docker inventory and enabled exclusion rules</p>
+            <p>Available addresses from the latest Docker inventory and <?= _('enabled') ?> exclusion <?= _('rules') ?></p>
           </div>
         </div>
         <div class="recommendation-toolbar">
-          <label>Docker network
+          <label><?= _('Docker network') ?>
             <select id="recommendation-network">
-              <option value="*">All managed networks</option>
+              <option value="*"><?= _('All managed networks') ?></option>
             </select>
           </label>
-          <label>Suggestions per network
+          <label><?= _('Suggestions per network') ?>
             <select id="recommendation-limit">
               <option value="10">10</option>
-              <option value="20" selected>20</option>
+              <option value="20" <?= _('selected') ?>>20</option>
               <option value="50">50</option>
               <option value="100">100</option>
             </select>
@@ -240,20 +240,20 @@ declare(strict_types=1);
           <button id="recommendation-run" class="button recommendation-run" type="button">Find available IPs</button>
         </div>
         <div id="recommendation-summary" class="recommendation-summary">
-          Select a network and request suggestions based on the latest snapshot.
+          <?= _('Select a network and request suggestions based on the latest snapshot.') ?>
         </div>
         <div id="recommendation-results" class="recommendation-results">
-          <div class="recommendation-empty">No suggestions loaded yet.</div>
+          <div class="recommendation-empty"><?= _('No suggestions loaded yet.') ?></div>
         </div>
         <div class="recommendation-notice">
-          Suggestions are advisory only and are listed in numeric IP order, not safety rank. IPScope can identify addresses not claimed by Docker, saved templates, system addresses or enabled exclusions, but cannot see DHCP leases, offline devices or hosts outside Docker. Verify an address on your LAN before assigning it.
+          Suggestions are advisory only and are listed in numeric IP order, not safety rank. IPScope can identify addresses not claimed by Docker, saved templates, system addresses or <?= _('enabled') ?> exclusions, but cannot see DHCP leases, offline devices or hosts outside Docker. Verify an address on your LAN before assigning it.
         </div>
       </section>
     </section>
 
     <footer class="footer">
-      <span id="generated-at">No snapshot</span>
-      <span>Read-only · No Docker configuration changes</span>
+      <span id="generated-at"><?= _('No snapshot') ?></span>
+      <span><?= _('Read-only · No Docker configuration changes') ?></span>
     </footer>
     <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
   </main>
