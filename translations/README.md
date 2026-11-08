@@ -44,4 +44,4 @@ Do not install these fragments as standalone files, and never overwrite the exis
 
 ## Validation
 
-Run `bash scripts/check-local.sh`. The i18n smoke test checks source-key coverage, Unraid-normalized keys, contribution-file layout, and ensures the package build does not install language files or modify system language directories.
+Run `bash scripts/check-local.sh`. The i18n smoke test checks source-key coverage, Unraid-normalized keys, contribution-file layout, and ensures the package build does not bundle language files.
