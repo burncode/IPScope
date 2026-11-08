@@ -5,7 +5,9 @@ IPScope uses the native Unraid WebGUI translation system. It does not bundle lan
 ## Translation source files
 
 - `ipscope.txt`: English master file for `unraid/lang-en_US`.
-- `zh_CN/ipscope.txt`: Simplified Chinese translation draft for `unraid/lang-zh_CN`.
+- `zh_CN/ipscope.txt`: Simplified Chinese page translation draft for `unraid/lang-zh_CN`.
+- `javascript.txt`: English source strings used by IPScope JavaScript.
+- `zh_CN/javascript.txt`: Simplified Chinese JavaScript translations.
 
 The Unraid page route is `Utilities/IPScope`. The WebGUI translation loader uses the route segments and loads `ipscope.txt` from the active locale directory. PHP labels use the native `_()` function. Front-end JavaScript uses the global `_` translator supplied by the WebGUI layout.
 
