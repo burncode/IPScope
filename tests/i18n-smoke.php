@@ -27,7 +27,7 @@ function ipscopeNormalizeTranslationKey(string $text): string
 function ipscopeTranslationKeys(string $contents): array
 {
     $keys = [];
-    foreach (preg_split('/\\R/', $contents) as $line) {
+    foreach (preg_split('/\R/', $contents) as $line) {
         $line = trim($line);
         if ($line === '' || str_starts_with($line, ';')) continue;
         $separator = strpos($line, '=');
@@ -46,9 +46,9 @@ $chineseKeys = ipscopeTranslationKeys($chinese);
 $englishJsKeys = ipscopeTranslationKeys($englishJs);
 $chineseJsKeys = ipscopeTranslationKeys($chineseJs);
 preg_match_all('/_\("([^"]+)"\)/', $page, $phpMatches);
-preg_match_all('/\\bt\\("([^"]+)"\\)/', $script . "\n" . $dockerScript, $jsMatches);
+preg_match_all('/\bt\("([^"]+)"\)/', $script . "\n" . $dockerScript, $jsMatches);
 $phpSourceKeys = array_values(array_unique(array_map('ipscopeNormalizeTranslationKey', $phpMatches[1] ?? [])));
-$jsSourceKeys = array_values(array_unique(array_map('ipscopeNormalizeTranslationKey', $jsMatches[1] ?? [])));
+preg_match_all('/\bt\("([^"]+)"\)/', $script . "\n" . $dockerScript, $jsMatches);
 $missingEnglish = array_values(array_diff($phpSourceKeys, array_keys($englishKeys)));
 $missingChinese = array_values(array_diff($phpSourceKeys, array_keys($chineseKeys)));
 $missingEnglishJs = array_values(array_diff($jsSourceKeys, array_keys($englishJsKeys)));
