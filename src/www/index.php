@@ -180,7 +180,7 @@ declare(strict_types=1);
             </select>
           </label>
           <label class="exclusion-value-field"><?= _("Address / subnet") ?>
-            <input id="exclusion-value" type="text" placeholder="<?= htmlspecialchars(_("Example: 192.168.50.20"), ENT_QUOTES, "UTF-8") ?>" maxlength="32" required>
+            <input id="exclusion-value" type="text" placeholder="192.168.50.20" maxlength="32" required>
           </label>
           <label class="exclusion-reason-field"><?= _("Reason") ?>
             <input id="exclusion-reason" type="text" placeholder="<?= htmlspecialchars(_("e.g. DHCP reservation"), ENT_QUOTES, "UTF-8") ?>" maxlength="160" required>
