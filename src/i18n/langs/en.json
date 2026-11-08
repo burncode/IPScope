@@ -1,0 +1,19 @@
+{
+  "app.title": "IPScope",
+  "common.scan_now": "Scan now",
+  "common.loading": "Loading…",
+  "common.unknown": "Unknown",
+  "common.copy": "Copy",
+  "common.cancel": "Cancel",
+  "common.save": "Save",
+  "common.delete": "Delete",
+  "network.available": "Available",
+  "network.occupied": "Occupied",
+  "network.reserved": "Reserved",
+  "network.system": "System",
+  "network.conflict": "Conflict",
+  "network.excluded": "Excluded",
+  "network.no_managed_networks": "No managed Docker network pools were found in this snapshot.",
+  "suggestions.find": "Find available IPs",
+  "suggestions.advisory": "Suggestions are advisory only. Verify an address on your LAN before assigning it."
+}
