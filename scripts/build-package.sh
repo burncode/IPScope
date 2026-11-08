@@ -28,6 +28,7 @@ mkdir -p "$STAGE/usr/local/emhttp/plugins/ipscope"
 
 DEST="$STAGE/usr/local/emhttp/plugins/ipscope"
 mkdir -p "$DEST/src"
+cp -a "$ROOT/src/i18n" "$DEST/src/i18n"
 cp -a "$ROOT/src/lib" "$DEST/src/lib"
 mkdir -p "$DEST/src/www/assets"
 cp "$ROOT/src/www/index.php" "$DEST/src/www/index.php"
