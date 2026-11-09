@@ -80,7 +80,7 @@
           detailRow.hidden = !show || detailRow.hidden;
           if (!show) {
             var detailButton = row.querySelector("[data-toggle-details]");
-            if (detailButton) detailButton.textContent = t("Details");
+            if (detailButton) detailButton.textContent = t("js.details");
           }
         }
       });
@@ -88,7 +88,7 @@
       var pager = card.querySelector(".address-pager");
       if (pager) {
         pager.querySelector(".pager-label").textContent = filtered.length ?
-          (first + 1) + "–" + Math.min(first + pageSize, filtered.length) + " " + t("of") + " " + filtered.length : t("No matching addresses");
+          (first + 1) + "–" + Math.min(first + pageSize, filtered.length) + " " + t("js.of") + " " + filtered.length : t("js.no_matching_addresses");
         pager.querySelector("[data-page-prev]").disabled = page === 0;
         pager.querySelector("[data-page-next]").disabled = page >= pageCount - 1;
         var numberHost = pager.querySelector(".pager-numbers");
@@ -96,7 +96,7 @@
           numberHost.innerHTML = Array.from({ length: pageCount }, function (_, index) {
             return '<button type="button" class="pager-button pager-number' +
               (index === page ? ' is-current' : '') + '" data-page-index="' + index +
-              '" aria-label="' + t("Page") + ' ' + (index + 1) + '"' +
+              '" aria-label="' + t("js.page") + ' ' + (index + 1) + '"' +
               (index === page ? ' aria-current="page"' : '') + '>' + (index + 1) + '</button>';
           }).join("");
         }
@@ -104,7 +104,7 @@
     });
     var total = document.querySelectorAll(".address-row").length;
     var countNode = document.getElementById("address-count");
-    if (countNode) countNode.textContent = totalVisible + " / " + total + " " + t("addresses");
+    if (countNode) countNode.textContent = totalVisible + " / " + total + " " + t("js.addresses");
   }
 
   function render(snapshot) {
@@ -135,19 +135,19 @@
         var reasonText = [reason].concat(exclusionReasons).filter(Boolean).join(" · ");
         var searchText = [address.ip, status, ownerText, reasonText, network.name].join(" ").toLowerCase();
         var label = {
-          available: t("Available"),
-          occupied: t("Occupied"),
-          reserved: t("Reserved"),
-          system: t("System"),
-          conflict: t("Conflict"),
-          excluded: t("Excluded")
+          available: t("js.available"),
+          occupied: t("js.occupied"),
+          reserved: t("js.reserved"),
+          system: t("js.system"),
+          conflict: t("js.conflict"),
+          excluded: t("js.excluded")
         }[status] || status;
         var detailKey = network.name + "|" + address.ip;
         var ownerDetails = (address.owners || []).map(function (owner) {
           return '<div class="detail-owner"><strong>' + escapeHtml(owner.container) + '</strong>' +
-            '<span>' + escapeHtml(owner.source || t("unknown source")) + '</span>' +
-            '<span>' + escapeHtml(owner.kind || t("unknown")) + '</span>' +
-            '<span>' + escapeHtml(owner.state || t("unknown state")) + '</span></div>';
+            '<span>' + escapeHtml(owner.source || t("js.unknown_source")) + '</span>' +
+            '<span>' + escapeHtml(owner.kind || t("js.unknown")) + '</span>' +
+            '<span>' + escapeHtml(owner.state || t("js.unknown_state")) + '</span></div>';
         }).join("");
         var matchingExclusions = address.exclusions || [];
         var disabledRule = exclusionRules.find(function (rule) {
@@ -155,46 +155,46 @@
             (rule.match_type === "ip" ? rule.value === address.ip : cidrContains(rule.value, address.ip));
         });
         var exclusionAction = matchingExclusions.length ?
-          '<div class="detail-exclusion-state"><span class="status-pill status-excluded">' + t("Excluded by rule") + '</span>' +
+          '<div class="detail-exclusion-state"><span class="status-pill status-excluded">' + t("js.excluded_by_rule") + '</span>' +
           '<span>' + escapeHtml(matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ")) + '</span>' +
-          '<button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("View rule") + '</button></div>' :
+          '<button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("js.view_rule") + '</button></div>' :
           (disabledRule ?
-            '<div class="detail-exclusion-action"><span class="muted-inline">' + t("A matching rule is disabled.") + '</span>' +
-            '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("Enable rule") + '</button></div>' :
+            '<div class="detail-exclusion-action"><span class="muted-inline">' + t("js.a_matching_rule_is_disabled") + '</span>' +
+            '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("js.enable_rule") + '</button></div>' :
             '<form class="detail-exclusion-action" data-detail-exclusion-form>' +
-            '<label class="detail-exclusion-reason"><span class="detail-label">' + t("Exclude this IP") + '</span>' +
-            '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("Reason (e.g. DHCP reservation)") + '" required></label>' +
-            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("Add rule") + '</button></form>');
+            '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclude_this_ip") + '</span>' +
+            '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("js.reason_e_g_dhcp_reservation") + '" required></label>' +
+            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.add_rule") + '</button></form>');
         var detailContent = '<div class="address-detail-content">' +
-          '<div><span class="detail-label">' + t("Network") + '</span><strong>' + escapeHtml(network.name) + '</strong></div>' +
-          '<div><span class="detail-label">' + t("Address state") + '</span><strong>' + escapeHtml(label) + '</strong></div>' +
-          '<div><span class="detail-label">' + t("Runtime owners") + '</span><strong>' + escapeHtml(address.runtime_owner_count || 0) + '</strong></div>' +
-          '<div><span class="detail-label">' + t("Reservation owners") + '</span><strong>' + escapeHtml(address.reservation_owner_count || 0) + '</strong></div>' +
-          (reason ? '<div><span class="detail-label">' + t("System reason") + '</span><strong>' + escapeHtml(reason) + '</strong></div>' : '') +
-          (exclusionReasons.length ? '<div><span class="detail-label">' + t("Exclusion reason") + '</span><strong>' + escapeHtml(exclusionReasons.join(", ")) + '</strong></div>' : '') +
+          '<div><span class="detail-label">' + t("js.network") + '</span><strong>' + escapeHtml(network.name) + '</strong></div>' +
+          '<div><span class="detail-label">' + t("js.address_state") + '</span><strong>' + escapeHtml(label) + '</strong></div>' +
+          '<div><span class="detail-label">' + t("js.runtime_owners") + '</span><strong>' + escapeHtml(address.runtime_owner_count || 0) + '</strong></div>' +
+          '<div><span class="detail-label">' + t("js.reservation_owners") + '</span><strong>' + escapeHtml(address.reservation_owner_count || 0) + '</strong></div>' +
+          (reason ? '<div><span class="detail-label">' + t("js.system_reason") + '</span><strong>' + escapeHtml(reason) + '</strong></div>' : '') +
+          (exclusionReasons.length ? '<div><span class="detail-label">' + t("js.exclusion_reason") + '</span><strong>' + escapeHtml(exclusionReasons.join(", ")) + '</strong></div>' : '') +
           '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>' +
-          '<div class="detail-owner-list">' + (ownerDetails || '<span class="muted-inline">' + t("No known owner. Candidate is based on Docker and saved-template data only.") + '</span>') + '</div>' +
+          '<div class="detail-owner-list">' + (ownerDetails || '<span class="muted-inline">' + t("js.no_known_owner_candidate_is_based_on_docker_and_saved_t") + '</span>') + '</div>' +
           '</div>';
         return '<tr class="address-row" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
           '<td class="ip-cell">' + escapeHtml(address.ip) + '</td>' +
           '<td><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></td>' +
-          '<td title="' + escapeHtml(ownerText + (reason ? ' · ' + reason : '') + (exclusionReasons.length ? ' · ' + t("Exclusion:") + ' ' + exclusionReasons.join(', ') : '')) + '">' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + (exclusionReasons.length ? ' <span class="exclusion-match-tag" title="' + escapeHtml(exclusionReasons.join(', ')) + '">' + t("Rule match") + '</span>' : '') + '</td>' +
-          '<td class="address-actions"><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="' + t("Copy") + ' ' + escapeHtml(address.ip) + '">' + t("Copy") + '</button>' +
-          '<button class="details-ip" type="button" data-toggle-details="' + escapeHtml(detailKey) + '">' + t("Details") + '</button></td>' +
+          '<td title="' + escapeHtml(ownerText + (reason ? ' · ' + reason : '') + (exclusionReasons.length ? ' · ' + t("js.exclusion") + ' ' + exclusionReasons.join(', ') : '')) + '">' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + (exclusionReasons.length ? ' <span class="exclusion-match-tag" title="' + escapeHtml(exclusionReasons.join(', ')) + '">' + t("js.rule_match") + '</span>' : '') + '</td>' +
+          '<td class="address-actions"><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="' + t("js.copy") + ' ' + escapeHtml(address.ip) + '">' + t("js.copy") + '</button>' +
+          '<button class="details-ip" type="button" data-toggle-details="' + escapeHtml(detailKey) + '">' + t("js.details") + '</button></td>' +
           '</tr><tr class="address-detail-row" data-detail-for="' + escapeHtml(detailKey) + '" hidden><td colspan="4">' + detailContent + '</td></tr>';
       }).join("");
       var managed = network.address_space_managed !== false;
       return '<article class="network-card" data-page="0">' +
         '<div class="network-head"><div><div class="network-name">' + escapeHtml(network.name) + '</div>' +
-        '<div class="network-meta">' + escapeHtml(network.driver || t("unknown driver")) +
+        '<div class="network-meta">' + escapeHtml(network.driver || t("js.unknown_driver")) +
         (subnet ? " · " + escapeHtml(subnet) : "") +
-        (managed ? "" : " · " + t("built-in network, address pool not managed")) + '</div></div>' +
-        '<span class="network-count">' + addresses.length + ' ' + t("addresses") + '</span></div>' +
-        '<div class="table-wrap address-table-wrap"><table class="address-table"><colgroup><col class="col-ip"><col class="col-status"><col class="col-owner"><col class="col-actions"></colgroup><thead><tr><th>' + t("IPv4 address") + '</th><th>' + t("Status") + '</th><th>' + t("Owner / reason") + '</th><th class="actions-heading">' + t("Actions") + '</th></tr></thead>' +
-        '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">' + t("No address records.") + '</td></tr>') + '</tbody></table></div>' +
-        '<div class="address-pager"><span class="pager-label">—</span><div class="pager-controls"><button type="button" class="pager-button" data-page-prev disabled>' + t("Previous") + '</button><span class="pager-numbers"></span><button type="button" class="pager-button" data-page-next>' + t("Next") + '</button></div></div>' +
+        (managed ? "" : " · " + t("js.built_in_network_address_pool_not_managed")) + '</div></div>' +
+        '<span class="network-count">' + addresses.length + ' ' + t("js.addresses") + '</span></div>' +
+        '<div class="table-wrap address-table-wrap"><table class="address-table"><colgroup><col class="col-ip"><col class="col-status"><col class="col-owner"><col class="col-actions"></colgroup><thead><tr><th>' + t("js.ipv4_address") + '</th><th>' + t("js.status") + '</th><th>' + t("js.owner_reason") + '</th><th class="actions-heading">' + t("js.actions") + '</th></tr></thead>' +
+        '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">' + t("js.no_address_records") + '</td></tr>') + '</tbody></table></div>' +
+        '<div class="address-pager"><span class="pager-label">—</span><div class="pager-controls"><button type="button" class="pager-button" data-page-prev disabled>' + t("js.previous") + '</button><span class="pager-numbers"></span><button type="button" class="pager-button" data-page-next>' + t("js.next") + '</button></div></div>' +
         '</article>';
-    }).join("") || '<div class="empty-state">' + t("No Docker networks were discovered.") + '</div>';
+    }).join("") || '<div class="empty-state">' + t("js.no_docker_networks_were_discovered") + '</div>';
     filterAddressRows(true);
 
     document.getElementById("network-overview").innerHTML = networks.map(function (network) {
@@ -203,12 +203,12 @@
       addresses.forEach(function (address) { counts[address.status] = (counts[address.status] || 0) + 1; });
       var subnet = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
       return '<article class="overview-network"><div><strong>' + escapeHtml(network.name) + '</strong><span>' +
-        escapeHtml(subnet || network.driver || t("No IPv4 subnet")) + '</span></div>' +
-        '<div class="overview-counts"><span><b>' + counts.available + '</b> ' + t("available") + '</span>' +
-        '<span><b>' + counts.occupied + '</b> ' + t("occupied") + '</span><span><b>' + counts.reserved + '</b> ' + t("reserved") + '</span>' +
-        '<span><b>' + counts.conflict + '</b> ' + t("conflicts") + '</span><span><b>' + counts.excluded + '</b> ' + t("excluded") + '</span></div>' +
-        '<button type="button" class="text-action" data-open-view="addresses" data-open-network="' + escapeHtml(network.name) + '">' + t("Manage IPs") + '</button></article>';
-    }).join("") || '<div class="empty-state">' + t("No networks found.") + '</div>';
+        escapeHtml(subnet || network.driver || t("js.no_ipv4_subnet")) + '</span></div>' +
+        '<div class="overview-counts"><span><b>' + counts.available + '</b> ' + t("js.available_2") + '</span>' +
+        '<span><b>' + counts.occupied + '</b> ' + t("js.occupied_2") + '</span><span><b>' + counts.reserved + '</b> ' + t("js.reserved_2") + '</span>' +
+        '<span><b>' + counts.conflict + '</b> ' + t("js.conflicts") + '</span><span><b>' + counts.excluded + '</b> ' + t("js.excluded_2") + '</span></div>' +
+        '<button type="button" class="text-action" data-open-view="addresses" data-open-network="' + escapeHtml(network.name) + '">' + t("js.manage_ips") + '</button></article>';
+    }).join("") || '<div class="empty-state">' + t("js.no_networks_found") + '</div>';
 
     var templates = snapshot.templates || [];
     var liveNames = {};
@@ -230,41 +230,41 @@
         return (templateIpOwners[(template.network || "") + "|" + ip] || []).length > 1;
       });
       var audit = [];
-      if (isOrphan) audit.push('<span class="status-pill status-reserved">' + t("No Docker container") + '</span>');
-      if (duplicateIps.length) audit.push('<span class="status-pill status-conflict">' + t("Duplicate template IP") + '</span>');
-      if (!audit.length) audit.push('<span class="status-pill status-available">' + t("Matched") + '</span>');
+      if (isOrphan) audit.push('<span class="status-pill status-reserved">' + t("js.no_docker_container") + '</span>');
+      if (duplicateIps.length) audit.push('<span class="status-pill status-conflict">' + t("js.duplicate_template_ip") + '</span>');
+      if (!audit.length) audit.push('<span class="status-pill status-available">' + t("js.matched") + '</span>');
       return "<tr>" +
         "<td>" + escapeHtml(template.name) + "</td>" +
         "<td>" + escapeHtml(template.network || "—") + "</td>" +
         '<td class="ip-cell">' + escapeHtml(ips.join(", ") || "—") + "</td>" +
         "<td>" + audit.join(" ") + "</td></tr>";
-    }).join("") : '<tr><td colspan="4" class="table-empty">' + t("No saved templates found.") + '</td></tr>';
+    }).join("") : '<tr><td colspan="4" class="table-empty">' + t("js.no_saved_templates_found") + '</td></tr>';
 
     var conflicts = snapshot.conflicts || [];
     document.getElementById("conflict-list").innerHTML = conflicts.length ? conflicts.map(function (item) {
       var details;
       if (item.type === "reservation_conflict") {
-        details = t("Stopped reservations:") + " " + (item.reserved_containers || item.containers || []).join(", ");
+        details = t("js.stopped_reservations") + " " + (item.reserved_containers || item.containers || []).join(", ");
       } else if (item.type === "active_reservation_collision") {
-        details = t("Running:") + " " + (item.running_containers || []).join(", ") +
-          " · " + t("Reserved:") + " " + (item.reserved_containers || []).join(", ");
+        details = t("js.running") + " " + (item.running_containers || []).join(", ") +
+          " · " + t("js.reserved_3") + " " + (item.reserved_containers || []).join(", ");
       } else if (item.type === "multiple_runtime_owners") {
-        details = t("Running containers:") + " " + (item.running_containers || item.containers || []).join(", ");
+        details = t("js.running_containers") + " " + (item.running_containers || item.containers || []).join(", ");
       } else if (item.type === "excluded_address_in_use") {
-        details = (item.reason || t("Address matches an exclusion rule")) +
-          (item.rule_id ? " · " + t("Rule ID:") + " " + item.rule_id : "") +
-          (item.owners && item.owners.length ? " · " + t("Owners:") + " " + item.owners.join(", ") : "");
+        details = (item.reason || t("js.address_matches_an_exclusion_rule")) +
+          (item.rule_id ? " · " + t("js.rule_id") + " " + item.rule_id : "") +
+          (item.owners && item.owners.length ? " · " + t("js.owners") + " " + item.owners.join(", ") : "");
       } else {
-        details = (item.container || "") + " · " + t("template") + " " + (item.template_ip || "") + " → " + t("runtime") + " " + (item.runtime_ip || "");
+        details = (item.container || "") + " · " + t("js.template") + " " + (item.template_ip || "") + " → " + t("js.runtime") + " " + (item.runtime_ip || "");
       }
-      var conflictLabel = item.type === "excluded_address_in_use" ? t("Excluded address in use") :
-        (item.type === "reservation_conflict" ? t("Reservation conflict") :
-        (item.type === "active_reservation_collision" ? t("Active / reserved collision") :
-        (item.type === "multiple_runtime_owners" ? t("Multiple runtime owners") : item.type)));
+      var conflictLabel = item.type === "excluded_address_in_use" ? t("js.excluded_address_in_use") :
+        (item.type === "reservation_conflict" ? t("js.reservation_conflict") :
+        (item.type === "active_reservation_collision" ? t("js.active_reserved_collision") :
+        (item.type === "multiple_runtime_owners" ? t("js.multiple_runtime_owners") : item.type)));
       return "<tr><td>" + escapeHtml(conflictLabel) + "</td><td>" + escapeHtml(item.network) +
         "</td><td>" + escapeHtml(item.ip || item.template_ip || "—") +
         "</td><td>" + escapeHtml(details) + "</td></tr>";
-    }).join("") : '<tr><td colspan="4" class="table-empty">' + t("No known conflicts.") + '</td></tr>';
+    }).join("") : '<tr><td colspan="4" class="table-empty">' + t("js.no_known_conflicts") + '</td></tr>';
 
     var containers = snapshot.containers || [];
     document.getElementById("container-list").innerHTML = containers.length ? containers.map(function (container) {
@@ -278,10 +278,10 @@
           '<td rowspan="' + entries.length + '">' + escapeHtml(container.state) + "</td>" : "") +
           "<td>" + escapeHtml(entry.name) + "</td><td>" + escapeHtml(entry.ip) + "</td></tr>";
       }).join("");
-    }).join("") : '<tr><td colspan="4" class="table-empty">' + t("No containers were discovered.") + '</td></tr>';
+    }).join("") : '<tr><td colspan="4" class="table-empty">' + t("js.no_containers_were_discovered") + '</td></tr>';
 
-    document.getElementById("generated-at").textContent = t("Last scan:") + " " + (snapshot.generated_at || t("unknown"));
-    statusNode.textContent = t("Snapshot loaded");
+    document.getElementById("generated-at").textContent = t("js.last_scan") + " " + (snapshot.generated_at || t("js.unknown"));
+    statusNode.textContent = t("js.snapshot_loaded");
   }
 
 
@@ -308,54 +308,54 @@
     if (!summary || !results) return;
 
     var networks = data.networks || [];
-    var snapshotLabel = t("Snapshot time unavailable");
+    var snapshotLabel = t("js.snapshot_time_unavailable");
     if (data.generated_at) {
-      snapshotLabel = t("Snapshot:") + " " + data.generated_at;
+      snapshotLabel = t("js.snapshot") + " " + data.generated_at;
       if (data.snapshot_time_status === "valid" && Number.isFinite(Number(data.snapshot_age_seconds))) {
         var age = Number(data.snapshot_age_seconds);
-        var ageLabel = age < 60 ? t("less than a minute ago") :
-          (age < 3600 ? Math.floor(age / 60) + " " + t("min ago") :
-          (age < 86400 ? Math.floor(age / 3600) + " " + t("hr ago") : Math.floor(age / 86400) + " " + t("days ago")));
+        var ageLabel = age < 60 ? t("js.less_than_a_minute_ago") :
+          (age < 3600 ? Math.floor(age / 60) + " " + t("js.min_ago") :
+          (age < 86400 ? Math.floor(age / 3600) + " " + t("js.hr_ago") : Math.floor(age / 86400) + " " + t("js.days_ago")));
         snapshotLabel += " · " + ageLabel;
       } else if (data.snapshot_time_status === "future") {
-        snapshotLabel += " · " + t("system clock may be behind");
+        snapshotLabel += " · " + t("js.system_clock_may_be_behind");
       } else {
-        snapshotLabel += " · " + t("age unknown");
+        snapshotLabel += " · " + t("js.age_unknown");
       }
     }
     summary.innerHTML = '<strong>' + escapeHtml(data.candidate_count || 0) +
-      '</strong> ' + t("available candidates across") + '<strong>' + networks.length +
-      '</strong> ' + t("managed networks") +
+      '</strong> ' + t("js.available_candidates_across") + '<strong>' + networks.length +
+      '</strong> ' + t("js.managed_networks") +
       '<span class="recommendation-generated">' + escapeHtml(snapshotLabel) + '</span>';
 
     if (!networks.length) {
-      results.innerHTML = '<div class="recommendation-empty">' + t("No managed Docker network pools were found in this snapshot.") + '</div>';
+      results.innerHTML = '<div class="recommendation-empty">' + t("js.no_managed_docker_network_pools_were_found_in_this_snap") + '</div>';
       return;
     }
 
     results.innerHTML = networks.map(function (network) {
       var candidates = network.candidates || [];
       var candidateMarkup = candidates.length ? candidates.map(function (candidate) {
-        return '<div class="recommendation-candidate" title="' + escapeHtml(candidate.reason || t("Inventory candidate; verify on your LAN before assigning.")) + '">' +
-          '<code title="' + escapeHtml(candidate.reason || t("Inventory candidate; verify on your LAN before assigning.")) + '">' + escapeHtml(candidate.ip) + '</code>' +
-          '<span class="recommendation-candidate-state" role="img" aria-label="' + t("Available") + '" title="' + t("Available") + '"></span>' +
+        return '<div class="recommendation-candidate" title="' + escapeHtml(candidate.reason || t("js.inventory_candidate_verify_on_your_lan_before_assigning")) + '">' +
+          '<code title="' + escapeHtml(candidate.reason || t("js.inventory_candidate_verify_on_your_lan_before_assigning")) + '">' + escapeHtml(candidate.ip) + '</code>' +
+          '<span class="recommendation-candidate-state" role="img" aria-label="' + t("js.available") + '" title="' + t("js.available") + '"></span>' +
           '<button type="button" class="copy-ip recommendation-copy" data-copy-ip="' +
           escapeHtml(candidate.ip) + '" aria-label="Copy ' + escapeHtml(candidate.ip) +
-          '" title="' + t("Copy IP address") + '"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+          '" title="' + t("js.copy_ip_address") + '"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
           '<rect x="8" y="8" width="12" height="13" rx="2"></rect>' +
           '<path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2"></path>' +
           '</svg></button></div>';
-      }).join("") : '<div class="recommendation-empty">' + t("No known available addresses in this network.") + '</div>';
+      }).join("") : '<div class="recommendation-empty">' + t("js.no_known_available_addresses_in_this_network") + '</div>';
 
       var copyAllButton = candidates.length ? '<button type="button" class="recommendation-copy-all" data-copy-ips="' +
         escapeHtml(JSON.stringify(candidates.map(function (candidate) { return candidate.ip; }))) +
-        '" aria-label="' + t("Copy all displayed IP addresses") + '">' + t("Copy shown") + '</button>' : '';
+        '" aria-label="' + t("js.copy_all_displayed_ip_addresses") + '">' + t("js.copy_shown") + '</button>' : '';
       return '<article class="recommendation-network">' +
         '<div class="recommendation-network-head"><div><h3>' + escapeHtml(network.network) +
-        '</h3><p>' + escapeHtml(network.driver || t("unknown driver")) +
+        '</h3><p>' + escapeHtml(network.driver || t("js.unknown_driver")) +
         (network.subnets && network.subnets.length ? ' · ' + escapeHtml(network.subnets.join(", ")) : '') +
         '</p></div><div class="recommendation-network-tools"><span><strong>' + escapeHtml(network.candidate_count || 0) +
-        '</strong> ' + t("candidates") + '</span>' + copyAllButton + '</div></div>' +
+        '</strong> ' + t("js.candidates") + '</span>' + copyAllButton + '</div></div>' +
         '<div class="recommendation-candidate-list">' + candidateMarkup + '</div></article>';
     }).join("");
   }
@@ -368,7 +368,7 @@
     var limitSelect = document.getElementById("recommendation-limit");
     if (!button || !results || !summary) return;
     if (!currentSnapshot) {
-      summary.textContent = t("Run a scan before requesting IP suggestions.");
+      summary.textContent = t("js.run_a_scan_before_requesting_ip_suggestions");
       return;
     }
 
@@ -378,9 +378,9 @@
     if (network && network !== "*") query += "&network=" + encodeURIComponent(network);
 
     button.disabled = true;
-    button.textContent = t("Finding…");
-    summary.textContent = t("Checking the latest inventory…");
-    results.innerHTML = '<div class="recommendation-empty">' + t("Evaluating known address claims and exclusions…") + '</div>';
+    button.textContent = t("js.finding");
+    summary.textContent = t("js.checking_the_latest_inventory");
+    results.innerHTML = '<div class="recommendation-empty">' + t("js.evaluating_known_address_claims_and_exclusions") + '</div>';
 
     fetch(apiUrl + query, {
       method: "GET",
@@ -389,11 +389,11 @@
     }).then(readApiResponse).then(function (body) {
       renderRecommendations(body.recommendations || {});
     }).catch(function (error) {
-      summary.textContent = t("Could not generate suggestions.");
+      summary.textContent = t("js.could_not_generate_suggestions");
       results.innerHTML = '<div class="recommendation-empty is-error">' + escapeHtml(error.message) + '</div>';
     }).finally(function () {
       button.disabled = false;
-      button.textContent = t("Find available IPs");
+      button.textContent = t("js.find_available_ips");
     });
   }
 
@@ -539,32 +539,32 @@
       });
     });
     list.innerHTML = exclusionRules.length ? exclusionRules.map(function (rule) {
-      var match = rule.match_type === "cidr" ? t("CIDR") + " · " + rule.value : "IP · " + rule.value;
+      var match = rule.match_type === "cidr" ? t("js.cidr") + " · " + rule.value : "IP · " + rule.value;
       var stats = audit.byId[rule.id] || { matched: 0, inUse: 0 };
       var warnings = overlapById[rule.id] || 0;
-      var warningText = warnings ? '<span class="audit-warning" title="' + t("Overlaps another enabled rule") + '">' + t("Overlap") + ' · ' + warnings + '</span>' : '<span class="audit-clean">' + t("No overlap") + '</span>';
+      var warningText = warnings ? '<span class="audit-warning" title="' + t("js.overlaps_another_enabled_rule") + '">' + t("js.overlap") + ' · ' + warnings + '</span>' : '<span class="audit-clean">' + t("js.no_overlap") + '</span>';
       var row = '<tr data-rule-id="' + escapeHtml(rule.id) + '">' +
-        '<td class="exclusion-check-cell"><input type="checkbox" data-exclusion-select="' + escapeHtml(rule.id) + '" aria-label="' + t("Select rule") + '"></td>' +
-        '<td>' + escapeHtml(rule.network === "*" ? t("All networks") : rule.network) + '</td>' +
+        '<td class="exclusion-check-cell"><input type="checkbox" data-exclusion-select="' + escapeHtml(rule.id) + '" aria-label="' + t("js.select_rule") + '"></td>' +
+        '<td>' + escapeHtml(rule.network === "*" ? t("js.all_networks") : rule.network) + '</td>' +
         '<td class="ip-cell">' + escapeHtml(match) + '</td>' +
         '<td>' + escapeHtml(rule.reason) + '</td>' +
-        '<td><strong>' + stats.matched + '</strong> ' + t("addresses") + '</td>' +
+        '<td><strong>' + stats.matched + '</strong> ' + t("js.addresses") + '</td>' +
         '<td>' + warningText + (stats.inUse ? '<span class="audit-in-use">' + stats.inUse + ' in use</span>' : '') + '</td>' +
-        '<td><span class="status-pill ' + (rule.enabled ? "status-available" : "status-system") + '">' + (rule.enabled ? t("Enabled") : t("Disabled")) + '</span></td>' +
-        '<td class="exclusion-actions"><button type="button" class="exclusion-action" data-exclusion-edit="' + escapeHtml(rule.id) + '">' + t("Edit") + '</button>' +
+        '<td><span class="status-pill ' + (rule.enabled ? "status-available" : "status-system") + '">' + (rule.enabled ? t("js.enabled") : t("js.disabled")) + '</span></td>' +
+        '<td class="exclusion-actions"><button type="button" class="exclusion-action" data-exclusion-edit="' + escapeHtml(rule.id) + '">' + t("js.edit") + '</button>' +
         '<button type="button" class="exclusion-action" data-exclusion-toggle="' + escapeHtml(rule.id) + '">' + (rule.enabled ? "Disable" : "Enable") + '</button>' +
-        '<button type="button" class="exclusion-action is-danger" data-exclusion-delete="' + escapeHtml(rule.id) + '">' + t("Delete") + '</button></td></tr>';
+        '<button type="button" class="exclusion-action is-danger" data-exclusion-delete="' + escapeHtml(rule.id) + '">' + t("js.delete") + '</button></td></tr>';
       if (editingExclusionId !== rule.id) return row;
       var editRow = '<tr class="exclusion-edit-row" data-edit-row="' + escapeHtml(rule.id) + '"><td colspan="8">' +
         '<form class="exclusion-edit-form" data-exclusion-edit-form="' + escapeHtml(rule.id) + '">' +
-        '<label>' + t("Network") + '<select name="network">' + exclusionNetworkOptions(rule.network) + '</select></label>' +
-        '<label>' + t("Type") + '<select name="match_type"><option value="ip"' + (rule.match_type === "ip" ? " selected" : "") + '>' + t("Single IPv4") + '</option><option value="cidr"' + (rule.match_type === "cidr" ? " selected" : "") + '>' + t("CIDR subnet") + '</option></select></label>' +
-        '<label>' + t("Address / subnet") + '<input name="value" value="' + escapeHtml(rule.value) + '" maxlength="32" required></label>' +
-        '<label>' + t("Reason") + '<input name="reason" value="' + escapeHtml(rule.reason) + '" maxlength="160" required></label>' +
-        '<div class="exclusion-edit-actions"><button type="submit" class="exclusion-action is-save">' + t("Save changes") + '</button><button type="button" class="exclusion-action" data-exclusion-edit-cancel>' + t("Cancel") + '</button></div>' +
+        '<label>' + t("js.network") + '<select name="network">' + exclusionNetworkOptions(rule.network) + '</select></label>' +
+        '<label>' + t("js.type") + '<select name="match_type"><option value="ip"' + (rule.match_type === "ip" ? " selected" : "") + '>' + t("js.single_ipv4") + '</option><option value="cidr"' + (rule.match_type === "cidr" ? " selected" : "") + '>' + t("js.cidr_subnet") + '</option></select></label>' +
+        '<label>' + t("js.address_subnet") + '<input name="value" value="' + escapeHtml(rule.value) + '" maxlength="32" required></label>' +
+        '<label>' + t("js.reason") + '<input name="reason" value="' + escapeHtml(rule.reason) + '" maxlength="160" required></label>' +
+        '<div class="exclusion-edit-actions"><button type="submit" class="exclusion-action is-save">' + t("js.save_changes") + '</button><button type="button" class="exclusion-action" data-exclusion-edit-cancel>' + t("js.cancel") + '</button></div>' +
         '</form></td></tr>';
       return row + editRow;
-    }).join("") : '<tr><td colspan="8" class="table-empty">' + t("No exclusion rules yet. Add an IP or CIDR range above.") + '</td></tr>';
+    }).join("") : '<tr><td colspan="8" class="table-empty">' + t("js.no_exclusion_rules_yet_add_an_ip_or_cidr_range_above") + '</td></tr>';
     updateExclusionBulkToolbar();
   }
 
@@ -574,9 +574,9 @@
       renderExclusionRules();
       setExclusionFeedback("", false);
     }).catch(function (error) {
-      setExclusionFeedback(t("Could not load rules:") + " " + error.message, true);
+      setExclusionFeedback(t("js.could_not_load_rules") + " " + error.message, true);
       var list = document.getElementById("exclusion-list");
-      if (list) list.innerHTML = '<tr><td colspan="8" class="table-empty">' + t("Rules could not be loaded.") + '</td></tr>';
+      if (list) list.innerHTML = '<tr><td colspan="8" class="table-empty">' + t("js.rules_could_not_be_loaded") + '</td></tr>';
     });
   }
 
@@ -625,20 +625,20 @@
   }
 
   function requestSnapshot() {
-    statusNode.textContent = t("Loading snapshot…");
+    statusNode.textContent = t("js.loading_snapshot");
     fetch(apiUrl + "?action=snapshot", { credentials: "same-origin", headers: { "Accept": "application/json" } })
       .then(readApiResponse)
       .then(function (body) { render(body.snapshot); setNotice(""); })
       .catch(function (error) {
-        statusNode.textContent = t("Snapshot unavailable");
+        statusNode.textContent = t("js.snapshot_unavailable");
         setNotice(error.message);
       });
   }
 
   function runScan() {
     scanButton.disabled = true;
-    scanButton.textContent = t("Scanning…");
-    statusNode.textContent = t("Collecting Docker data…");
+    scanButton.textContent = t("js.scanning");
+    statusNode.textContent = t("js.collecting_docker_data");
     setNotice("");
 
     var scanHeaders = { "Accept": "application/json" };
@@ -655,11 +655,11 @@
     }).then(readApiResponse).then(function (body) {
       render(body.snapshot);
     }).catch(function (error) {
-      statusNode.textContent = t("Scan failed");
+      statusNode.textContent = t("js.scan_failed");
       setNotice(error.message);
     }).finally(function () {
       scanButton.disabled = false;
-      scanButton.textContent = t("Scan now");
+      scanButton.textContent = t("js.scan_now");
     });
   }
 
@@ -677,7 +677,7 @@
       reason: document.getElementById("exclusion-reason").value.trim(),
       enabled: true
     };
-    saveExclusionRules(exclusionRules.concat([rule]), t("Exclusion rule added."));
+    saveExclusionRules(exclusionRules.concat([rule]), t("js.exclusion_rule_added"));
     exclusionForm.reset();
   });
   if (addressFilter) addressFilter.addEventListener("input", function () { filterAddressRows(true); });
@@ -736,7 +736,7 @@
         });
       });
       editingExclusionId = null;
-      saveExclusionRules(updated, t("Exclusion rule updated."));
+      saveExclusionRules(updated, t("js.exclusion_rule_updated"));
       return;
     }
     if (event.target.matches("[data-detail-exclusion-form]")) {
@@ -749,7 +749,7 @@
       var network = button.getAttribute("data-network");
       saveExclusionRules(exclusionRules.concat([{
         network: network, match_type: "ip", value: ip, reason: reason.value.trim(), enabled: true
-      }]), t("Exclusion rule added for") + " " + ip + ".", button);
+      }]), t("js.exclusion_rule_added_for") + " " + ip + ".", button);
     }
   });
   document.addEventListener("click", function (event) {
@@ -793,7 +793,7 @@
       var action = bulkAction.getAttribute("data-exclusion-bulk");
       var selected = selectedExclusionIds();
       if (!selected.length) return;
-      if (action === "delete" && !window.confirm(t("Delete selected exclusion rules?"))) return;
+      if (action === "delete" && !window.confirm(t("js.delete_selected_exclusion_rules"))) return;
       var selectedMap = {};
       selected.forEach(function (id) { selectedMap[id] = true; });
       var nextRules = action === "delete" ?
@@ -801,7 +801,7 @@
         exclusionRules.map(function (rule) {
           return selectedMap[rule.id] ? Object.assign({}, rule, { enabled: action === "enable" }) : rule;
         });
-      saveExclusionRules(nextRules, action === "delete" ? t("Selected rules deleted.") : (action === "enable" ? t("Selected rules enabled.") : t("Selected rules disabled.")), bulkAction);
+      saveExclusionRules(nextRules, action === "delete" ? t("js.selected_rules_deleted") : (action === "enable" ? t("js.selected_rules_enabled") : t("js.selected_rules_disabled")), bulkAction);
       return;
     }
     var enableDetailRule = event.target.closest("[data-enable-exclusion]");
@@ -809,7 +809,7 @@
       var enableId = enableDetailRule.getAttribute("data-enable-exclusion");
       saveExclusionRules(exclusionRules.map(function (rule) {
         return rule.id === enableId ? Object.assign({}, rule, { enabled: true }) : rule;
-      }), t("Exclusion rule enabled."), enableDetailRule);
+      }), t("js.exclusion_rule_enabled"), enableDetailRule);
       return;
     }
     var toggleExclusion = event.target.closest("[data-exclusion-toggle]");
@@ -818,12 +818,12 @@
       var toggleId = toggleExclusion.getAttribute("data-exclusion-toggle");
       saveExclusionRules(exclusionRules.map(function (rule) {
         return rule.id === toggleId ? Object.assign({}, rule, { enabled: !rule.enabled }) : rule;
-      }), t("Exclusion rule updated."));
+      }), t("js.exclusion_rule_updated"));
       return;
     }
     if (deleteExclusion) {
       var deleteId = deleteExclusion.getAttribute("data-exclusion-delete");
-      saveExclusionRules(exclusionRules.filter(function (rule) { return rule.id !== deleteId; }), t("Exclusion rule deleted."));
+      saveExclusionRules(exclusionRules.filter(function (rule) { return rule.id !== deleteId; }), t("js.exclusion_rule_deleted"));
       return;
     }
     var detailsButton = event.target.closest("[data-toggle-details]");
@@ -834,7 +834,7 @@
       });
       if (detailRow) {
         detailRow.hidden = !detailRow.hidden;
-        detailsButton.textContent = detailRow.hidden ? t("Details") : t("Hide");
+        detailsButton.textContent = detailRow.hidden ? t("js.details") : t("js.hide");
       }
       return;
     }
@@ -848,11 +848,11 @@
         var ipList = JSON.parse(copyAllButton.getAttribute("data-copy-ips") || "[]");
         if (!Array.isArray(ipList) || !ipList.length || ipList.some(function (ip) {
           return typeof ip !== "string" || !/^\d{1,3}(?:\.\d{1,3}){3}$/.test(ip);
-        })) throw new Error(t("Invalid IP list"));
+        })) throw new Error(t("js.invalid_ip_list"));
         copyValue = ipList.join("\n");
         successMessage = "Copied " + ipList.length + " displayed IP addresses";
       } catch (error) {
-        showCopyNotice(t("Could not copy this IP list."), true);
+        showCopyNotice(t("js.could_not_copy_this_ip_list"), true);
         return;
       }
     } else {
@@ -886,11 +886,11 @@
         showCopyNotice(successMessage, false);
       }).catch(function () {
         var copied = fallbackCopy();
-        showCopyNotice(copied ? successMessage : t("Copy failed. Select the IP manually."), !copied);
+        showCopyNotice(copied ? successMessage : t("js.copy_failed_select_the_ip_manually"), !copied);
       });
     } else {
       var copied = fallbackCopy();
-      showCopyNotice(copied ? successMessage : t("Copy failed. Select the IP manually."), !copied);
+      showCopyNotice(copied ? successMessage : t("js.copy_failed_select_the_ip_manually"), !copied);
     }
   });
   requestSnapshot();
