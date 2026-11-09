@@ -2,6 +2,13 @@
 declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/i18n/I18n.php';
+$ipscopeVersionPath = dirname(__DIR__) . '/version.json';
+$ipscopeVersion = is_file($ipscopeVersionPath)
+    ? json_decode((string)file_get_contents($ipscopeVersionPath), true)
+    : ['version' => 'Development', 'built_at' => 'development'];
+if (!is_array($ipscopeVersion)) {
+    $ipscopeVersion = ['version' => 'Development', 'built_at' => 'development'];
+}
 $ipscopeLocale = isset($locale) && is_string($locale) ? $locale : 'en';
 $ipscopeI18n = new IPScopeI18n($ipscopeLocale, dirname(__DIR__, 2));
 $ipscopeEnglish = new IPScopeI18n('en', dirname(__DIR__, 2));
@@ -42,6 +49,7 @@ $ipscopeI18nConfig = [
       <button class="workspace-tab" type="button" data-view="containers"><?= $ipscopeI18n->translate("ui.containers") ?></button>
       <button class="workspace-tab" type="button" data-view="exclusions"><?= $ipscopeI18n->translate("ui.exclusions") ?></button>
       <button class="workspace-tab" type="button" data-view="recommendations"><?= $ipscopeI18n->translate("ui.ip_suggestions") ?></button>
+      <button class="workspace-tab" type="button" data-view="about"><?= $ipscopeI18n->translate("ui.about") ?></button>
     </nav>
 
     <section class="view-panel is-active" data-panel="overview">
@@ -257,6 +265,43 @@ $ipscopeI18nConfig = [
         <div class="recommendation-notice">
           <?= $ipscopeI18n->translate("ui.suggestions_are_advisory_only_and_are_listed_in_nume") ?>
         </div>
+      </section>
+    </section>
+
+    <section class="view-panel about-view" data-panel="about">
+      <section class="panel about-hero">
+        <div class="about-brand-mark">IP</div>
+        <div class="about-hero-copy">
+          <div class="about-eyebrow">UNRAID DOCKER TOOL</div>
+          <h2><?= $ipscopeI18n->translate("about.heading") ?></h2>
+          <p><?= $ipscopeI18n->translate("about.tagline") ?></p>
+        </div>
+        <div class="about-version">
+          <span><?= $ipscopeI18n->translate("about.version") ?></span>
+          <strong><?= htmlspecialchars((string)($ipscopeVersion["version"] ?? $ipscopeI18n->translate("about.development")), ENT_QUOTES, "UTF-8") ?></strong>
+          <small><?= $ipscopeI18n->translate("about.build") ?> · <?= htmlspecialchars((string)($ipscopeVersion["built_at"] ?? "development"), ENT_QUOTES, "UTF-8") ?></small>
+        </div>
+      </section>
+      <section class="panel about-description">
+        <p><?= $ipscopeI18n->translate("about.description") ?></p>
+      </section>
+      <section class="panel about-section">
+        <div class="panel-heading"><div><h2><?= $ipscopeI18n->translate("about.features") ?></h2></div></div>
+        <div class="about-feature-grid">
+          <?php foreach (["about.feature_inventory", "about.feature_ownership", "about.feature_conflicts", "about.feature_exclusions", "about.feature_suggestions"] as $featureKey): ?>
+            <div class="about-feature"><span class="about-feature-mark">✓</span><span><?= $ipscopeI18n->translate($featureKey) ?></span></div>
+          <?php endforeach; ?>
+        </div>
+      </section>
+      <section class="panel about-safety">
+        <div class="about-safety-mark">i</div>
+        <div><h2><?= $ipscopeI18n->translate("about.safety_title") ?></h2><p><?= $ipscopeI18n->translate("about.safety_description") ?></p></div>
+      </section>
+      <section class="about-meta-grid">
+        <article class="panel about-meta-card"><span><?= $ipscopeI18n->translate("about.project") ?></span><a href="https://github.com/burncode/IPScope" target="_blank" rel="noopener noreferrer">github.com/burncode/IPScope</a><small><?= $ipscopeI18n->translate("about.documentation") ?></small></article>
+        <article class="panel about-meta-card"><span><?= $ipscopeI18n->translate("about.license") ?></span><strong>MIT</strong><small><?= $ipscopeI18n->translate("about.license_description") ?></small></article>
+        <article class="panel about-meta-card"><span><?= $ipscopeI18n->translate("about.author") ?></span><strong>burncode</strong><small><?= $ipscopeI18n->translate("about.copyright") ?></small></article>
+        <article class="panel about-meta-card"><span><?= $ipscopeI18n->translate("about.runtime") ?></span><strong>Unraid</strong><small><?= $ipscopeI18n->translate("about.runtime_description") ?></small></article>
       </section>
     </section>
 
