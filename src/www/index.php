@@ -1,8 +1,17 @@
 <?php
 declare(strict_types=1);
 
+require_once dirname(__DIR__) . '/i18n/I18n.php';
+$ipscopeLocale = isset($locale) && is_string($locale) ? $locale : 'en';
+$ipscopeI18n = new IPScopeI18n($ipscopeLocale, dirname(__DIR__, 2));
+$ipscopeEnglish = new IPScopeI18n('en', dirname(__DIR__, 2));
+$ipscopeI18nConfig = [
+    'locale' => $ipscopeI18n->locale(),
+    'messages' => $ipscopeI18n->catalog(),
+    'fallback' => $ipscopeEnglish->catalog(),
+];
 ?><!doctype html>
-<html lang="en">
+<html lang="<?= htmlspecialchars($ipscopeI18n->locale() === 'zh' ? 'zh-CN' : 'en-US', ENT_QUOTES, 'UTF-8') ?>">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,12 +25,12 @@ declare(strict_types=1);
         <div class="brand-mark">IP</div>
         <div>
           <h1>IPScope</h1>
-          <p><?= _("Docker IPv4 inventory") ?></p>
+          <p><?= htmlspecialchars($ipscopeI18n->translate("app.title"), ENT_QUOTES, "UTF-8") ?></p>
         </div>
       </div>
       <div class="top-actions">
         <span id="scan-status" class="status-text"><?= _("Snapshot not loaded") ?></span>
-        <button id="scan-button" class="button button-primary" type="button"><?= _("Scan now") ?></button>
+        <button id="scan-button" class="button button-primary" type="button"><?= htmlspecialchars($ipscopeI18n->translate("common.scan_now"), ENT_QUOTES, "UTF-8") ?></button>
       </div>
     </header>
 
@@ -257,6 +266,8 @@ declare(strict_types=1);
     </footer>
     <div id="copy-toast" class="copy-toast" role="status" aria-live="polite" hidden></div>
   </main>
+  <script>window.IPScopeI18nConfig = <?= json_encode($ipscopeI18nConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
+  <script src="/plugins/ipscope/src/www/assets/i18n.js" defer></script>
   <script src="/plugins/ipscope/src/www/assets/ipscope.js" defer></script>
 </body>
 </html>
