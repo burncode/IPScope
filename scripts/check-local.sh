@@ -25,6 +25,7 @@ php tests/snapshot-store-concurrency.php
 php tests/snapshot-store-failures.php
 php tests/snapshot-store-recovery.php
 php tests/scan-cli-dependencies.php
+php tests/web-api-dependencies.php
 php tests/docker-client.php
 php tests/process-runner.php
 php tests/lan-discovery.php
