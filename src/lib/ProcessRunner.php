@@ -7,7 +7,7 @@ namespace IPScope;
  * Executes a fixed argument vector without invoking a shell.
  * Requires PHP 7.4+ (array command support in proc_open).
  */
-final class ProcessRunner
+class ProcessRunner
 {
     /** @return array{exit_code:int,stdout:string,stderr:string} */
     public function run(array $command, int $timeoutSeconds = 20): array
