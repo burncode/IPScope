@@ -51,10 +51,10 @@ final class ArpProbeEngine
         return [
             'ip' => $ip,
             'interface' => $interface,
-            'status' => $responded ? 'responding' : ($result['exit_code'] === 0 ? 'response_unparsed' : 'no_response'),
+            'status' => $responded ? 'responding' : ($probeFailed ? 'probe_error' : ($result['exit_code'] === 0 ? 'response_unparsed' : 'no_response')),
             'mac' => $mac,
             'exit_code' => $result['exit_code'],
-            'error' => $result['exit_code'] !== 0 && !$responded ? trim($result['stderr']) : null,
+            'error' => $probeFailed ? trim($result['stderr']) : null,
         ];
     }
 
