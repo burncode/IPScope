@@ -603,7 +603,8 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 
 /* T023: About page */
-.about-view { display: grid; gap: 14px; }
+.view-panel.about-view { display: none; }
+.view-panel.about-view.is-active { display: grid; gap: 14px; }
 .about-hero { display: flex; align-items: center; gap: 18px; padding: 24px; }
 .about-brand-mark { width: 58px; height: 58px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 15px; background: var(--accent); color: #fff; font-size: 19px; font-weight: 800; letter-spacing: -.06em; }
 .about-hero-copy { min-width: 0; flex: 1; }
