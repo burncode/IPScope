@@ -34,7 +34,7 @@ $assertions = [
 try { $engine->probe('not-an-ip', 'bond0'); $assertions[] = false; } catch (InvalidArgumentException $e) { $assertions[] = true; }
 try { $engine->probe('192.168.50.4', 'bond0;reboot'); $assertions[] = false; } catch (InvalidArgumentException $e) { $assertions[] = true; }
 try { $engine->probeMany(['192.168.50.1','192.168.50.2'], 'bond0', 1); $assertions[] = false; } catch (InvalidArgumentException $e) { $assertions[] = true; }
-try { $engine->probeMany(['192.168.50.1','192.168.50.1'], 'bond0', 1); $assertions[] = count($runner->calls) === 3; } catch (Throwable $e) { $assertions[] = false; }
+try { $engine->probeMany(['192.168.50.1','192.168.50.1'], 'bond0', 1); $assertions[] = count($runner->calls) === 4; } catch (Throwable $e) { $assertions[] = false; }
 foreach ($assertions as $i => $passed) {
     if (!$passed) { fwrite(STDERR, 'ARP probe test failed at assertion '.($i+1).PHP_EOL); exit(1); }
 }
