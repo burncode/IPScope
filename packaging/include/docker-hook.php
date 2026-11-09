@@ -11,11 +11,23 @@ function ipscope_docker_hook_asset(string $path): string
     return function_exists('autov') ? autov($url, true) : $url;
 }
 
+function ipscope_docker_hook_plugin_root(): string
+{
+    // Installed layout: <plugin>/include/docker-hook.php.
+    $installedRoot = dirname(__DIR__);
+    if (is_file($installedRoot . '/src/i18n/I18n.php')) {
+        return $installedRoot;
+    }
+
+    // Repository layout during local tests: <repo>/packaging/include/docker-hook.php.
+    return dirname(__DIR__, 2);
+}
+
 function ipscope_docker_hook_render(): void
 {
-    require_once dirname(__DIR__, 2) . '/src/i18n/I18n.php';
+    $pluginRoot = ipscope_docker_hook_plugin_root();
+    require_once $pluginRoot . '/src/i18n/I18n.php';
     $unraidLocale = isset($GLOBALS['locale']) && is_string($GLOBALS['locale']) ? $GLOBALS['locale'] : 'en';
-    $pluginRoot = dirname(__DIR__, 2);
     $translator = new IPScopeI18n($unraidLocale, $pluginRoot);
     $english = new IPScopeI18n('en', $pluginRoot);
     $config = [
