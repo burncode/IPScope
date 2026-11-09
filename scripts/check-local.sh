@@ -28,6 +28,7 @@ php tests/scan-cli-dependencies.php
 php tests/docker-client.php
 php tests/process-runner.php
 php tests/lan-discovery.php
+php tests/arp-probe.php
 php tests/i18n-engine.php
 php tests/about-page.php
 
