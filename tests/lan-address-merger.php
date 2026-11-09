@@ -43,7 +43,7 @@ $checks=[
     count($addresses['192.168.50.15']['lan_evidence']??[])===1,
     ($addresses['192.168.50.21']['lan_evidence'][0]['status']??null)==='local',
     in_array('192.168.50.97',array_column($result['lan_discovery']['unmatched_devices'],'ip'),true),
-    ($result['lan_discovery']['matched_device_count']??null)===3,
+    ($result['lan_discovery']['matched_device_count']??null)===4,
     in_array('docker_lan_mac_mismatch',$types,true),
     ($result['lan_discovery']['availability_inferred']??null)===false,
 ];
