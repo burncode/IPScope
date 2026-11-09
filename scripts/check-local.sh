@@ -30,6 +30,7 @@ php tests/docker-client.php
 php tests/process-runner.php
 php tests/lan-discovery.php
 php tests/lan-collector.php
+php tests/lan-address-merger.php
 php tests/arp-probe.php
 php tests/i18n-engine.php
 php tests/about-page.php
