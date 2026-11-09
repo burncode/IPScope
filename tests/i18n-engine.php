@@ -62,7 +62,7 @@ $source = implode("\n", array_map(
     static fn(string $path): string => (string)file_get_contents($path),
     $sourceFiles
 ));
-preg_match_all('/(?:\\$ipscopeI18n->translate|\\bt)\\(\\s*["\\']([^"\\']+)["\\']\\s*\\)/', $source, $usedKeys);
+preg_match_all('~(?:\\$ipscopeI18n->translate|\\bt)\\(\\s*"([^"]+)"\\s*\\)~', $source, $usedKeys);
 $missingKeys = array_values(array_unique(array_filter(
     $usedKeys[1],
     static fn(string $key): bool => !array_key_exists($key, $englishCatalog) || !array_key_exists($key, $chineseCatalog)
