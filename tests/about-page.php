@@ -9,6 +9,8 @@ $chinese = json_decode((string)file_get_contents($root . '/src/i18n/langs/zh.jso
 $checks = [
     'About tab is registered' => str_contains($index, 'data-view="about"'),
     'About panel is registered' => str_contains($index, 'data-panel="about"'),
+    'About panel respects inactive view visibility' => str_contains((string)file_get_contents($root . '/src/www/assets/ipscope.css'), '.view-panel.about-view { display: none; }'),
+    'About panel uses grid only while active' => str_contains((string)file_get_contents($root . '/src/www/assets/ipscope.css'), '.view-panel.about-view.is-active { display: grid; gap: 14px; }'),
     'GitHub project link is present' => str_contains($index, 'https://github.com/burncode/IPScope'),
     'MIT license is identified' => str_contains($index, '>MIT<'),
     'version metadata is valid' => is_array($version) && isset($version['version'], $version['built_at']),
