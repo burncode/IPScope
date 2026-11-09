@@ -26,7 +26,7 @@ $checks = [
     'unverified manual values use a distinct warning style' => str_contains($css, '.ipscope-docker-ip-message.is-warning'),
     'warning state is applied and cleared independently from errors' => str_contains($source, 'message.classList.toggle("is-warning", !!warning && !error);'),
     'snapshot freshness is recalculated from the live clock' => str_contains($source, 'function isSnapshotFresh()') && str_contains($source, 'var now = Date.now();') && str_contains($source, 'now - snapshotGeneratedAt <= 300000'),
-    'candidate selection rechecks freshness at click time' => str_contains($source, 'if (!isSnapshotFresh()) {') && str_contains($source, 'This inventory snapshot is not fresh enough.'),
+    'candidate selection rechecks freshness at click time' => str_contains($source, 'if (!isSnapshotFresh()) {') && str_contains($source, 'js.this_inventory_snapshot_is_not_fresh_enough_rescan_in_ip'),
     'selected candidate styling uses current freshness instead of a frozen button flag' => str_contains($source, 'candidateButtons.length > 0 && isSnapshotFresh()') && !str_contains($source, 'candidateButtons[0].dataset.snapshotFresh === "true"'),
     'each recommendation request receives a monotonically increasing request id' => str_contains($source, 'var requestSequence = 0;') && str_contains($source, 'var requestId = ++requestSequence;'),
     'stale recommendation responses are ignored even if the network changes back' => str_contains($source, 'if (requestId !== requestSequence) return;'),
