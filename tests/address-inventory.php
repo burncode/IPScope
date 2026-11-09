@@ -39,6 +39,10 @@ $containers = [
         'name' => 'stopped-reserver', 'state' => 'exited', 'running' => false,
         'networks' => [],
     ],
+    [
+        'name' => 'paused-worker', 'state' => 'paused', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => '192.168.50.106', 'ipam_ipv4' => '192.168.50.106']],
+    ],
 ];
 $templates = [
     ['name' => 'plex', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
@@ -74,8 +78,10 @@ $checks = [
     ($addresses['192.168.50.100'] ?? null) === 'conflict',
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'reservation_conflict')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'active_reservation_collision')) === 1,
+    count(array_filter($result['conflicts'], static fn(array $c): bool => ($c['ip'] ?? '') === '192.168.50.106')) === 0,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
     ($addresses['192.168.50.105'] ?? null) === 'available',
+    ($addresses['192.168.50.106'] ?? null) === 'occupied',
     count($result['orphan_templates']) === 1,
 ];
 
