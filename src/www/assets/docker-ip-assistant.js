@@ -4,7 +4,9 @@
   var API_URL = "/plugins/ipscope/api.php";
 
   function t(text) {
-    return typeof window._ === "function" ? window._(text) : text;
+    return window.IPScopeI18n && typeof window.IPScopeI18n.t === "function"
+      ? window.IPScopeI18n.t(text)
+      : text;
   }
   var PANEL_ID = "ipscope-docker-ip-assistant";
   var INPUT_SELECTOR = 'input[name="contMyIP"]';
