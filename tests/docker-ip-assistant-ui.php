@@ -8,6 +8,9 @@ if (!is_string($source) || !is_string($css)) {
     exit(1);
 }
 
+$englishCatalog = json_decode((string)file_get_contents(__DIR__ . '/../src/i18n/langs/en.json'), true);
+$chineseCatalog = json_decode((string)file_get_contents(__DIR__ . '/../src/i18n/langs/zh.json'), true);
+
 $checks = [
     'helper is appended inside the native Fixed IP input cell' => str_contains($source, 'anchor.appendChild(panel)'),
     'helper does not become a sibling grid cell' => !str_contains($source, 'anchor.parentElement.insertBefore(panel, anchor.nextSibling)'),
@@ -16,8 +19,8 @@ $checks = [
     'candidate action rechecks freshness at click time' => str_contains($source, 'if (!isSnapshotFresh()) {'),
     'helper width follows the actual Fixed IP input width' => str_contains($source, 'ipInput.getBoundingClientRect().width') && str_contains($source, 'panel.style.width = Math.round(inputWidth) + "px";'),
     'disabled candidates communicate unavailable state' => str_contains($css, 'button.ipscope-docker-ip-candidate:disabled'),
-    'manual Fixed IP values outside suggestions are marked unverified' => str_contains($source, 'is not in the current IPScope suggestions') && str_contains($source, 'Its availability has not been verified'),
-    'stale matching suggestions are not styled as verified selections' => str_contains($source, 'selected && buttonSnapshotFresh') && str_contains($source, 'matches an old suggestion, but the inventory snapshot is stale'),
+    'manual Fixed IP values outside suggestions are marked unverified' => str_contains($source, 'js.fixed_ip_ip_is_not_in_the_current_ipscope_suggestions_i') && ($englishCatalog['js.fixed_ip_ip_is_not_in_the_current_ipscope_suggestions_i'] ?? null) === 'Fixed IP {ip} is not in the current IPScope suggestions. Its availability has not been verified by this snapshot.' && isset($chineseCatalog['js.fixed_ip_ip_is_not_in_the_current_ipscope_suggestions_i']),
+    'stale matching suggestions are not styled as verified selections' => str_contains($source, 'selected && buttonSnapshotFresh') && str_contains($source, 'js.fixed_ip_ip_matches_an_old_suggestion_but_the_inventory') && isset($englishCatalog['js.fixed_ip_ip_matches_an_old_suggestion_but_the_inventory'], $chineseCatalog['js.fixed_ip_ip_matches_an_old_suggestion_but_the_inventory']),
     'manual value status updates when the input changes' => str_contains($source, 'ipInput.addEventListener("input", syncSelectedCandidate)') && str_contains($source, 'ipInput.addEventListener("change", syncSelectedCandidate)'),
     'network changes invalidate the previous suggestion state' => str_contains($source, 'networkSelect.addEventListener("change", function () {') && str_contains($source, 'suggestionsLoaded = false;'),
     'unverified manual values use a distinct warning style' => str_contains($css, '.ipscope-docker-ip-message.is-warning'),
