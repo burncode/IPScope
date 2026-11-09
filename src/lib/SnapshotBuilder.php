@@ -36,6 +36,11 @@ final class SnapshotBuilder
             ];
         }
 
+        $lanMerge = (new LanAddressMerger())->merge($inventory['networks'], $lanDiscovery, $containers);
+        $inventory['networks'] = $lanMerge['networks'];
+        $lanDiscovery = $lanMerge['lan_discovery'];
+        $inventory['conflicts'] = array_merge($inventory['conflicts'], $lanMerge['conflicts']);
+
         return [
             'schema_version' => 1,
             'generated_at' => date(DATE_ATOM),
