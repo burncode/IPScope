@@ -46,7 +46,10 @@ final class ArpProbeEngine
             preg_match('/\b([0-9a-fA-F]{2}(?::[0-9a-fA-F]{2}){5})\b/', $output, $match);
         }
         $mac = isset($match[1]) ? strtolower($match[1]) : null;
-        $responded = $mac !== null || preg_match('/\bReceived\s+[1-9][0-9]*\s+response/i', $output) === 1;
+        $hasResponse = preg_match('/\bReceived\s+[1-9][0-9]*\s+response/i', $output) === 1;
+        $explicitNoResponse = preg_match('/\bReceived\s+0\s+response/i', $output) === 1;
+        $responded = $mac !== null || $hasResponse;
+        $probeFailed = !$responded && !$explicitNoResponse && $result['exit_code'] !== 0;
 
         return [
             'ip' => $ip,
