@@ -2,6 +2,9 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/lib/ProcessRunner.php';
+require_once __DIR__ . '/lib/LanInterfaceCollector.php';
+require_once __DIR__ . '/lib/NeighborCollector.php';
+require_once __DIR__ . '/lib/LanDiscoveryCollector.php';
 require_once __DIR__ . '/lib/DockerClient.php';
 require_once __DIR__ . '/lib/NetworkCollector.php';
 require_once __DIR__ . '/lib/ContainerCollector.php';
