@@ -43,6 +43,14 @@ $containers = [
         'name' => 'paused-worker', 'state' => 'paused', 'running' => false,
         'networks' => ['bond0' => ['ipv4' => '192.168.50.106', 'ipam_ipv4' => '192.168.50.106']],
     ],
+    [
+        'name' => 'stopped-ipam-only', 'state' => 'exited', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => '192.168.50.107', 'ipam_ipv4' => '192.168.50.107']],
+    ],
+    [
+        'name' => 'created-ipam-only', 'state' => 'created', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => null, 'ipam_ipv4' => '192.168.50.108']],
+    ],
 ];
 $templates = [
     ['name' => 'plex', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
@@ -82,6 +90,8 @@ $checks = [
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
     ($addresses['192.168.50.105'] ?? null) === 'available',
     ($addresses['192.168.50.106'] ?? null) === 'occupied',
+    ($addresses['192.168.50.107'] ?? null) === 'reserved',
+    ($addresses['192.168.50.108'] ?? null) === 'reserved',
     count($result['orphan_templates']) === 1,
 ];
 
