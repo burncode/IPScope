@@ -27,7 +27,7 @@ final class SnapshotBuilder
         $lanDiscovery = null;
         try {
             $lanDiscovery = (new LanDiscoveryCollector(new ProcessRunner()))->collect();
-        } catch (\\Throwable $error) {
+        } catch (\Throwable $error) {
             $lanDiscovery = [
                 'status' => 'unavailable',
                 'error' => $error->getMessage(),
