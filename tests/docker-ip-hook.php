@@ -19,6 +19,7 @@ function renderHookForLocale(string $locale): string
     return (string)ob_get_clean();
 }
 
+assertHook(is_file(ipscope_docker_hook_plugin_root() . '/src/i18n/I18n.php'), 'Docker hook resolves the plugin root and its i18n runtime');
 $englishOutput = renderHookForLocale('en_US');
 $chineseOutput = renderHookForLocale('zh_CN');
 
