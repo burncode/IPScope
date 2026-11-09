@@ -25,15 +25,15 @@
 
   function validateRecommendationPayload(body, expectedNetwork) {
     if (!body || typeof body !== "object" || Array.isArray(body) || body.ok !== true) {
-      throw new Error(t("IPScope returned an invalid recommendation response."));
+      throw new Error(t("js.ipscope_returned_an_invalid_recommendation_response"));
     }
 
     var recommendation = body.recommendations;
     if (!recommendation || typeof recommendation !== "object" || Array.isArray(recommendation)) {
-      throw new Error(t("IPScope recommendation data is missing or invalid."));
+      throw new Error(t("js.ipscope_recommendation_data_is_missing_or_invalid"));
     }
     if (!Array.isArray(recommendation.networks)) {
-      throw new Error(t("IPScope recommendation networks are invalid."));
+      throw new Error(t("js.ipscope_recommendation_networks_are_invalid"));
     }
 
     var timeStatus = recommendation.snapshot_time_status;
@@ -43,13 +43,13 @@
         (age !== null && (typeof age !== "number" || !Number.isFinite(age) || age < 0)) ||
         (timeStatus === "valid" && typeof age !== "number") ||
         (timeStatus !== "valid" && age !== null)) {
-      throw new Error(t("IPScope snapshot timestamp data is invalid."));
+      throw new Error(t("js.ipscope_snapshot_timestamp_data_is_invalid"));
     }
 
     recommendation.networks.forEach(function (item) {
       if (!item || typeof item !== "object" || Array.isArray(item) ||
           typeof item.network !== "string" || !Array.isArray(item.candidates)) {
-        throw new Error(t("IPScope returned an invalid network recommendation."));
+        throw new Error(t("js.ipscope_returned_an_invalid_network_recommendation"));
       }
     });
 
@@ -57,7 +57,7 @@
       return item.network === expectedNetwork;
     });
     if (matches.length > 1) {
-      throw new Error(t("IPScope returned duplicate records for the selected network."));
+      throw new Error(t("js.ipscope_returned_duplicate_records_for_the_selected_net"));
     }
 
     var selected = matches[0] || null;
@@ -65,14 +65,14 @@
       var seenCandidates = Object.create(null);
       selected.candidates.forEach(function (candidate) {
         if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
-          throw new Error(t("IPScope returned a candidate that is not an object."));
+          throw new Error(t("js.ipscope_returned_a_candidate_that_is_not_an_object"));
         }
         var ip = candidate.ip;
         if (!isValidIPv4Address(ip)) {
-          throw new Error(t("IPScope returned an invalid candidate IPv4 address."));
+          throw new Error(t("js.ipscope_returned_an_invalid_candidate_ipv4_address"));
         }
         if (seenCandidates[ip]) {
-          throw new Error(t("IPScope returned duplicate candidate IP addresses."));
+          throw new Error(t("js.ipscope_returned_duplicate_candidate_ip_addresses"));
         }
         seenCandidates[ip] = true;
       });
@@ -113,11 +113,11 @@
     heading.className = "ipscope-docker-ip-heading";
 
     var title = document.createElement("strong");
-    title.textContent = "IPScope · " + t("Available IPs");
+    title.textContent = "IPScope · " + t("js.available_ips");
 
     var meta = document.createElement("span");
     meta.className = "ipscope-docker-ip-meta";
-    meta.textContent = t("Suggestions are advisory");
+    meta.textContent = t("js.suggestions_are_advisory");
 
     heading.appendChild(title);
     heading.appendChild(meta);
@@ -125,13 +125,13 @@
     var actions = document.createElement("div");
     actions.className = "ipscope-docker-ip-actions";
 
-    var findButton = makeButton(t("Find available IPs"), "ipscope-docker-ip-find", loadCandidates);
+    var findButton = makeButton(t("js.find_available_ips"), "ipscope-docker-ip-find", loadCandidates);
     actions.appendChild(findButton);
 
     var message = document.createElement("p");
     message.className = "ipscope-docker-ip-message";
     message.setAttribute("role", "status");
-    message.textContent = t("Choose a custom Docker network, then check its available addresses.");
+    message.textContent = t("js.choose_a_custom_docker_network_then_check_its_available");
 
     var candidates = document.createElement("div");
     candidates.className = "ipscope-docker-ip-candidates";
@@ -211,11 +211,11 @@
         );
 
         if (selected && buttonSnapshotFresh) {
-          button.title = t("Currently selected in Fixed IP field");
+          button.title = t("js.currently_selected_in_fixed_ip_field");
         } else if (!buttonSnapshotFresh) {
-          button.title = t("Rescan IPScope before using this address");
+          button.title = t("js.rescan_ipscope_before_using_this_address");
         } else {
-          button.title = t("Select this IP address");
+          button.title = t("js.select_this_ip_address");
         }
 
         button.textContent = selected && buttonSnapshotFresh
@@ -226,13 +226,13 @@
       if (!suggestionsLoaded) return;
 
       if (!currentIp) {
-        setMessage(t("Select an address to fill the Fixed IP address field. IPScope will not apply or save the container."), false);
+        setMessage(t("js.select_an_address_to_fill_the_fixed_ip_address_field_ip"), false);
       } else if (matchingButton && snapshotFresh) {
-        setMessage(t("Selected {ip}. Review the container settings before applying.").replace("{ip}", currentIp), false);
+        setMessage(t("js.selected_ip_review_the_container_settings_before_applyi").replace("{ip}", currentIp), false);
       } else if (matchingButton) {
-        setMessage(t("Fixed IP {ip} matches an old suggestion, but the inventory snapshot is stale. Rescan IPScope before relying on it.").replace("{ip}", currentIp), false, true);
+        setMessage(t("js.fixed_ip_ip_matches_an_old_suggestion_but_the_inventory").replace("{ip}", currentIp), false, true);
       } else {
-        setMessage(t("Fixed IP {ip} is not in the current IPScope suggestions. Its availability has not been verified by this snapshot.").replace("{ip}", currentIp), false, true);
+        setMessage(t("js.fixed_ip_ip_is_not_in_the_current_ipscope_suggestions_i").replace("{ip}", currentIp), false, true);
       }
     }
 
@@ -257,21 +257,21 @@
     function loadCandidates() {
       var network = currentNetwork();
       if (!network || /^(bridge|host|container|none)$/i.test(network)) {
-        setMessage(t("Select a custom Docker network with a managed IPv4 address pool first."), true);
+        setMessage(t("js.select_a_custom_docker_network_with_a_managed_ipv4_addr"), true);
         candidates.hidden = true;
         return;
       }
 
       var requestId = ++requestSequence;
       findButton.disabled = true;
-      findButton.textContent = t("Checking…");
+      findButton.textContent = t("js.checking");
       suggestionsLoaded = false;
       candidateButtons = [];
       snapshotGeneratedAt = null;
       snapshotTimeStatus = "";
       candidates.textContent = "";
       candidates.hidden = true;
-      setMessage(t("Checking the latest IPScope inventory…"), false);
+      setMessage(t("js.checking_the_latest_ipscope_inventory"), false);
 
       var query = "?action=recommendations&network=" + encodeURIComponent(network) + "&limit=20";
       fetch(API_URL + query, {
@@ -285,20 +285,20 @@
           try {
             body = raw ? JSON.parse(raw) : null;
           } catch (error) {
-            throw new Error(t("IPScope returned an invalid response. Open IPScope and check its status."));
+            throw new Error(t("js.ipscope_returned_an_invalid_response_open_ipscope_and_c"));
           }
           if (!response.ok) {
-            throw new Error(body && body.error ? body.error : t("Could not load available IPs."));
+            throw new Error(body && body.error ? body.error : t("js.could_not_load_available_ips"));
           }
           if (!body || body.ok !== true) {
-            throw new Error(body && body.error ? body.error : t("IPScope returned an invalid response."));
+            throw new Error(body && body.error ? body.error : t("js.ipscope_returned_an_invalid_response"));
           }
           return body;
         });
       }).then(function (body) {
         if (requestId !== requestSequence) return;
         if (currentNetwork() !== network) {
-          setMessage(t("The selected Docker network changed. Check suggestions again."), true);
+          setMessage(t("js.the_selected_docker_network_changed_check_suggestions_a"), true);
           return;
         }
 
@@ -311,11 +311,11 @@
 
         if (!selected || !Array.isArray(selected.candidates) || !selected.candidates.length) {
           candidates.hidden = true;
-          meta.textContent = t("0 candidates");
+          meta.textContent = t("js.0_candidates");
           if (String(ipInput.value || "").trim()) {
             syncSelectedCandidate();
           } else {
-            setMessage(t("No available candidates were found for this network. Check the latest scan and exclusion rules in IPScope."), false);
+            setMessage(t("js.no_available_candidates_were_found_for_this_network_che"), false);
           }
           return;
         }
@@ -325,7 +325,7 @@
         snapshotTimeStatus = timeStatus;
         snapshotGeneratedAt = Number.isFinite(age) ? Date.now() - age * 1000 : null;
         var snapshotFresh = isSnapshotFresh();
-        var ageLabel = Number.isFinite(age) ? (age < 60 ? t("just now") : Math.floor(age / 60) + " " + t("min ago")) : t("unknown age");
+        var ageLabel = Number.isFinite(age) ? (age < 60 ? t("js.just_now") : Math.floor(age / 60) + " " + t("js.min_ago")) : t("js.unknown_age");
 
         selected.candidates.forEach(function (candidate) {
           var ip = String(candidate.ip || "");
@@ -333,26 +333,26 @@
           var useButton = makeButton(ip, "ipscope-docker-ip-candidate", function () {
             if (!isSnapshotFresh()) {
               syncSelectedCandidate();
-              setMessage(t("This inventory snapshot is not fresh enough. Rescan in IPScope before assigning an address."), true);
+              setMessage(t("js.this_inventory_snapshot_is_not_fresh_enough_rescan_in_i"), true);
               return;
             }
             if (currentNetwork() !== network) {
-              setMessage(t("The selected network changed. Please check suggestions again."), true);
+              setMessage(t("js.the_selected_network_changed_please_check_suggestions_a"), true);
               return;
             }
             ipInput.value = ip;
             ipInput.dispatchEvent(new Event("input", { bubbles: true }));
             ipInput.dispatchEvent(new Event("change", { bubbles: true }));
-            setMessage(t("Selected address. Review the container settings before applying.").replace("{ip}", ip), false);
+            setMessage(t("js.selected_address_review_the_container_settings_before_a").replace("{ip}", ip), false);
           });
           useButton.dataset.ip = ip;
           useButton.disabled = !snapshotFresh;
           if (!snapshotFresh) {
             useButton.setAttribute("aria-disabled", "true");
-            useButton.title = t("Rescan IPScope before using this address");
+            useButton.title = t("js.rescan_ipscope_before_using_this_address");
           }
           useButton.setAttribute("aria-pressed", "false");
-          useButton.setAttribute("aria-label", (snapshotFresh ? t("Use suggested IP") + " " : t("Unavailable until a fresh scan") + ": ") + ip);
+          useButton.setAttribute("aria-label", (snapshotFresh ? t("js.use_suggested_ip") + " " : t("js.unavailable_until_a_fresh_scan") + ": ") + ip);
           candidateButtons.push(useButton);
           candidates.appendChild(useButton);
         });
@@ -361,21 +361,21 @@
 
         var count = candidates.children.length;
         candidates.hidden = count === 0;
-        meta.textContent = count + " " + t("shown · snapshot") + " " + ageLabel;
+        meta.textContent = count + " " + t("js.shown_snapshot") + " " + ageLabel;
         if (!snapshotFresh && !String(ipInput.value || "").trim()) {
-          setMessage(t("Suggestions are disabled because the inventory snapshot is older than 5 minutes or its timestamp is unavailable. Run Scan Now in IPScope, then check again."), true);
+          setMessage(t("js.suggestions_are_disabled_because_the_inventory_snapshot"), true);
         } else {
           syncSelectedCandidate();
         }
       }).catch(function (error) {
         if (requestId !== requestSequence) return;
         clearCandidateState();
-        setMessage(error.message || t("Could not load available IPs."), true);
-        meta.textContent = t("Suggestions unavailable");
+        setMessage(error.message || t("js.could_not_load_available_ips"), true);
+        meta.textContent = t("js.suggestions_unavailable");
       }).finally(function () {
         if (requestId !== requestSequence) return;
         findButton.disabled = false;
-        findButton.textContent = t("Find available IPs");
+        findButton.textContent = t("js.find_available_ips");
       });
     }
 
@@ -387,8 +387,8 @@
       snapshotTimeStatus = "";
       candidates.textContent = "";
       candidates.hidden = true;
-      meta.textContent = t("Suggestions are advisory");
-      setMessage(t("Network changed. Find available IPs to check this network."), false);
+      meta.textContent = t("js.suggestions_are_advisory");
+      setMessage(t("js.network_changed_find_available_ips_to_check_this_networ"), false);
     });
 
     // Unraid's showSubnet() toggles the Fixed IP section when network type changes.
