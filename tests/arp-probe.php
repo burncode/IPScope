@@ -17,7 +17,7 @@ $runner = new class extends ProcessRunner {
         if (in_array('192.168.50.2', $command, true)) {
             return ['exit_code'=>1,'stdout'=>'Sent 1 probes (1 broadcast(s))','stderr'=>'Received 0 response(s)'];
         }
-        return ['exit_code'=>1,'stdout'=>'','stderr'=>'permission denied'];
+        return ['exit_code'=>2,'stdout'=>'','stderr'=>'permission denied'];
     }
 };
 $engine = new ArpProbeEngine($runner);
@@ -28,7 +28,7 @@ $assertions = [
     $hit['status'] === 'responding',
     $hit['mac'] === 'aa:bb:cc:dd:ee:ff',
     $miss['status'] === 'no_response',
-    $error['status'] === 'no_response',
+    $error['status'] === 'probe_error',
     count($runner->calls) === 3,
 ];
 try { $engine->probe('not-an-ip', 'bond0'); $assertions[] = false; } catch (InvalidArgumentException $e) { $assertions[] = true; }
