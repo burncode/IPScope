@@ -25,6 +25,13 @@ final class AddressInventory
             }
         }
 
+        // Container ID is the stable identity for claim de-duplication.
+        // Fall back to name for older fixtures/snapshots without an ID.
+        $containerIdentity = static function (array $container): string {
+            $id = trim((string)($container['id'] ?? ''));
+            return $id !== '' ? 'id:' . $id : 'name:' . (string)($container['name'] ?? 'unknown');
+        };
+
         $claims = [];
         $orphanTemplates = [];
         $networkNames = [];
@@ -86,6 +93,7 @@ final class AddressInventory
                 }
                 $this->addClaim($claims, $networkName, $ip, [
                     'container' => $containerName,
+                    'identity' => $containerIdentity($containerByName[$containerName]),
                     'source' => 'unraid_template',
                     'kind' => 'reservation',
                     'state' => $containerByName[$containerName]['state'] ?? 'not_found',
@@ -109,6 +117,7 @@ final class AddressInventory
                 if ($active && $this->isIPv4($actualIp)) {
                     $this->addClaim($claims, $networkName, $actualIp, [
                         'container' => $containerName,
+                        'identity' => $containerIdentity($container),
                         'source' => 'docker_runtime',
                         'kind' => 'occupied',
                         'state' => $state,
@@ -121,6 +130,7 @@ final class AddressInventory
                 if ($this->isIPv4($requestedIp)) {
                     $this->addClaim($claims, $networkName, $requestedIp, [
                         'container' => $containerName,
+                        'identity' => $containerIdentity($container),
                         'source' => 'docker_ipam',
                         'kind' => 'reservation',
                         'state' => $state,
@@ -145,13 +155,14 @@ final class AddressInventory
                 $reservationOwners = [];
                 $systemOwners = [];
                 foreach ($owners as $owner) {
-                    $distinctContainers[$owner['container']] = true;
+                    $identity = (string)($owner['identity'] ?? $owner['container']);
+                    $distinctContainers[$identity] = (string)$owner['container'];
                     if ($owner['kind'] === 'occupied') {
-                        $runtimeOwners[$owner['container']] = true;
+                        $runtimeOwners[$identity] = (string)$owner['container'];
                     } elseif ($owner['kind'] === 'system') {
-                        $systemOwners[$owner['container']] = true;
+                        $systemOwners[$identity] = (string)$owner['container'];
                     } else {
-                        $reservationOwners[$owner['container']] = true;
+                        $reservationOwners[$identity] = (string)$owner['container'];
                     }
                 }
 
@@ -204,9 +215,9 @@ final class AddressInventory
                         'severity' => $severity,
                         'network' => $networkName,
                         'ip' => $ip,
-                        'containers' => array_keys($distinctContainers),
-                        'running_containers' => array_keys($runtimeOwners),
-                        'reserved_containers' => array_keys($reservationOwners),
+                        'containers' => array_values(array_unique(array_values($distinctContainers))),
+                        'running_containers' => array_values(array_unique(array_values($runtimeOwners))),
+                        'reserved_containers' => array_values(array_unique(array_values($reservationOwners))),
                         'runtime_owner_count' => $runtimeCount,
                         'reservation_owner_count' => $reservationCount,
                         'system_owners' => array_keys($systemOwners),
@@ -382,7 +393,8 @@ final class AddressInventory
 
     private function addClaim(array &$claims, string $network, string $ip, array $owner): void
     {
-        $key = $owner['container'] . '|' . $owner['source'] . '|' . $owner['kind'];
+        $identity = (string)($owner['identity'] ?? $owner['container']);
+        $key = $identity . '|' . $owner['source'] . '|' . $owner['kind'];
         $claims[$network][$ip][$key] = $owner;
     }
 
