@@ -10,7 +10,7 @@ namespace IPScope;
 final class LanAddressMerger
 {
     /** @return array{networks:array,lan_discovery:array,conflicts:array} */
-    public function merge(array $networks, array $lanDiscovery): array
+    public function merge(array $networks, array $lanDiscovery, array $containers = []): array
     {
         $devices = is_array($lanDiscovery['devices'] ?? null) ? $lanDiscovery['devices'] : [];
         $deviceByIp = [];
@@ -25,6 +25,17 @@ final class LanAddressMerger
         foreach (($lanDiscovery['local_addresses'] ?? []) as $local) {
             if (is_array($local) && $this->isIPv4($local['ip'] ?? null)) {
                 $localByIp[$local['ip']] = $local;
+            }
+        }
+
+        $dockerMacByContainer = [];
+        foreach ($containers as $container) {
+            $name = (string)($container['name'] ?? '');
+            foreach (($container['networks'] ?? []) as $networkName => $details) {
+                $mac = strtolower((string)($details['mac'] ?? ''));
+                if ($name !== '' && $mac !== '' && preg_match('/^[0-9a-f]{2}(?::[0-9a-f]{2}){5}$/', $mac)) {
+                    $dockerMacByContainer[$networkName][$name] = $mac;
+                }
             }
         }
 
@@ -80,23 +91,18 @@ final class LanAddressMerger
                             continue;
                         }
                         $containerName = (string)($owner['container'] ?? '');
-                        foreach (($network['_container_macs'] ?? []) as $containerMac) {
-                            if (($containerMac['container'] ?? '') !== $containerName) {
-                                continue;
-                            }
-                            $dockerMac = strtolower((string)($containerMac['mac'] ?? ''));
-                            if ($dockerMac !== '' && $observedMacs && !in_array($dockerMac, $observedMacs, true)) {
-                                $conflicts[] = [
-                                    'type' => 'docker_lan_mac_mismatch',
-                                    'severity' => 'warning',
-                                    'network' => $network['name'] ?? null,
-                                    'ip' => $ip,
-                                    'container' => $containerName,
-                                    'docker_mac' => $dockerMac,
-                                    'observed_mac_addresses' => $observedMacs,
-                                    'evidence_status' => $device['status'] ?? 'neighbor_cached',
-                                ];
-                            }
+                        $dockerMac = $dockerMacByContainer[$network['name'] ?? ''][$containerName] ?? '';
+                        if ($dockerMac !== '' && $observedMacs && !in_array($dockerMac, $observedMacs, true)) {
+                            $conflicts[] = [
+                                'type' => 'docker_lan_mac_mismatch',
+                                'severity' => 'warning',
+                                'network' => $network['name'] ?? null,
+                                'ip' => $ip,
+                                'container' => $containerName,
+                                'docker_mac' => $dockerMac,
+                                'observed_mac_addresses' => $observedMacs,
+                                'evidence_status' => $device['status'] ?? 'neighbor_cached',
+                            ];
                         }
                     }
                 }
