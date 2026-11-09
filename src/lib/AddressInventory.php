@@ -95,7 +95,10 @@ final class AddressInventory
 
         foreach ($containers as $container) {
             $containerName = (string)($container['name'] ?? 'unknown-container');
-            $running = (bool)($container['running'] ?? false);
+            $state = strtolower((string)($container['state'] ?? 'unknown'));
+            $active = (bool)($container['active'] ?? ($container['running'] ?? false))
+                || in_array($state, ['running', 'paused'], true);
+            $containerState = $active ? $state : $state;
 
             foreach (($container['networks'] ?? []) as $networkName => $details) {
                 if (!isset($networkNames[$networkName]) || !is_array($details)) {
@@ -105,23 +108,24 @@ final class AddressInventory
                 $actualIp = $details['ipv4'] ?? null;
                 $requestedIp = $details['ipam_ipv4'] ?? null;
 
-                if ($running && $this->isIPv4($actualIp)) {
+                if ($active && $this->isIPv4($actualIp)) {
                     $this->addClaim($claims, $networkName, $actualIp, [
                         'container' => $containerName,
                         'source' => 'docker_runtime',
                         'kind' => 'occupied',
-                        'state' => 'running',
+                        'state' => $state,
                     ]);
                 }
 
-                // A stopped container's stale endpoint IP is intentionally ignored.
-                // Its explicit IPAM request, if present, remains reservation evidence.
+                // Stopped containers retain their configured IP through Docker IPAM.
+                // Paused containers remain active network owners; their actual endpoint
+                // address is treated as occupied just like a running container.
                 if ($this->isIPv4($requestedIp)) {
                     $this->addClaim($claims, $networkName, $requestedIp, [
                         'container' => $containerName,
                         'source' => 'docker_ipam',
                         'kind' => 'reservation',
-                        'state' => $running ? 'running' : (string)($container['state'] ?? 'stopped'),
+                        'state' => $active ? $state : $state,
                     ]);
                 }
             }
