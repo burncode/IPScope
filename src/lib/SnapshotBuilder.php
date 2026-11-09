@@ -24,6 +24,17 @@ final class SnapshotBuilder
         $templates = (new TemplateParser())->collect($this->templateDirectory);
         $exclusionRules = (new AddressExclusionStore($this->exclusionPath))->load();
         $inventory = (new AddressInventory())->build($networks, $containers, $templates, $exclusionRules);
+        $lanDiscovery = null;
+        try {
+            $lanDiscovery = (new LanDiscoveryCollector(new ProcessRunner()))->collect();
+        } catch (\\Throwable $error) {
+            $lanDiscovery = [
+                'status' => 'unavailable',
+                'error' => $error->getMessage(),
+                'active_probe_performed' => false,
+                'availability_inferred' => false,
+            ];
+        }
 
         return [
             'schema_version' => 1,
@@ -42,6 +53,7 @@ final class SnapshotBuilder
                 'unmatched_template_count' => count($inventory['orphan_templates']),
                 'conflict_count' => count($inventory['conflicts']),
             ],
+            'lan_discovery' => $lanDiscovery,
             'networks' => $inventory['networks'],
             'containers' => $containers,
             'templates' => $templates,
