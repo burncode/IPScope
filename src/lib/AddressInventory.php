@@ -98,8 +98,6 @@ final class AddressInventory
             $state = strtolower((string)($container['state'] ?? 'unknown'));
             $active = (bool)($container['active'] ?? ($container['running'] ?? false))
                 || in_array($state, ['running', 'paused'], true);
-            $containerState = $active ? $state : $state;
-
             foreach (($container['networks'] ?? []) as $networkName => $details) {
                 if (!isset($networkNames[$networkName]) || !is_array($details)) {
                     continue;
@@ -125,7 +123,7 @@ final class AddressInventory
                         'container' => $containerName,
                         'source' => 'docker_ipam',
                         'kind' => 'reservation',
-                        'state' => $active ? $state : $state,
+                        'state' => $state,
                     ]);
                 }
             }
