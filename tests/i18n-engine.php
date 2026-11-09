@@ -32,9 +32,44 @@ if (!is_array($englishCatalog) || !is_array($chineseCatalog)) {
     fwrite(STDERR, "FAIL: locale catalogs must be valid JSON objects\n");
     exit(1);
 }
-if (array_diff(array_keys($englishCatalog), array_keys($chineseCatalog)) ||
-    array_diff(array_keys($chineseCatalog), array_keys($englishCatalog))) {
+
+$englishKeys = array_keys($englishCatalog);
+$chineseKeys = array_keys($chineseCatalog);
+if (array_diff($englishKeys, $chineseKeys) || array_diff($chineseKeys, $englishKeys)) {
     fwrite(STDERR, "FAIL: English and Chinese catalog keys must match\n");
     exit(1);
 }
-echo "IPScope independent i18n engine tests passed (" . count($checks) . " assertions + catalog parity).\n";
+
+foreach ($englishCatalog as $key => $englishText) {
+    preg_match_all('/\\{([a-zA-Z0-9_]+)\\}/', $englishText, $englishPlaceholders);
+    preg_match_all('/\\{([a-zA-Z0-9_]+)\\}/', $chineseCatalog[$key], $chinesePlaceholders);
+    $englishNames = $englishPlaceholders[1];
+    $chineseNames = $chinesePlaceholders[1];
+    sort($englishNames);
+    sort($chineseNames);
+    if ($englishNames !== $chineseNames) {
+        fwrite(STDERR, "FAIL: placeholder mismatch for {$key}\n");
+        exit(1);
+    }
+}
+
+$sourceFiles = [
+    $root . '/src/www/index.php',
+    $root . '/src/www/assets/ipscope.js',
+    $root . '/src/www/assets/docker-ip-assistant.js',
+];
+$source = implode("\n", array_map(
+    static fn(string $path): string => (string)file_get_contents($path),
+    $sourceFiles
+));
+preg_match_all('/(?:\\$ipscopeI18n->translate|\\bt)\\(\\s*["\\']([^"\\']+)["\\']\\s*\\)/', $source, $usedKeys);
+$missingKeys = array_values(array_unique(array_filter(
+    $usedKeys[1],
+    static fn(string $key): bool => !array_key_exists($key, $englishCatalog) || !array_key_exists($key, $chineseCatalog)
+)));
+if ($missingKeys !== []) {
+    fwrite(STDERR, "FAIL: source references missing locale keys: " . implode(', ', $missingKeys) . "\n");
+    exit(1);
+}
+
+echo "IPScope independent i18n engine tests passed (" . count($checks) . " assertions + catalog parity + placeholder parity + source key coverage).\n";
