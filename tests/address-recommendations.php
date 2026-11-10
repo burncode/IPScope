@@ -8,6 +8,7 @@ use IPScope\AddressRecommendationEngine;
 
 $snapshot = [
     'generated_at' => '2026-11-05T12:00:00+00:00',
+    'dhcp' => ['mode'=>'disabled','pools'=>[],'reservations'=>[]],
     'networks' => [
         [
             'name' => 'bond0',
