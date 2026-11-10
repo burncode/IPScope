@@ -17,9 +17,9 @@ $required = [
     "require_once __DIR__ . '/../lib/LanScanTaskStore.php';",
     "require_once __DIR__ . '/../lib/LanScanTaskRunner.php';",
     "\$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations', 'lanscan'];",
-    "if (\\$action === 'lanscan')",
-    "if (\\$operation === 'step')",
-    "if (\\$operation === 'cancel')",
+    "if (\$action === 'lanscan')",
+    "if (\$operation === 'step')",
+    "if (\$operation === 'cancel')",
 ];
 $last = -1;
 foreach ($required as $index => $line) {
