@@ -142,11 +142,15 @@ $configuredDhcpSnapshot['dhcp'] = [
     'pools'=>[['network'=>'bond0','start_ip'=>'192.168.50.8','end_ip'=>'192.168.50.8']],
     'reservations'=>[['network'=>'bond0','ip'=>'192.168.50.3']],
 ];
+$configuredDhcpSnapshot['networks'][0]['known_addresses'][] = [
+    'ip'=>'192.168.50.11', 'status'=>'available', 'available'=>true,
+];
 $configuredDhcpResult = $engine->recommend($configuredDhcpSnapshot);
 $configuredCandidates = array_column($configuredDhcpResult['networks'][0]['candidates'] ?? [], 'ip');
 $checks[] = !in_array('192.168.50.8', $configuredCandidates, true);
 $checks[] = !in_array('192.168.50.3', $configuredCandidates, true);
-$checks[] = in_array('192.168.50.9', $configuredCandidates, true);
+$checks[] = !in_array('192.168.50.9', $configuredCandidates, true);
+$checks[] = in_array('192.168.50.11', $configuredCandidates, true);
 
 foreach ($checks as $index => $passed) {
     if (!$passed) {
