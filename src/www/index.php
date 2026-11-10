@@ -275,7 +275,7 @@ $ipscopeI18nConfig = [
       <section class="panel lan-scan-panel">
         <div class="panel-heading"><div><h2><?= $ipscopeI18n->translate("lan_scan.heading") ?></h2><p><?= $ipscopeI18n->translate("lan_scan.description") ?></p></div></div>
         <form id="lan-scan-form" class="lan-scan-form">
-          <label><?= $ipscopeI18n->translate("lan_scan.interface") ?><input id="lan-scan-interface" name="interface" type="text" maxlength="32" value="bond0" required pattern="[A-Za-z0-9_.:-]+"></label>
+          <label><?= $ipscopeI18n->translate("lan_scan.interface") ?><select id="lan-scan-interface" name="interface" required><option value=""><?= $ipscopeI18n->translate("lan_scan.loading_interfaces") ?></option></select></label>
           <label><?= $ipscopeI18n->translate("lan_scan.targets") ?><textarea id="lan-scan-targets" name="targets" rows="5" placeholder="192.168.50.15&#10;192.168.50.97" required></textarea></label>
           <p class="lan-scan-help"><?= $ipscopeI18n->translate("lan_scan.targets_help") ?></p>
           <div class="lan-scan-actions"><span id="lan-scan-feedback" role="status" aria-live="polite"></span><button id="lan-scan-start" class="button button-primary" type="submit"><?= $ipscopeI18n->translate("lan_scan.start") ?></button><button id="lan-scan-cancel" class="button" type="button" disabled><?= $ipscopeI18n->translate("lan_scan.cancel") ?></button></div>
