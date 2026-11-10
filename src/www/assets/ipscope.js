@@ -719,10 +719,12 @@
       if (dhcpFields) dhcpFields.hidden = dhcpMode.value !== "configured";
     });
     document.getElementById("dhcp-add-pool").addEventListener("click", function () {
+      dhcpConfig = collectDhcpForm();
       dhcpConfig.pools.push({ network: "*", subnet: "", start_ip: "", end_ip: "", source: "manual" });
       renderDhcpRows();
     });
     document.getElementById("dhcp-add-reservation").addEventListener("click", function () {
+      dhcpConfig = collectDhcpForm();
       dhcpConfig.reservations.push({ network: "*", ip: "", label: "" });
       renderDhcpRows();
     });
@@ -730,10 +732,12 @@
       var removePool = event.target.closest("[data-dhcp-remove-pool]");
       var removeReservation = event.target.closest("[data-dhcp-remove-reservation]");
       if (removePool) {
+        dhcpConfig = collectDhcpForm();
         dhcpConfig.pools.splice(Number(removePool.getAttribute("data-dhcp-remove-pool")), 1);
         renderDhcpRows();
       }
       if (removeReservation) {
+        dhcpConfig = collectDhcpForm();
         dhcpConfig.reservations.splice(Number(removeReservation.getAttribute("data-dhcp-remove-reservation")), 1);
         renderDhcpRows();
       }
