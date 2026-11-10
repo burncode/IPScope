@@ -22,23 +22,23 @@ final class LanScanEngine
         $interface = (string)($plan['interface'] ?? '');
         $batches = $plan['batches'] ?? null;
         if (!is_array($batches) || !preg_match('/^[a-zA-Z0-9_.:-]{1,32}$/', $interface)) {
-            throw new \\InvalidArgumentException('Invalid LAN scan plan.');
+            throw new \InvalidArgumentException('Invalid LAN scan plan.');
         }
         $plannedTargetCount = 0;
         foreach ($batches as $batch) {
             if (!is_array($batch) || !is_array($batch['targets'] ?? null) || count($batch['targets']) > 64) {
-                throw new \\InvalidArgumentException('Invalid or oversized scan batch.');
+                throw new \InvalidArgumentException('Invalid or oversized scan batch.');
             }
             $plannedTargetCount += count($batch['targets']);
             if ($plannedTargetCount > 256) {
-                throw new \\InvalidArgumentException('A scan execution cannot exceed 256 targets.');
+                throw new \InvalidArgumentException('A scan execution cannot exceed 256 targets.');
             }
         }
         if (isset($plan['target_count']) && (int)$plan['target_count'] !== $plannedTargetCount) {
-            throw new \\InvalidArgumentException('Scan plan target count does not match its batches.');
+            throw new \InvalidArgumentException('Scan plan target count does not match its batches.');
         }
         if ($intervalMs < 100 || $intervalMs > 2000) {
-            throw new \\InvalidArgumentException('Scan interval must be between 100 and 2000 milliseconds.');
+            throw new \InvalidArgumentException('Scan interval must be between 100 and 2000 milliseconds.');
         }
 
         $results = [];
