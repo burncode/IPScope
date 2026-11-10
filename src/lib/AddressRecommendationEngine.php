@@ -104,6 +104,11 @@ final class AddressRecommendationEngine
                     continue;
                 }
 
+                $risk = (new AddressRiskEngine())->evaluate($ip, $name, is_array($snapshot['dhcp'] ?? null) ? $snapshot['dhcp'] : ['mode'=>'unknown']);
+                if (!$risk['recommendable']) {
+                    continue;
+                }
+
                 $ipNumber = (int)sprintf('%u', ip2long($ip));
                 $insideAssignableRange = false;
                 foreach ($hostRanges as $range) {
@@ -119,6 +124,7 @@ final class AddressRecommendationEngine
                 $candidates[$ip] = [
                     'ip' => $ip,
                     'status' => 'available',
+                    'risk' => $risk,
                     'evidence' => [
                         'inventory_status' => 'available',
                         'subnet_membership' => 'verified',
@@ -177,8 +183,9 @@ final class AddressRecommendationEngine
             'network_filter' => $networkName,
             'limit_per_network' => $limit,
             'candidate_count' => $candidateCount,
+            'dhcp_mode' => (string)($snapshot['dhcp']['mode'] ?? 'unknown'),
             'networks' => $selected,
-            'notice' => 'Suggestions are advisory only. Candidates must be inside an explicitly managed IPv4 host range, marked available, and have no LAN neighbor evidence. REACHABLE and STALE neighbor observations are excluded pending verification. Docker-only data cannot detect DHCP leases, offline devices, or hosts outside Docker.',
+            'notice' => 'Suggestions are advisory only. Candidates must be inside an explicitly managed IPv4 host range, marked available, and have no LAN neighbor evidence. REACHABLE and STALE neighbor observations are excluded pending verification. Addresses in configured DHCP dynamic pools or static reservations are excluded. When DHCP mode is unknown, no address is presented as recommendable until the user configures DHCP mode or confirms DHCP is disabled.',
         ];
     }
 }
