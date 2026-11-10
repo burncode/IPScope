@@ -1094,7 +1094,7 @@
     fetch(apiUrl + "?action=lanscan&id=" + encodeURIComponent(lanScanTaskId), { credentials: "same-origin", headers: { "Accept": "application/json" } })
       .then(readApiResponse).then(function (body) {
         renderLanScanTask(body.task);
-        if (!lanScanTerminal) requestLanScanTask();
+        if (!lanScanTerminal) lanScanTimer = window.setTimeout(function () { lanScanBusy = false; requestLanScanTask(); }, 100);
       }).catch(function (error) {
         document.getElementById("lan-scan-feedback").textContent = error.message;
         lanScanTimer = window.setTimeout(pollLanScanTask, 1800);
