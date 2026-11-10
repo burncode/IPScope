@@ -14,7 +14,12 @@ $required = [
     "require_once __DIR__ . '/../lib/AddressRiskEngine.php';",
     "require_once __DIR__ . '/../lib/DhcpConfigStore.php';",
     "require_once __DIR__ . '/../lib/SnapshotBuilder.php';",
-    "\$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations'];",
+    "require_once __DIR__ . '/../lib/LanScanTaskStore.php';",
+    "require_once __DIR__ . '/../lib/LanScanTaskRunner.php';",
+    "\$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations', 'lanscan'];",
+    "if (\\$action === 'lanscan')",
+    "if (\\$operation === 'step')",
+    "if (\\$operation === 'cancel')",
 ];
 $last = -1;
 foreach ($required as $index => $line) {
