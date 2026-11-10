@@ -1133,6 +1133,47 @@
     });
   }
 
+  function loadLanScanInterfaces() {
+    var select = document.getElementById("lan-scan-interface");
+    if (!select) return;
+    fetch(apiUrl + "?action=laninterfaces", {
+      credentials: "same-origin",
+      headers: { "Accept": "application/json" }
+    }).then(readApiResponse).then(function (body) {
+      var interfaces = body.interfaces || [];
+      select.innerHTML = "";
+      if (!interfaces.length) {
+        var empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = t("lan_scan.no_interfaces");
+        select.appendChild(empty);
+        select.disabled = true;
+        document.getElementById("lan-scan-start").disabled = true;
+        document.getElementById("lan-scan-feedback").textContent = t("lan_scan.no_interfaces_help");
+        return;
+      }
+      interfaces.forEach(function (item) {
+        var option = document.createElement("option");
+        option.value = item.name;
+        option.textContent = item.name + " · " + item.cidr + (item.is_default_route ? " · " + t("lan_scan.default_route") : "");
+        select.appendChild(option);
+      });
+      var preferred = interfaces.find(function (item) { return item.is_default_route; }) || interfaces[0];
+      select.value = preferred.name;
+      select.disabled = false;
+      document.getElementById("lan-scan-start").disabled = false;
+    }).catch(function (error) {
+      select.innerHTML = "";
+      var option = document.createElement("option");
+      option.value = "";
+      option.textContent = t("lan_scan.interface_load_failed");
+      select.appendChild(option);
+      select.disabled = true;
+      document.getElementById("lan-scan-start").disabled = true;
+      document.getElementById("lan-scan-feedback").textContent = error.message;
+    });
+  }
+
   if (lanScanForm) {
     loadLanScanInterfaces();
     lanScanForm.addEventListener("submit", startLanScanTask);
