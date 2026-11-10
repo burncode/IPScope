@@ -118,6 +118,23 @@ final class LanScanTaskStore
         });
     }
 
+    public function fail(string $id, string $message): array
+    {
+        $this->assertId($id);
+        return $this->withLock($id, function () use ($id, $message): array {
+            $task = $this->readUnlocked($id);
+            if ($task === null) throw new \\RuntimeException('Scan task not found.');
+            if (!in_array($task['status'], ['completed','cancelled'], true)) {
+                $task['status'] = 'failed';
+                $task['error'] = $message;
+                $task['completed_at'] = date(DATE_ATOM);
+                $task['updated_at'] = date(DATE_ATOM);
+                $this->writeUnlocked($id, $task);
+            }
+            return $this->publicTask($task);
+        });
+    }
+
     public function cancel(string $id): array
     {
         $this->assertId($id);
