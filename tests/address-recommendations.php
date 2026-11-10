@@ -16,6 +16,8 @@ $snapshot = [
             'ipv4' => [['subnet' => '192.168.50.0/24']],
             'known_addresses' => [
                 ['ip' => '192.168.50.8', 'status' => 'available', 'available' => true],
+                ['ip' => '192.168.50.9', 'status' => 'available', 'available' => true, 'lan_evidence' => [['type'=>'neighbor_table','status'=>'observed_reachable']]],
+                ['ip' => '192.168.50.10', 'status' => 'available', 'available' => true, 'lan_evidence' => [['type'=>'neighbor_table','status'=>'neighbor_cached']]],
                 ['ip' => '192.168.50.3', 'status' => 'available', 'available' => true],
                 ['ip' => '192.168.50.1', 'status' => 'system', 'available' => false],
                 ['ip' => '192.168.50.4', 'status' => 'occupied', 'available' => false],
@@ -78,6 +80,8 @@ $checks = [
     ($bond0['candidate_count'] ?? null) === 2,
     str_contains($result['notice'], 'DHCP'),
     str_contains($result['notice'], 'explicitly managed'),
+    !in_array('192.168.50.9', array_column($bond0['candidates'], 'ip'), true),
+    !in_array('192.168.50.10', array_column($bond0['candidates'], 'ip'), true),
     ($bond0['candidates'][0]['reason'] ?? '') !== '',
     ($bond0['candidates'][0]['evidence']['inventory_status'] ?? '') === 'available',
     ($bond0['candidates'][0]['evidence']['subnet_membership'] ?? '') === 'verified',
