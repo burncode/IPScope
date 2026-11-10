@@ -49,6 +49,7 @@ $ipscopeI18nConfig = [
       <button class="workspace-tab" type="button" data-view="containers"><?= $ipscopeI18n->translate("ui.containers") ?></button>
       <button class="workspace-tab" type="button" data-view="exclusions"><?= $ipscopeI18n->translate("ui.exclusions") ?></button>
       <button class="workspace-tab" type="button" data-view="recommendations"><?= $ipscopeI18n->translate("ui.ip_suggestions") ?></button>
+      <button class="workspace-tab" type="button" data-view="dhcp"><?= $ipscopeI18n->translate("ui.dhcp") ?></button>
       <button class="workspace-tab" type="button" data-view="about"><?= $ipscopeI18n->translate("ui.about") ?></button>
     </nav>
 
@@ -266,6 +267,31 @@ $ipscopeI18nConfig = [
           <?= $ipscopeI18n->translate("ui.suggestions_are_advisory_only_and_are_listed_in_nume") ?>
         </div>
       </section>
+    </section>
+
+    <section class="view-panel" data-panel="dhcp">
+      <section class="panel">
+        <div class="panel-heading"><div><h2><?= $ipscopeI18n->translate("dhcp.heading") ?></h2><p><?= $ipscopeI18n->translate("dhcp.description") ?></p></div></div>
+        <form id="dhcp-form" class="dhcp-form">
+          <div class="dhcp-mode-row">
+            <label for="dhcp-mode"><?= $ipscopeI18n->translate("dhcp.mode") ?></label>
+            <select id="dhcp-mode" name="mode" class="status-filter">
+              <option value="unknown"><?= $ipscopeI18n->translate("dhcp.mode_unknown") ?></option>
+              <option value="disabled"><?= $ipscopeI18n->translate("dhcp.mode_disabled") ?></option>
+              <option value="configured"><?= $ipscopeI18n->translate("dhcp.mode_configured") ?></option>
+            </select>
+          </div>
+          <div id="dhcp-config-fields">
+            <div class="dhcp-section-heading"><div><h3><?= $ipscopeI18n->translate("dhcp.pools") ?></h3><p><?= $ipscopeI18n->translate("dhcp.pools_help") ?></p></div><button id="dhcp-add-pool" class="button" type="button"><?= $ipscopeI18n->translate("dhcp.add_pool") ?></button></div>
+            <div id="dhcp-pools" class="dhcp-pools"></div>
+            <div class="dhcp-section-heading"><div><h3><?= $ipscopeI18n->translate("dhcp.reservations") ?></h3><p><?= $ipscopeI18n->translate("dhcp.reservations_help") ?></p></div></div>
+            <div id="dhcp-reservations" class="dhcp-reservations"></div>
+            <button id="dhcp-add-reservation" class="button" type="button"><?= $ipscopeI18n->translate("dhcp.add_reservation") ?></button>
+          </div>
+          <div class="dhcp-actions"><span id="dhcp-save-status" class="muted-inline" role="status"></span><button class="button button-primary" type="submit"><?= $ipscopeI18n->translate("common.save") ?></button></div>
+        </form>
+      </section>
+      <section class="panel dhcp-guidance"><strong><?= $ipscopeI18n->translate("dhcp.safety_title") ?></strong><p><?= $ipscopeI18n->translate("dhcp.safety_description") ?></p></section>
     </section>
 
     <section class="view-panel about-view" data-panel="about">
