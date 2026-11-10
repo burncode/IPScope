@@ -13,7 +13,8 @@ if (!is_string($index) || !is_string($js) || !is_string($css) || !is_array($en) 
 $checks = [
     'LAN scan navigation exists' => str_contains($index, 'data-view="lan-scan"'),
     'LAN scan panel exists' => str_contains($index, 'data-panel="lan-scan"'),
-    'interface field is explicit' => str_contains($index, 'id="lan-scan-interface"'),
+    'interface is selected from discovered options' => str_contains($index, '<select id="lan-scan-interface"') && str_contains($js, '?action=laninterfaces'),
+    'API exposes active interface discovery' => str_contains(file_get_contents(__DIR__ . '/../src/www/api.php'), "'laninterfaces'"),
     'target field is explicit and bounded by help text' => str_contains($index, 'id="lan-scan-targets"') && str_contains($index, 'lan_scan.targets_help'),
     'start and cancel controls exist' => str_contains($index, 'id="lan-scan-start"') && str_contains($index, 'id="lan-scan-cancel"'),
     'task progress and results regions exist' => str_contains($index, 'id="lan-scan-progress-bar"') && str_contains($index, 'id="lan-scan-results"'),
@@ -26,7 +27,7 @@ $checks = [
     'target parser accepts whitespace and commas' => str_contains($js, 'rawTargets.split(/[\\s,;]+/)'),
     'responsive scan controls are styled' => str_contains($css, '.lan-scan-form') && str_contains($css, '@media(max-width:600px)'),
 ];
-$keys = ['ui.lan_scan','lan_scan.heading','lan_scan.description','lan_scan.interface','lan_scan.targets','lan_scan.targets_help','lan_scan.start','lan_scan.cancel','lan_scan.task','lan_scan.empty','lan_scan.safety_title','lan_scan.safety_description','lan_scan.queued','lan_scan.running','lan_scan.completed','lan_scan.cancelled','lan_scan.failed','lan_scan.responding','lan_scan.no_response','lan_scan.probe_error','lan_scan.response_unparsed','lan_scan.errors','lan_scan.result','lan_scan.waiting_results','lan_scan.validation','lan_scan.invalid_ip','lan_scan.creating','lan_scan.started','lan_scan.restoring'];
+$keys = ['ui.lan_scan','lan_scan.heading','lan_scan.description','lan_scan.interface','lan_scan.targets','lan_scan.targets_help','lan_scan.start','lan_scan.cancel','lan_scan.task','lan_scan.empty','lan_scan.safety_title','lan_scan.safety_description','lan_scan.queued','lan_scan.running','lan_scan.completed','lan_scan.cancelled','lan_scan.failed','lan_scan.responding','lan_scan.no_response','lan_scan.probe_error','lan_scan.response_unparsed','lan_scan.errors','lan_scan.result','lan_scan.waiting_results','lan_scan.validation','lan_scan.invalid_ip','lan_scan.creating','lan_scan.started','lan_scan.restoring','lan_scan.loading_interfaces','lan_scan.no_interfaces','lan_scan.no_interfaces_help','lan_scan.default_route','lan_scan.interface_load_failed'];
 foreach ($keys as $key) $checks['translation parity: ' . $key] = isset($en[$key], $zh[$key]);
 foreach ($checks as $label=>$passed) {
     if (!$passed) {
