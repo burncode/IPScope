@@ -21,6 +21,8 @@ $checks = [
     'UI creates explicit target tasks' => str_contains($js, 'operation: "create"') && str_contains($js, 'targets: targets'),
     'UI advances task one step at a time' => str_contains($js, 'operation: "step"'),
     'UI polls task status' => str_contains($js, '?action=lanscan&id='),
+    'LAN scan mutation requests share Unraid CSRF header helper' => str_contains($js, 'function lanScanRequestHeaders(includeJson)') && str_contains($js, 'headers["X-CSRF-Token"] = csrf_token;'),
+    'create, step and cancel requests use CSRF-aware headers' => substr_count($js, 'headers: lanScanRequestHeaders(true)') >= 3,
     'UI supports cancellation' => str_contains($js, 'operation: "cancel"'),
     'UI restores task id after refresh' => str_contains($js, 'sessionStorage.getItem("ipscope.lanscan.task")'),
     'UI persists active task id' => str_contains($js, 'sessionStorage.setItem("ipscope.lanscan.task"'),
