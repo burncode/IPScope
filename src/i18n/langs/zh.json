@@ -348,5 +348,10 @@
   "lan_scan.responding_status": "有响应",
   "lan_scan.no_response_status": "无响应",
   "lan_scan.probe_error": "探测错误",
-  "lan_scan.response_unparsed": "响应无法解析"
+  "lan_scan.response_unparsed": "响应无法解析",
+  "lan_scan.loading_interfaces": "正在加载网卡…",
+  "lan_scan.no_interfaces": "没有符合条件的 IPv4 网卡",
+  "lan_scan.no_interfaces_help": "未发现具有可扫描子网的活动 IPv4 网卡。",
+  "lan_scan.default_route": "默认路由",
+  "lan_scan.interface_load_failed": "无法加载网卡列表"
 }
