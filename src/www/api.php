@@ -13,6 +13,8 @@ require_once __DIR__ . '/../lib/TemplateParser.php';
 require_once __DIR__ . '/../lib/IPv4Calculator.php';
 require_once __DIR__ . '/../lib/AddressInventory.php';
 require_once __DIR__ . '/../lib/AddressExclusionStore.php';
+require_once __DIR__ . '/../lib/AddressRiskEngine.php';
+require_once __DIR__ . '/../lib/DhcpConfigStore.php';
 require_once __DIR__ . '/../lib/AddressRecommendationEngine.php';
 require_once __DIR__ . '/../lib/SnapshotBuilder.php';
 require_once __DIR__ . '/../lib/SnapshotStore.php';
@@ -40,18 +42,40 @@ function ipscopeRespond(int $status, array $payload): void
 }
 
 $action = isset($_GET['action']) ? (string)$_GET['action'] : 'snapshot';
-$allowedActions = ['snapshot', 'scan', 'exclusions', 'recommendations'];
+$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations'];
 if (!in_array($action, $allowedActions, true)) {
     ipscopeRespond(400, ['ok' => false, 'error' => 'Unsupported action.']);
 }
 
 $defaultStore = '/var/local/emhttp/plugins/ipscope/snapshot.json';
 $exclusionPath = '/boot/config/plugins/ipscope/exclusions.json';
+$dhcpPath = '/boot/config/plugins/ipscope/dhcp.json';
 $storePath = getenv('IPSCOPE_SNAPSHOT_PATH') ?: $defaultStore;
 $templateDirectory = getenv('IPSCOPE_TEMPLATE_DIR') ?: '/boot/config/plugins/dockerMan/templates-user';
 $dockerBinary = getenv('IPSCOPE_DOCKER_BIN') ?: '/usr/bin/docker';
 
 try {
+    if ($action === 'dhcp') {
+        $dhcpStore = new \\IPScope\\DhcpConfigStore($dhcpPath);
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        if ($method === 'GET') ipscopeRespond(200, ['ok'=>true, 'dhcp'=>$dhcpStore->load()]);
+        if ($method !== 'POST') {
+            header('Allow: GET, POST');
+            ipscopeRespond(405, ['ok'=>false, 'error'=>'DHCP configuration supports GET and POST.']);
+        }
+        $raw = file_get_contents('php://input');
+        if ($raw === false || strlen($raw) > 65536) ipscopeRespond(400, ['ok'=>false, 'error'=>'Invalid or oversized DHCP configuration request.']);
+        try { $payload = json_decode($raw, true, 512, JSON_THROW_ON_ERROR); }
+        catch (JsonException $error) { ipscopeRespond(400, ['ok'=>false, 'error'=>'Request body must be valid JSON.']); }
+        if (!is_array($payload)) ipscopeRespond(400, ['ok'=>false, 'error'=>'Request body must be a DHCP configuration object.']);
+        try {
+            $dhcp = $dhcpStore->save($payload);
+            ipscopeRespond(200, ['ok'=>true, 'dhcp'=>$dhcp]);
+        } catch (InvalidArgumentException $error) {
+            ipscopeRespond(422, ['ok'=>false, 'error'=>$error->getMessage()]);
+        }
+    }
+
     if ($action === 'exclusions') {
         $exclusionStore = new \IPScope\AddressExclusionStore($exclusionPath);
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -106,6 +130,8 @@ try {
         if ($snapshot === null) {
             ipscopeRespond(404, ['ok' => false, 'error' => 'No snapshot is available. Run a scan first.']);
         }
+
+        $snapshot['dhcp'] = (new \\IPScope\\DhcpConfigStore($dhcpPath))->load();
 
         $network = isset($_GET['network']) ? trim((string)$_GET['network']) : null;
         $rawLimit = $_GET['limit'] ?? '20';
