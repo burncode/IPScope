@@ -665,3 +665,22 @@ tbody tr:last-child td { border-bottom: 0; }
   .dhcp-section-heading { align-items: flex-start; flex-direction: column; }
   .dhcp-actions { align-items: flex-start; flex-direction: column; }
 }
+
+/* B4-E4: active LAN scan task workspace */
+.lan-scan-form { display:grid; gap:14px; padding:20px; max-width:860px; }
+.lan-scan-form label { display:grid; gap:7px; color:var(--muted); font-size:12px; font-weight:650; }
+.lan-scan-form input,.lan-scan-form textarea { width:100%; min-width:0; border:1px solid var(--line); border-radius:6px; padding:10px 11px; background:#fff; color:var(--text); font:inherit; font-size:13px; }
+.lan-scan-form input:focus,.lan-scan-form textarea:focus { outline:0; border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+.lan-scan-form textarea { resize:vertical; font-family:var(--mono,monospace); line-height:1.6; }
+.lan-scan-help { color:var(--muted); font-size:11px; line-height:1.6; }
+.lan-scan-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.lan-scan-actions #lan-scan-feedback { flex:1; min-width:180px; color:var(--muted); font-size:12px; }
+.lan-scan-task-panel { padding:20px; }
+.lan-scan-task-head,.lan-scan-progress-meta { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.lan-scan-task-head h3 { margin:0; font-size:14px; }
+.lan-scan-progress { height:8px; overflow:hidden; margin-top:18px; border-radius:99px; background:var(--line); }
+.lan-scan-progress > div { width:0; height:100%; border-radius:inherit; background:var(--accent); transition:width .2s ease; }
+.lan-scan-progress-meta { margin:9px 0 16px; color:var(--muted); font-size:11px; }
+.lan-scan-progress-meta strong { color:var(--text); font-size:13px; }
+.lan-scan-results { min-height:80px; }
+@media(max-width:600px) { .lan-scan-form,.lan-scan-task-panel { padding:14px; } .lan-scan-actions { align-items:stretch; flex-direction:column; } .lan-scan-actions .button { width:100%; } .lan-scan-progress-meta { align-items:flex-start; flex-direction:column; } }
