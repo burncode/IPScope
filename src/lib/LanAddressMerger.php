@@ -41,6 +41,7 @@ final class LanAddressMerger
 
         $conflicts = [];
         $matchedIps = [];
+        $dockerClaimIps = [];
         foreach ($networks as &$network) {
             if (!is_array($network)) {
                 continue;
@@ -51,6 +52,12 @@ final class LanAddressMerger
                     continue;
                 }
                 $ip = $address['ip'];
+                foreach (($address['owners'] ?? []) as $owner) {
+                    if (in_array($owner['source'] ?? '', ['docker_runtime', 'docker_ipam', 'unraid_template'], true)) {
+                        $dockerClaimIps[$ip] = true;
+                        break;
+                    }
+                }
                 $address['lan_evidence'] = [];
                 if (isset($localByIp[$ip])) {
                     $address['lan_evidence'][] = [
@@ -121,6 +128,13 @@ final class LanAddressMerger
         }
 
         $lanDiscovery['matched_device_count'] = count(array_filter($devices, static fn(array $device): bool => isset($matchedIps[$device['ip'] ?? ''])));
+        // A device can match the full subnet inventory without matching any
+        // Docker reservation/occupancy claim. Keep these concepts separate.
+        $lanDiscovery['matched_inventory_address_count'] = $lanDiscovery['matched_device_count'];
+        $lanDiscovery['matched_docker_claim_count'] = count(array_filter(
+            $devices,
+            static fn(array $device): bool => isset($dockerClaimIps[$device['ip'] ?? ''])
+        ));
         $lanDiscovery['unmatched_devices'] = $unmatchedDevices;
         $lanDiscovery['availability_inferred'] = false;
 
