@@ -48,7 +48,7 @@ function ipscopeRespond(int $status, array $payload): void
 }
 
 $action = isset($_GET['action']) ? (string)$_GET['action'] : 'snapshot';
-$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations', 'lanscan'];
+$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations', 'lanscan', 'laninterfaces'];
 if (!in_array($action, $allowedActions, true)) {
     ipscopeRespond(400, ['ok' => false, 'error' => 'Unsupported action.']);
 }
@@ -61,6 +61,28 @@ $templateDirectory = getenv('IPSCOPE_TEMPLATE_DIR') ?: '/boot/config/plugins/doc
 $dockerBinary = getenv('IPSCOPE_DOCKER_BIN') ?: '/usr/bin/docker';
 
 try {
+    if ($action === 'laninterfaces') {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
+            header('Allow: GET');
+            ipscopeRespond(405, ['ok'=>false, 'error'=>'Interface discovery supports GET only.']);
+        }
+        $data = (new \\IPScope\\LanInterfaceCollector(new \\IPScope\\ProcessRunner()))->collect([]);
+        $interfaces = [];
+        foreach ($data['interfaces'] as $name => $entries) {
+            foreach ($entries as $entry) {
+                if (empty($entry['up']) || $entry['prefix'] < 1 || $entry['prefix'] > 30) continue;
+                $interfaces[] = [
+                    'name'=>$name,
+                    'ipv4'=>$entry['ipv4'],
+                    'cidr'=>$entry['cidr'],
+                    'prefix'=>$entry['prefix'],
+                    'is_default_route'=>in_array($name, array_column($data['default_routes'], 'interface'), true),
+                ];
+            }
+        }
+        ipscopeRespond(200, ['ok'=>true, 'interfaces'=>$interfaces]);
+    }
+
     if ($action === 'lanscan') {
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         $taskStore = new \IPScope\LanScanTaskStore('/var/local/emhttp/plugins/ipscope/scan-tasks');
