@@ -21,6 +21,7 @@ $checks = [
     'CSRF token is forwarded on save' => str_contains($js, 'X-CSRF-Token'),
     'multiple DHCP pools can be added and removed' => str_contains($js, 'dhcp-add-pool') && str_contains($js, 'data-dhcp-remove-pool'),
     'multiple DHCP reservations can be added and removed' => str_contains($js, 'dhcp-add-reservation') && str_contains($js, 'data-dhcp-remove-reservation'),
+    'adding and removing rows preserves unsaved form edits' => substr_count($js, 'dhcpConfig = collectDhcpForm();') >= 4,
     'non-configured modes hide pool editor' => str_contains($js, 'dhcpFields.hidden = dhcpMode.value !== "configured"'),
     'API supports DHCP GET and POST' => str_contains($api, "if (\\$method === 'GET')") && str_contains($api, "if (\\$method !== 'POST')"),
     'DHCP form has responsive layout' => str_contains($css, '.dhcp-entry') && str_contains($css, '@media (max-width: 560px)'),
