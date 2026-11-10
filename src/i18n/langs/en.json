@@ -348,5 +348,10 @@
   "lan_scan.responding_status": "Responding",
   "lan_scan.no_response_status": "No response",
   "lan_scan.probe_error": "Probe error",
-  "lan_scan.response_unparsed": "Response could not be parsed"
+  "lan_scan.response_unparsed": "Response could not be parsed",
+  "lan_scan.loading_interfaces": "Loading interfaces…",
+  "lan_scan.no_interfaces": "No eligible IPv4 interface",
+  "lan_scan.no_interfaces_help": "No active IPv4 interface with a scannable subnet was found.",
+  "lan_scan.default_route": "default route",
+  "lan_scan.interface_load_failed": "Could not load interfaces"
 }
