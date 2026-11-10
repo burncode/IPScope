@@ -18,6 +18,11 @@ require_once __DIR__ . '/../lib/DhcpConfigStore.php';
 require_once __DIR__ . '/../lib/AddressRecommendationEngine.php';
 require_once __DIR__ . '/../lib/SnapshotBuilder.php';
 require_once __DIR__ . '/../lib/SnapshotStore.php';
+require_once __DIR__ . '/../lib/ArpProbeEngine.php';
+require_once __DIR__ . '/../lib/LanScanPlanner.php';
+require_once __DIR__ . '/../lib/LanScanEngine.php';
+require_once __DIR__ . '/../lib/LanScanTaskStore.php';
+require_once __DIR__ . '/../lib/LanScanTaskRunner.php';
 
 use IPScope\DockerClient;
 use IPScope\SnapshotBuilder;
@@ -42,7 +47,7 @@ function ipscopeRespond(int $status, array $payload): void
 }
 
 $action = isset($_GET['action']) ? (string)$_GET['action'] : 'snapshot';
-$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations'];
+$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations', 'lanscan'];
 if (!in_array($action, $allowedActions, true)) {
     ipscopeRespond(400, ['ok' => false, 'error' => 'Unsupported action.']);
 }
@@ -55,6 +60,77 @@ $templateDirectory = getenv('IPSCOPE_TEMPLATE_DIR') ?: '/boot/config/plugins/doc
 $dockerBinary = getenv('IPSCOPE_DOCKER_BIN') ?: '/usr/bin/docker';
 
 try {
+    if ($action === 'lanscan') {
+        $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+        $taskStore = new \\IPScope\\LanScanTaskStore('/var/local/emhttp/plugins/ipscope/scan-tasks');
+        if ($method === 'GET') {
+            $id = (string)($_GET['id'] ?? '');
+            $task = $taskStore->get($id);
+            if ($task === null) ipscopeRespond(404, ['ok'=>false, 'error'=>'Scan task not found.']);
+            ipscopeRespond(200, ['ok'=>true, 'task'=>$task]);
+        }
+        if ($method !== 'POST') {
+            header('Allow: GET, POST');
+            ipscopeRespond(405, ['ok'=>false, 'error'=>'LAN scan tasks support GET and POST.']);
+        }
+        $raw = file_get_contents('php://input');
+        if ($raw === false || strlen($raw) > 32768) ipscopeRespond(400, ['ok'=>false, 'error'=>'Invalid or oversized scan task request.']);
+        try { $payload = json_decode($raw, true, 512, JSON_THROW_ON_ERROR); }
+        catch (JsonException $error) { ipscopeRespond(400, ['ok'=>false, 'error'=>'Request body must be valid JSON.']); }
+        if (!is_array($payload)) ipscopeRespond(400, ['ok'=>false, 'error'=>'Request body must be an object.']);
+        $operation = (string)($payload['operation'] ?? 'create');
+        if ($operation === 'cancel') {
+            $task = $taskStore->cancel((string)($payload['id'] ?? ''));
+            ipscopeRespond(200, ['ok'=>true, 'task'=>$task]);
+        }
+        if ($operation === 'step') {
+            $runner = new \\IPScope\\LanScanTaskRunner(
+                $taskStore,
+                new \\IPScope\\LanScanEngine(new \\IPScope\\ArpProbeEngine(new \\IPScope\\ProcessRunner()))
+            );
+            $task = $runner->step((string)($payload['id'] ?? ''));
+            ipscopeRespond(200, ['ok'=>true, 'task'=>$task]);
+        }
+        if ($operation !== 'create') ipscopeRespond(422, ['ok'=>false, 'error'=>'Unsupported scan task operation.']);
+        $interface = (string)($payload['interface'] ?? '');
+        $targets = $payload['targets'] ?? null;
+        if (!is_array($targets) || count($targets) < 1 || count($targets) > 256) {
+            ipscopeRespond(422, ['ok'=>false, 'error'=>'Provide between 1 and 256 explicit IPv4 targets.']);
+        }
+        $processRunner = new \\IPScope\\ProcessRunner();
+        $interfaceData = (new \\IPScope\\LanInterfaceCollector($processRunner))->collect([$interface]);
+        $interfaceAddresses = $interfaceData['interfaces'][$interface] ?? [];
+        $active = array_values(array_filter($interfaceAddresses, static fn(array $entry): bool => !empty($entry['up']) && $entry['prefix'] >= 1 && $entry['prefix'] <= 30));
+        if (!$active) ipscopeRespond(422, ['ok'=>false, 'error'=>'Selected interface is not an active IPv4 interface.']);
+        $localIps = array_column($active, 'ipv4');
+        $allowedTargets = [];
+        foreach ($active as $entry) {
+            $ipLong = ip2long($entry['ipv4']);
+            $mask = -1 << (32 - (int)$entry['prefix']);
+            $network = $ipLong & $mask;
+            $allowedTargets[] = [$network, $mask];
+        }
+        foreach ($targets as $target) {
+            if (!is_string($target) || filter_var($target, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                ipscopeRespond(422, ['ok'=>false, 'error'=>'All scan targets must be valid IPv4 addresses.']);
+            }
+            $targetLong = ip2long($target);
+            $sameSubnet = false;
+            foreach ($allowedTargets as [$network, $mask]) {
+                if (($targetLong & $mask) === $network) { $sameSubnet = true; break; }
+            }
+            if (!$sameSubnet) ipscopeRespond(422, ['ok'=>false, 'error'=>'Scan targets must belong to the selected interface subnet.']);
+        }
+        try {
+            $plan = (new \\IPScope\\LanScanPlanner())->plan($interface, $targets, $localIps, 32);
+            if ($plan['target_count'] < 1) ipscopeRespond(422, ['ok'=>false, 'error'=>'No scan targets remain after excluding local addresses.']);
+            $task = $taskStore->create($plan);
+            ipscopeRespond(201, ['ok'=>true, 'task'=>$task]);
+        } catch (InvalidArgumentException $error) {
+            ipscopeRespond(422, ['ok'=>false, 'error'=>$error->getMessage()]);
+        }
+    }
+
     if ($action === 'dhcp') {
         $dhcpStore = new \IPScope\DhcpConfigStore($dhcpPath);
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
