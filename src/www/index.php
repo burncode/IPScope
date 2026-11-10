@@ -49,6 +49,7 @@ $ipscopeI18nConfig = [
       <button class="workspace-tab" type="button" data-view="containers"><?= $ipscopeI18n->translate("ui.containers") ?></button>
       <button class="workspace-tab" type="button" data-view="exclusions"><?= $ipscopeI18n->translate("ui.exclusions") ?></button>
       <button class="workspace-tab" type="button" data-view="recommendations"><?= $ipscopeI18n->translate("ui.ip_suggestions") ?></button>
+      <button class="workspace-tab" type="button" data-view="lan-scan"><?= $ipscopeI18n->translate("ui.lan_scan") ?></button>
       <button class="workspace-tab" type="button" data-view="dhcp"><?= $ipscopeI18n->translate("ui.dhcp") ?></button>
       <button class="workspace-tab" type="button" data-view="about"><?= $ipscopeI18n->translate("ui.about") ?></button>
     </nav>
@@ -267,6 +268,26 @@ $ipscopeI18nConfig = [
           <?= $ipscopeI18n->translate("ui.suggestions_are_advisory_only_and_are_listed_in_nume") ?>
         </div>
       </section>
+    </section>
+
+
+    <section class="view-panel" data-panel="lan-scan">
+      <section class="panel lan-scan-panel">
+        <div class="panel-heading"><div><h2><?= $ipscopeI18n->translate("lan_scan.heading") ?></h2><p><?= $ipscopeI18n->translate("lan_scan.description") ?></p></div></div>
+        <form id="lan-scan-form" class="lan-scan-form">
+          <label><?= $ipscopeI18n->translate("lan_scan.interface") ?><input id="lan-scan-interface" name="interface" type="text" maxlength="32" value="bond0" required pattern="[A-Za-z0-9_.:-]+"></label>
+          <label><?= $ipscopeI18n->translate("lan_scan.targets") ?><textarea id="lan-scan-targets" name="targets" rows="5" placeholder="192.168.50.15&#10;192.168.50.97" required></textarea></label>
+          <p class="lan-scan-help"><?= $ipscopeI18n->translate("lan_scan.targets_help") ?></p>
+          <div class="lan-scan-actions"><span id="lan-scan-feedback" role="status" aria-live="polite"></span><button id="lan-scan-start" class="button button-primary" type="submit"><?= $ipscopeI18n->translate("lan_scan.start") ?></button><button id="lan-scan-cancel" class="button" type="button" disabled><?= $ipscopeI18n->translate("lan_scan.cancel") ?></button></div>
+        </form>
+      </section>
+      <section class="panel lan-scan-task-panel">
+        <div class="lan-scan-task-head"><h3><?= $ipscopeI18n->translate("lan_scan.task") ?></h3><span id="lan-scan-state" class="status-pill">—</span></div>
+        <div class="lan-scan-progress"><div id="lan-scan-progress-bar"></div></div>
+        <div class="lan-scan-progress-meta"><strong id="lan-scan-progress-text">0%</strong><span id="lan-scan-counts">—</span></div>
+        <div id="lan-scan-results" class="lan-scan-results"><div class="empty-state"><?= $ipscopeI18n->translate("lan_scan.empty") ?></div></div>
+      </section>
+      <section class="panel dhcp-guidance"><strong><?= $ipscopeI18n->translate("lan_scan.safety_title") ?></strong><p><?= $ipscopeI18n->translate("lan_scan.safety_description") ?></p></section>
     </section>
 
     <section class="view-panel" data-panel="dhcp">
