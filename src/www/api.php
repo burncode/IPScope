@@ -66,7 +66,7 @@ try {
             header('Allow: GET');
             ipscopeRespond(405, ['ok'=>false, 'error'=>'Interface discovery supports GET only.']);
         }
-        $data = (new \\IPScope\\LanInterfaceCollector(new \\IPScope\\ProcessRunner()))->collect([]);
+        $data = (new \IPScope\LanInterfaceCollector(new \IPScope\ProcessRunner()))->collect([]);
         $interfaces = [];
         foreach ($data['interfaces'] as $name => $entries) {
             foreach ($entries as $entry) {
