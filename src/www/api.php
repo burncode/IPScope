@@ -23,6 +23,7 @@ require_once __DIR__ . '/../lib/LanScanPlanner.php';
 require_once __DIR__ . '/../lib/LanScanEngine.php';
 require_once __DIR__ . '/../lib/LanScanTaskStore.php';
 require_once __DIR__ . '/../lib/LanScanTaskRunner.php';
+require_once __DIR__ . '/../lib/LanInterfaceCollector.php';
 
 use IPScope\DockerClient;
 use IPScope\SnapshotBuilder;
