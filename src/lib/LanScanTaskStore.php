@@ -123,7 +123,7 @@ final class LanScanTaskStore
         $this->assertId($id);
         return $this->withLock($id, function () use ($id, $message): array {
             $task = $this->readUnlocked($id);
-            if ($task === null) throw new \\RuntimeException('Scan task not found.');
+            if ($task === null) throw new \RuntimeException('Scan task not found.');
             if (!in_array($task['status'], ['completed','cancelled'], true)) {
                 $task['status'] = 'failed';
                 $task['error'] = $message;
