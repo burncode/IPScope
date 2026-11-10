@@ -1105,7 +1105,7 @@
     event.preventDefault();
     var iface = document.getElementById("lan-scan-interface").value.trim();
     var rawTargets = document.getElementById("lan-scan-targets").value;
-    var targets = Array.from(new Set(rawTargets.split(/[\\s,;]+/).map(function (ip) { return ip.trim(); }).filter(Boolean)));
+    var targets = Array.from(new Set(rawTargets.split(/[\s,;]+/).map(function (ip) { return ip.trim(); }).filter(Boolean)));
     if (!iface || !targets.length || targets.length > 256) {
       document.getElementById("lan-scan-feedback").textContent = t("lan_scan.validation");
       return;
