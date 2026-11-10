@@ -624,6 +624,123 @@
     select.value = options.some(function (option) { return option.indexOf('value="' + selected + '"') !== -1; }) ? selected : "*";
   }
 
+  var dhcpConfig = { mode: "unknown", pools: [], reservations: [] };
+  var dhcpForm = document.getElementById("dhcp-form");
+  var dhcpMode = document.getElementById("dhcp-mode");
+  var dhcpPools = document.getElementById("dhcp-pools");
+  var dhcpReservations = document.getElementById("dhcp-reservations");
+  var dhcpFields = document.getElementById("dhcp-config-fields");
+  var dhcpSaveStatus = document.getElementById("dhcp-save-status");
+
+  function renderDhcpRows() {
+    if (!dhcpPools || !dhcpReservations) return;
+    dhcpPools.innerHTML = dhcpConfig.pools.map(function (pool, index) {
+      return '<div class="dhcp-entry dhcp-pool-entry">' +
+        '<label>' + escapeHtml(t("dhcp.network")) + '<input name="network" value="' + escapeHtml(pool.network || "*") + '" maxlength="128"></label>' +
+        '<label>' + escapeHtml(t("dhcp.subnet")) + '<input name="subnet" value="' + escapeHtml(pool.subnet || "") + '" placeholder="192.168.50.0/24"></label>' +
+        '<label>' + escapeHtml(t("dhcp.start_ip")) + '<input name="start_ip" value="' + escapeHtml(pool.start_ip || "") + '" placeholder="192.168.50.100"></label>' +
+        '<label>' + escapeHtml(t("dhcp.end_ip")) + '<input name="end_ip" value="' + escapeHtml(pool.end_ip || "") + '" placeholder="192.168.50.254"></label>' +
+        '<button class="text-action" type="button" data-dhcp-remove-pool="' + index + '">' + escapeHtml(t("dhcp.remove")) + '</button></div>';
+    }).join("");
+    dhcpReservations.innerHTML = dhcpConfig.reservations.map(function (reservation, index) {
+      return '<div class="dhcp-entry dhcp-reservation-entry">' +
+        '<label>' + escapeHtml(t("dhcp.network")) + '<input name="network" value="' + escapeHtml(reservation.network || "*") + '" maxlength="128"></label>' +
+        '<label>' + escapeHtml(t("dhcp.ip")) + '<input name="ip" value="' + escapeHtml(reservation.ip || "") + '" placeholder="192.168.50.15"></label>' +
+        '<label>' + escapeHtml(t("dhcp.label")) + '<input name="label" value="' + escapeHtml(reservation.label || "") + '" maxlength="120"></label>' +
+        '<button class="text-action" type="button" data-dhcp-remove-reservation="' + index + '">' + escapeHtml(t("dhcp.remove")) + '</button></div>';
+    }).join("");
+    if (dhcpMode) dhcpMode.value = dhcpConfig.mode || "unknown";
+    if (dhcpFields) dhcpFields.hidden = !dhcpMode || dhcpMode.value !== "configured";
+  }
+
+  function collectDhcpForm() {
+    var pools = Array.from(dhcpPools.querySelectorAll(".dhcp-pool-entry")).map(function (row) {
+      return {
+        network: row.querySelector('[name="network"]').value.trim() || "*",
+        subnet: row.querySelector('[name="subnet"]').value.trim(),
+        start_ip: row.querySelector('[name="start_ip"]').value.trim(),
+        end_ip: row.querySelector('[name="end_ip"]').value.trim(),
+        source: "manual"
+      };
+    });
+    var reservations = Array.from(dhcpReservations.querySelectorAll(".dhcp-reservation-entry")).map(function (row) {
+      return {
+        network: row.querySelector('[name="network"]').value.trim() || "*",
+        ip: row.querySelector('[name="ip"]').value.trim(),
+        label: row.querySelector('[name="label"]').value.trim()
+      };
+    });
+    return {
+      schema_version: 1,
+      mode: dhcpMode.value,
+      pools: dhcpMode.value === "configured" ? pools : [],
+      reservations: dhcpMode.value === "configured" ? reservations : []
+    };
+  }
+
+  function loadDhcpConfig() {
+    if (!dhcpForm) return;
+    fetch(apiUrl + "?action=dhcp", { credentials: "same-origin", headers: { "Accept": "application/json" } })
+      .then(readApiResponse)
+      .then(function (body) {
+        if (!body.dhcp || typeof body.dhcp !== "object") throw new Error(t("dhcp.load_failed"));
+        dhcpConfig = body.dhcp;
+        renderDhcpRows();
+      })
+      .catch(function (error) {
+        if (dhcpSaveStatus) dhcpSaveStatus.textContent = t("dhcp.load_failed") + " " + error.message;
+      });
+  }
+
+  function saveDhcpConfig(event) {
+    event.preventDefault();
+    var payload = collectDhcpForm();
+    var headers = { "Accept": "application/json", "Content-Type": "application/json" };
+    if (typeof csrf_token !== "undefined" && csrf_token) headers["X-CSRF-Token"] = csrf_token;
+    var saveButton = dhcpForm.querySelector('[type="submit"]');
+    saveButton.disabled = true;
+    if (dhcpSaveStatus) dhcpSaveStatus.textContent = t("common.loading");
+    fetch(apiUrl + "?action=dhcp", {
+      method: "POST", credentials: "same-origin", headers: headers, body: JSON.stringify(payload)
+    }).then(readApiResponse).then(function (body) {
+      dhcpConfig = body.dhcp;
+      renderDhcpRows();
+      if (dhcpSaveStatus) dhcpSaveStatus.textContent = t("dhcp.saved");
+    }).catch(function (error) {
+      if (dhcpSaveStatus) dhcpSaveStatus.textContent = t("dhcp.save_failed") + " " + error.message;
+    }).finally(function () {
+      saveButton.disabled = false;
+    });
+  }
+
+  if (dhcpForm) {
+    dhcpForm.addEventListener("submit", saveDhcpConfig);
+    dhcpMode.addEventListener("change", function () {
+      if (dhcpFields) dhcpFields.hidden = dhcpMode.value !== "configured";
+    });
+    document.getElementById("dhcp-add-pool").addEventListener("click", function () {
+      dhcpConfig.pools.push({ network: "*", subnet: "", start_ip: "", end_ip: "", source: "manual" });
+      renderDhcpRows();
+    });
+    document.getElementById("dhcp-add-reservation").addEventListener("click", function () {
+      dhcpConfig.reservations.push({ network: "*", ip: "", label: "" });
+      renderDhcpRows();
+    });
+    document.addEventListener("click", function (event) {
+      var removePool = event.target.closest("[data-dhcp-remove-pool]");
+      var removeReservation = event.target.closest("[data-dhcp-remove-reservation]");
+      if (removePool) {
+        dhcpConfig.pools.splice(Number(removePool.getAttribute("data-dhcp-remove-pool")), 1);
+        renderDhcpRows();
+      }
+      if (removeReservation) {
+        dhcpConfig.reservations.splice(Number(removeReservation.getAttribute("data-dhcp-remove-reservation")), 1);
+        renderDhcpRows();
+      }
+    });
+    loadDhcpConfig();
+  }
+
   function requestSnapshot() {
     statusNode.textContent = t("js.loading_snapshot");
     fetch(apiUrl + "?action=snapshot", { credentials: "same-origin", headers: { "Accept": "application/json" } })
