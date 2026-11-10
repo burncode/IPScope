@@ -58,7 +58,7 @@ final class LanScanTaskStore
         $this->assertId($id);
         return $this->withLock($id, function () use ($id): array {
             $task = $this->readUnlocked($id);
-            if ($task === null) throw new \\RuntimeException('Scan task not found.');
+            if ($task === null) throw new \RuntimeException('Scan task not found.');
             if ($task['cancel_requested'] || $task['status'] === 'cancelled') {
                 $task['status'] = 'cancelled';
                 $task['completed_at'] = date(DATE_ATOM);
@@ -90,7 +90,7 @@ final class LanScanTaskStore
         $this->assertId($id);
         return $this->withLock($id, function () use ($id, $results): array {
             $task = $this->readUnlocked($id);
-            if ($task === null) throw new \\RuntimeException('Scan task not found.');
+            if ($task === null) throw new \RuntimeException('Scan task not found.');
             if ($task['status'] === 'cancelled' || $task['cancel_requested']) {
                 $task['status'] = 'cancelled';
                 $task['completed_at'] = date(DATE_ATOM);
@@ -99,7 +99,7 @@ final class LanScanTaskStore
             }
             foreach ($results as $result) {
                 if (!is_array($result) || !isset($result['ip'], $result['status'])) {
-                    throw new \\InvalidArgumentException('Invalid scan result.');
+                    throw new \InvalidArgumentException('Invalid scan result.');
                 }
                 $task['results'][] = $result;
                 $task['completed_count']++;
@@ -123,7 +123,7 @@ final class LanScanTaskStore
         $this->assertId($id);
         return $this->withLock($id, function () use ($id): array {
             $task = $this->readUnlocked($id);
-            if ($task === null) throw new \\RuntimeException('Scan task not found.');
+            if ($task === null) throw new \RuntimeException('Scan task not found.');
             if (!in_array($task['status'], ['completed','failed','cancelled'], true)) {
                 $task['cancel_requested'] = true;
                 $task['status'] = 'cancelled';
@@ -147,13 +147,13 @@ final class LanScanTaskStore
 
     private function assertId(string $id): void
     {
-        if (!preg_match('/^[a-f0-9]{24}$/', $id)) throw new \\InvalidArgumentException('Invalid scan task ID.');
+        if (!preg_match('/^[a-f0-9]{24}$/', $id)) throw new \InvalidArgumentException('Invalid scan task ID.');
     }
 
     private function ensureDirectory(): void
     {
         if (!is_dir($this->directory) && !mkdir($this->directory, 0750, true) && !is_dir($this->directory)) {
-            throw new \\RuntimeException('Unable to create scan task directory.');
+            throw new \RuntimeException('Unable to create scan task directory.');
         }
     }
 
@@ -161,9 +161,9 @@ final class LanScanTaskStore
     {
         $this->ensureDirectory();
         $handle = fopen($this->directory . '/' . $id . '.lock', 'c');
-        if ($handle === false) throw new \\RuntimeException('Unable to open scan task lock.');
+        if ($handle === false) throw new \RuntimeException('Unable to open scan task lock.');
         try {
-            if (!flock($handle, LOCK_EX)) throw new \\RuntimeException('Unable to lock scan task.');
+            if (!flock($handle, LOCK_EX)) throw new \RuntimeException('Unable to lock scan task.');
             return $callback();
         } finally {
             flock($handle, LOCK_UN);
@@ -176,7 +176,7 @@ final class LanScanTaskStore
         $path = $this->directory . '/' . $id . '.json';
         if (!is_file($path)) return null;
         $raw = file_get_contents($path);
-        if ($raw === false) throw new \\RuntimeException('Unable to read scan task.');
+        if ($raw === false) throw new \RuntimeException('Unable to read scan task.');
         $task = json_decode($raw, true);
         return is_array($task) ? $task : null;
     }
@@ -188,12 +188,12 @@ final class LanScanTaskStore
         $json = json_encode($task, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         if (file_put_contents($tmp, $json . PHP_EOL, LOCK_EX) === false) {
             @unlink($tmp);
-            throw new \\RuntimeException('Unable to write scan task.');
+            throw new \RuntimeException('Unable to write scan task.');
         }
         @chmod($tmp, 0640);
         if (!rename($tmp, $path)) {
             @unlink($tmp);
-            throw new \\RuntimeException('Unable to publish scan task.');
+            throw new \RuntimeException('Unable to publish scan task.');
         }
     }
 }
