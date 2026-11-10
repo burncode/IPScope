@@ -33,6 +33,16 @@
     document.getElementById(id).textContent = String(value);
   }
 
+  function lanScanRequestHeaders(includeJson) {
+    var headers = { "Accept": "application/json" };
+    if (includeJson) headers["Content-Type"] = "application/json";
+    // Unraid's webGUI CSRF guard requires this token on state-changing requests.
+    if (typeof csrf_token !== "undefined" && csrf_token) {
+      headers["X-CSRF-Token"] = csrf_token;
+    }
+    return headers;
+  }
+
   function readApiResponse(response) {
     return response.text().then(function (raw) {
       var body;
@@ -1077,7 +1087,7 @@
     fetch(apiUrl + "?action=lanscan", {
       method: "POST",
       credentials: "same-origin",
-      headers: { "Accept": "application/json", "Content-Type": "application/json" },
+      headers: lanScanRequestHeaders(true),
       body: JSON.stringify({ operation: "step", id: lanScanTaskId })
     }).then(readApiResponse).then(function (body) {
       renderLanScanTask(body.task);
@@ -1118,7 +1128,7 @@
     document.getElementById("lan-scan-feedback").textContent = t("lan_scan.creating");
     fetch(apiUrl + "?action=lanscan", {
       method: "POST", credentials: "same-origin",
-      headers: { "Accept": "application/json", "Content-Type": "application/json" },
+      headers: lanScanRequestHeaders(true),
       body: JSON.stringify({ operation: "create", interface: iface, targets: targets })
     }).then(readApiResponse).then(function (body) {
       lanScanTaskId = body.task.id;
@@ -1182,7 +1192,7 @@
       this.disabled = true;
       fetch(apiUrl + "?action=lanscan", {
         method: "POST", credentials: "same-origin",
-        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        headers: lanScanRequestHeaders(true),
         body: JSON.stringify({ operation: "cancel", id: lanScanTaskId })
       }).then(readApiResponse).then(function (body) {
         renderLanScanTask(body.task);
