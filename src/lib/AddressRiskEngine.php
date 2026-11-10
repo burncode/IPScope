@@ -9,7 +9,7 @@ final class AddressRiskEngine
     /** @param array<string,mixed> $dhcp @return array<string,mixed> */
     public function evaluate(string $ip, string $network, array $dhcp): array
     {
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) throw new \\InvalidArgumentException('Risk evaluation requires a valid IPv4 address.');
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) throw new \InvalidArgumentException('Risk evaluation requires a valid IPv4 address.');
         $mode = (string)($dhcp['mode'] ?? 'unknown');
         if ($mode === 'unknown') return ['level'=>'review','code'=>'dhcp_configuration_unknown','recommendable'=>false,'message'=>'DHCP configuration is unknown; verify the router DHCP pool before assigning this address.'];
         if ($mode === 'disabled') return ['level'=>'none','code'=>null,'recommendable'=>true,'message'=>null];
