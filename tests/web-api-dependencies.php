@@ -12,6 +12,9 @@ $required = [
     "require_once __DIR__ . '/../lib/NeighborCollector.php';",
     "require_once __DIR__ . '/../lib/LanDiscoveryCollector.php';",
     "require_once __DIR__ . '/../lib/SnapshotBuilder.php';",
+    "require_once __DIR__ . '/../lib/AddressRiskEngine.php';",
+    "require_once __DIR__ . '/../lib/DhcpConfigStore.php';",
+    "\$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations'];",
 ];
 $last = -1;
 foreach ($required as $index => $line) {
