@@ -91,6 +91,14 @@ final class AddressRecommendationEngine
                     continue;
                 }
 
+                // Any LAN neighbor observation is occupancy evidence. REACHABLE
+                // confirms a live peer; STALE is historical and inconclusive, but
+                // neither may be advertised as a safe candidate until re-probed
+                // or explicitly reviewed by the user.
+                if (!empty($address['lan_evidence']) && is_array($address['lan_evidence'])) {
+                    continue;
+                }
+
                 $ip = $address['ip'] ?? null;
                 if (!is_string($ip) || filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
                     continue;
@@ -170,7 +178,7 @@ final class AddressRecommendationEngine
             'limit_per_network' => $limit,
             'candidate_count' => $candidateCount,
             'networks' => $selected,
-            'notice' => 'Suggestions are advisory only. Candidates must be inside an explicitly managed IPv4 host range and marked available by the snapshot. Docker-only data cannot detect DHCP leases, offline devices, or hosts outside Docker.',
+            'notice' => 'Suggestions are advisory only. Candidates must be inside an explicitly managed IPv4 host range, marked available, and have no LAN neighbor evidence. REACHABLE and STALE neighbor observations are excluded pending verification. Docker-only data cannot detect DHCP leases, offline devices, or hosts outside Docker.',
         ];
     }
 }
