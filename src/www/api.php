@@ -56,7 +56,7 @@ $dockerBinary = getenv('IPSCOPE_DOCKER_BIN') ?: '/usr/bin/docker';
 
 try {
     if ($action === 'dhcp') {
-        $dhcpStore = new \\IPScope\\DhcpConfigStore($dhcpPath);
+        $dhcpStore = new \IPScope\DhcpConfigStore($dhcpPath);
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
         if ($method === 'GET') ipscopeRespond(200, ['ok'=>true, 'dhcp'=>$dhcpStore->load()]);
         if ($method !== 'POST') {
@@ -131,7 +131,7 @@ try {
             ipscopeRespond(404, ['ok' => false, 'error' => 'No snapshot is available. Run a scan first.']);
         }
 
-        $snapshot['dhcp'] = (new \\IPScope\\DhcpConfigStore($dhcpPath))->load();
+        $snapshot['dhcp'] = (new \IPScope\DhcpConfigStore($dhcpPath))->load();
 
         $network = isset($_GET['network']) ? trim((string)$_GET['network']) : null;
         $rawLimit = $_GET['limit'] ?? '20';
