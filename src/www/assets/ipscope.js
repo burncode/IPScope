@@ -1014,5 +1014,150 @@
       showCopyNotice(copied ? successMessage : t("js.copy_failed_select_the_ip_manually"), !copied);
     }
   });
+  var lanScanForm = document.getElementById("lan-scan-form");
+  var lanScanTaskId = null;
+  var lanScanTimer = null;
+  var lanScanBusy = false;
+  var lanScanTerminal = false;
+
+  function lanScanStatusLabel(status) {
+    var labels = {
+      queued: t("lan_scan.queued"),
+      running: t("lan_scan.running"),
+      completed: t("lan_scan.completed"),
+      cancelled: t("lan_scan.cancelled"),
+      failed: t("lan_scan.failed")
+    };
+    return labels[status] || status || "—";
+  }
+
+  function renderLanScanTask(task) {
+    if (!task) return;
+    var state = document.getElementById("lan-scan-state");
+    var bar = document.getElementById("lan-scan-progress-bar");
+    var progress = document.getElementById("lan-scan-progress-text");
+    var counts = document.getElementById("lan-scan-counts");
+    var results = document.getElementById("lan-scan-results");
+    var cancel = document.getElementById("lan-scan-cancel");
+    var start = document.getElementById("lan-scan-start");
+    var percent = Math.max(0, Math.min(100, Number(task.progress_percent || 0)));
+    state.textContent = lanScanStatusLabel(task.status);
+    state.className = "status-pill " + (task.status === "completed" ? "status-available" : (task.status === "failed" ? "status-conflict" : "status-reserved"));
+    bar.style.width = percent + "%";
+    progress.textContent = percent + "%";
+    var c = task.counts || {};
+    counts.textContent = (task.completed_count || 0) + " / " + (task.target_count || 0) + " · " +
+      t("lan_scan.responding") + " " + (c.responding || 0) + " · " +
+      t("lan_scan.no_response") + " " + (c.no_response || 0) + " · " +
+      t("lan_scan.errors") + " " + ((c.probe_error || 0) + (c.response_unparsed || 0));
+    var rows = task.results || [];
+    results.innerHTML = rows.length ? '<div class="table-wrap"><table><thead><tr><th>IPv4</th><th>' +
+      t("lan_scan.result") + '</th><th>MAC</th></tr></thead><tbody>' + rows.map(function (item) {
+        return '<tr><td class="ip-cell">' + escapeHtml(item.ip) + '</td><td>' +
+          escapeHtml(t("lan_scan." + item.status) || item.status) + '</td><td class="ip-cell">' +
+          escapeHtml(item.mac || "—") + '</td></tr>';
+      }).join("") + '</tbody></table></div>' : '<div class="empty-state">' + t("lan_scan.waiting_results") + '</div>';
+    var terminal = ["completed", "cancelled", "failed"].indexOf(task.status) !== -1;
+    lanScanTerminal = terminal;
+    cancel.disabled = terminal || !lanScanTaskId;
+    start.disabled = !terminal && !!lanScanTaskId;
+    if (terminal) {
+      if (lanScanTimer) window.clearTimeout(lanScanTimer);
+      lanScanTimer = null;
+      try { window.sessionStorage.removeItem("ipscope.lanscan.task"); } catch (error) {}
+      if (task.status === "failed" && task.error) {
+        document.getElementById("lan-scan-feedback").textContent = task.error;
+      }
+    }
+  }
+
+  function requestLanScanTask() {
+    if (!lanScanTaskId || lanScanBusy || lanScanTerminal) return;
+    lanScanBusy = true;
+    fetch(apiUrl + "?action=lanscan", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Accept": "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify({ operation: "step", id: lanScanTaskId })
+    }).then(readApiResponse).then(function (body) {
+      renderLanScanTask(body.task);
+      if (!lanScanTerminal) lanScanTimer = window.setTimeout(pollLanScanTask, 350);
+    }).catch(function (error) {
+      document.getElementById("lan-scan-feedback").textContent = error.message;
+      lanScanTimer = window.setTimeout(pollLanScanTask, 1800);
+    }).finally(function () { lanScanBusy = false; });
+  }
+
+  function pollLanScanTask() {
+    if (!lanScanTaskId || lanScanBusy || lanScanTerminal) return;
+    lanScanBusy = true;
+    fetch(apiUrl + "?action=lanscan&id=" + encodeURIComponent(lanScanTaskId), { credentials: "same-origin", headers: { "Accept": "application/json" } })
+      .then(readApiResponse).then(function (body) {
+        renderLanScanTask(body.task);
+        if (!lanScanTerminal) requestLanScanTask();
+      }).catch(function (error) {
+        document.getElementById("lan-scan-feedback").textContent = error.message;
+        lanScanTimer = window.setTimeout(pollLanScanTask, 1800);
+      }).finally(function () { lanScanBusy = false; });
+  }
+
+  function startLanScanTask(event) {
+    event.preventDefault();
+    var iface = document.getElementById("lan-scan-interface").value.trim();
+    var rawTargets = document.getElementById("lan-scan-targets").value;
+    var targets = Array.from(new Set(rawTargets.split(/[\\s,;]+/).map(function (ip) { return ip.trim(); }).filter(Boolean)));
+    if (!iface || !targets.length || targets.length > 256) {
+      document.getElementById("lan-scan-feedback").textContent = t("lan_scan.validation");
+      return;
+    }
+    if (!targets.every(function (ip) { return /^(?:\\d{1,3}\\.){3}\\d{1,3}$/.test(ip); })) {
+      document.getElementById("lan-scan-feedback").textContent = t("lan_scan.invalid_ip");
+      return;
+    }
+    document.getElementById("lan-scan-start").disabled = true;
+    document.getElementById("lan-scan-feedback").textContent = t("lan_scan.creating");
+    fetch(apiUrl + "?action=lanscan", {
+      method: "POST", credentials: "same-origin",
+      headers: { "Accept": "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify({ operation: "create", interface: iface, targets: targets })
+    }).then(readApiResponse).then(function (body) {
+      lanScanTaskId = body.task.id;
+      lanScanTerminal = false;
+      try { window.sessionStorage.setItem("ipscope.lanscan.task", lanScanTaskId); } catch (error) {}
+      document.getElementById("lan-scan-feedback").textContent = t("lan_scan.started");
+      renderLanScanTask(body.task);
+      requestLanScanTask();
+    }).catch(function (error) {
+      document.getElementById("lan-scan-feedback").textContent = error.message;
+      document.getElementById("lan-scan-start").disabled = false;
+    });
+  }
+
+  if (lanScanForm) {
+    lanScanForm.addEventListener("submit", startLanScanTask);
+    document.getElementById("lan-scan-cancel").addEventListener("click", function () {
+      if (!lanScanTaskId || lanScanTerminal) return;
+      this.disabled = true;
+      fetch(apiUrl + "?action=lanscan", {
+        method: "POST", credentials: "same-origin",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ operation: "cancel", id: lanScanTaskId })
+      }).then(readApiResponse).then(function (body) {
+        renderLanScanTask(body.task);
+        document.getElementById("lan-scan-feedback").textContent = t("lan_scan.cancelled");
+      }).catch(function (error) {
+        document.getElementById("lan-scan-feedback").textContent = error.message;
+      });
+    });
+    try {
+      var savedTaskId = window.sessionStorage.getItem("ipscope.lanscan.task");
+      if (savedTaskId && /^[a-f0-9]{24}$/.test(savedTaskId)) {
+        lanScanTaskId = savedTaskId;
+        document.getElementById("lan-scan-feedback").textContent = t("lan_scan.restoring");
+        pollLanScanTask();
+      }
+    } catch (error) {}
+  }
+
   requestSnapshot();
 }());
