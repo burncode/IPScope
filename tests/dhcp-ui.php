@@ -22,7 +22,7 @@ $checks = [
     'multiple DHCP pools can be added and removed' => str_contains($js, 'dhcp-add-pool') && str_contains($js, 'data-dhcp-remove-pool'),
     'multiple DHCP reservations can be added and removed' => str_contains($js, 'dhcp-add-reservation') && str_contains($js, 'data-dhcp-remove-reservation'),
     'non-configured modes hide pool editor' => str_contains($js, 'dhcpFields.hidden = dhcpMode.value !== "configured"'),
-    'API supports DHCP GET and POST' => str_contains($api, "if ($method === 'GET')") && str_contains($api, "if ($method !== 'POST')"),
+    'API supports DHCP GET and POST' => str_contains($api, "if (\\$method === 'GET')") && str_contains($api, "if (\\$method !== 'POST')"),
     'DHCP form has responsive layout' => str_contains($css, '.dhcp-entry') && str_contains($css, '@media (max-width: 560px)'),
 ];
 foreach (['ui.dhcp','dhcp.heading','dhcp.description','dhcp.mode','dhcp.mode_unknown','dhcp.mode_disabled','dhcp.mode_configured','dhcp.pools','dhcp.pools_help','dhcp.add_pool','dhcp.reservations','dhcp.reservations_help','dhcp.add_reservation','dhcp.safety_title','dhcp.safety_description','dhcp.network','dhcp.subnet','dhcp.start_ip','dhcp.end_ip','dhcp.ip','dhcp.label','dhcp.remove','dhcp.saved','dhcp.save_failed','dhcp.load_failed'] as $key) {
