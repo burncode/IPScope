@@ -27,7 +27,7 @@ final class LanScanTaskRunner
                 'batches'=>[['targets'=>$batch['targets']]],
             ], 100);
             return $this->store->appendBatchResults($id, $results['results']);
-        } catch (\\Throwable $error) {
+        } catch (\Throwable $error) {
             $this->store->fail($id, 'ARP batch execution failed.');
             throw $error;
         }
