@@ -635,3 +635,33 @@ tbody tr:last-child td { border-bottom: 0; }
  .about-version { width: 100%; margin-left: 76px; padding: 12px 0 0; border-left: 0; border-top: 1px solid var(--line); }
  .about-feature-grid,.about-meta-grid { grid-template-columns: 1fr; }
 }
+
+/* B4-E3: DHCP configuration workspace */
+.dhcp-form { padding: 20px; }
+.dhcp-mode-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; max-width: 620px; padding-bottom: 18px; }
+.dhcp-mode-row label, .dhcp-entry label { color: var(--muted); font-size: 12px; font-weight: 600; }
+#dhcp-config-fields[hidden] { display: none; }
+.dhcp-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 12px 0; }
+.dhcp-section-heading h3 { margin: 0; font-size: 13px; }
+.dhcp-section-heading p { margin-top: 4px; color: var(--muted); font-size: 11px; }
+.dhcp-pools, .dhcp-reservations { display: grid; gap: 9px; margin-bottom: 10px; }
+.dhcp-entry { display: grid; grid-template-columns: 1fr 1.2fr 1fr 1fr auto; align-items: end; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: #fbfcfd; }
+.dhcp-reservation-entry { grid-template-columns: 1fr 1fr 1.2fr auto; }
+.dhcp-entry label { display: grid; gap: 6px; }
+.dhcp-entry input { min-width: 0; width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 8px 9px; background: #fff; color: var(--text); font: inherit; font-size: 12px; }
+.dhcp-entry input:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.dhcp-actions { display: flex; align-items: center; justify-content: flex-end; gap: 14px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+.dhcp-guidance { padding: 16px 19px; background: #f8fafb; }
+.dhcp-guidance strong { font-size: 12px; }
+.dhcp-guidance p { margin-top: 6px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+@media (max-width: 850px) {
+  .dhcp-entry, .dhcp-reservation-entry { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dhcp-entry .text-action { justify-self: start; }
+}
+@media (max-width: 560px) {
+  .dhcp-form { padding: 14px; }
+  .dhcp-mode-row { align-items: flex-start; flex-direction: column; }
+  .dhcp-entry, .dhcp-reservation-entry { grid-template-columns: 1fr; }
+  .dhcp-section-heading { align-items: flex-start; flex-direction: column; }
+  .dhcp-actions { align-items: flex-start; flex-direction: column; }
+}
