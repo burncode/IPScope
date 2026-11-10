@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../src/lib/IPv4Calculator.php';
+require_once __DIR__ . '/../src/lib/AddressRiskEngine.php';
 require_once __DIR__ . '/../src/lib/AddressRecommendationEngine.php';
 
 use IPScope\AddressRecommendationEngine;
@@ -128,6 +129,24 @@ $futureTimeSnapshot['generated_at'] = '2099-01-01T00:00:00+00:00';
 $futureTimeResult = $engine->recommend($futureTimeSnapshot);
 $checks[] = $futureTimeResult['snapshot_time_status'] === 'future';
 $checks[] = $futureTimeResult['snapshot_age_seconds'] === null;
+
+$unknownDhcpSnapshot = $snapshot;
+unset($unknownDhcpSnapshot['dhcp']);
+$unknownDhcpResult = $engine->recommend($unknownDhcpSnapshot);
+$checks[] = $unknownDhcpResult['candidate_count'] === 0;
+$checks[] = $unknownDhcpResult['dhcp_mode'] === 'unknown';
+
+$configuredDhcpSnapshot = $snapshot;
+$configuredDhcpSnapshot['dhcp'] = [
+    'mode'=>'configured',
+    'pools'=>[['network'=>'bond0','start_ip'=>'192.168.50.8','end_ip'=>'192.168.50.8']],
+    'reservations'=>[['network'=>'bond0','ip'=>'192.168.50.3']],
+];
+$configuredDhcpResult = $engine->recommend($configuredDhcpSnapshot);
+$configuredCandidates = array_column($configuredDhcpResult['networks'][0]['candidates'] ?? [], 'ip');
+$checks[] = !in_array('192.168.50.8', $configuredCandidates, true);
+$checks[] = !in_array('192.168.50.3', $configuredCandidates, true);
+$checks[] = in_array('192.168.50.9', $configuredCandidates, true);
 
 foreach ($checks as $index => $passed) {
     if (!$passed) {
