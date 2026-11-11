@@ -1067,6 +1067,11 @@
           escapeHtml(t("lan_scan." + item.status) || item.status) + '</td><td class="ip-cell">' +
           escapeHtml(item.mac || "—") + '</td></tr>';
       }).join("") + '</tbody></table></div>' : '<div class="empty-state">' + t("lan_scan.waiting_results") + '</div>';
+    var feedback = document.getElementById("lan-scan-feedback");
+    if (task.status === "completed") feedback.textContent = t("lan_scan.completed_notice");
+    else if (task.status === "cancelled") feedback.textContent = t("lan_scan.cancelled_notice");
+    else if (task.status === "failed") feedback.textContent = task.error || t("lan_scan.failed_notice");
+    else feedback.textContent = t("lan_scan.progress_notice").replace("{completed}", String(task.completed_count || 0)).replace("{total}", String(task.target_count || 0));
     var terminal = ["completed", "cancelled", "failed"].indexOf(task.status) !== -1;
     lanScanTerminal = terminal;
     cancel.disabled = terminal || !lanScanTaskId;
