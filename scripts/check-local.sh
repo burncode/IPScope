@@ -34,6 +34,7 @@ php tests/lan-discovery.php
 php tests/lan-collector.php
 php tests/lan-address-merger.php
 php tests/arp-probe.php
+php tests/lan-scan-planner.php
 php tests/lan-scan-engine.php
 php tests/lan-scan-task-store.php
 php tests/lan-scan-result-store.php
