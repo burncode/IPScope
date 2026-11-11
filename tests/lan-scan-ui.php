@@ -12,6 +12,7 @@ if (!is_string($index) || !is_string($js) || !is_string($css) || !is_array($en) 
 }
 $checks = [
     'LAN scan navigation exists' => str_contains($index, 'data-view="lan-scan"'),
+    'workspace reserves scrollbar gutter to prevent tab layout shift' => str_contains($css, 'html { scrollbar-gutter: stable; }') && str_contains($css, '@supports not (scrollbar-gutter: stable)') && str_contains($css, 'html { overflow-y: scroll; }'),
     'LAN scan panel exists' => str_contains($index, 'data-panel="lan-scan"'),
     'interface is selected from discovered options' => str_contains($index, '<select id="lan-scan-interface"') && str_contains($js, '?action=laninterfaces'),
     'API exposes active interface discovery' => str_contains(file_get_contents(__DIR__ . '/../src/www/api.php'), "'laninterfaces'"),
