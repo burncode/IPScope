@@ -1125,7 +1125,7 @@
       document.getElementById("lan-scan-feedback").textContent = t("lan_scan.validation");
       return;
     }
-    if (!targets.every(function (ip) { return /^(?:\d{1,3}\.){3}\d{1,3}$/.test(ip); })) {
+    if (!targets.every(function (target) { return /^(?:(?:\d{1,3}\.){3}\d{1,3})(?:\/(?:[0-9]|[12][0-9]|3[0-2]))?$/.test(target); })) {
       document.getElementById("lan-scan-feedback").textContent = t("lan_scan.invalid_ip");
       return;
     }
