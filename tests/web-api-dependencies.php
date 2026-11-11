@@ -19,10 +19,10 @@ $required = [
     "\$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations', 'lanscan', 'laninterfaces'];",
     "require_once __DIR__ . '/../lib/LanScanResultStore.php';",
     "if (\$action === 'laninterfaces')",
-    "new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json')",
     "if (\$action === 'lanscan')",
     "if (\$operation === 'cancel')",
     "if (\$operation === 'step')",
+    "new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json')",
 ];
 $last = -1;
 foreach ($required as $index => $line) {
