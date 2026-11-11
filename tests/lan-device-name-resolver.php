@@ -14,6 +14,9 @@ $runner = new class extends ProcessRunner {
         if (($command[1] ?? '') === 'hosts' && ($command[2] ?? '') === '192.168.50.2') {
             return ['exit_code'=>0,'stdout'=>"192.168.50.2\tSynology\n",'stderr'=>''];
         }
+        if (($command[1] ?? '') === 'hosts' && ($command[2] ?? '') === '192.168.50.10') {
+            return ['exit_code'=>0,'stdout'=>"192.168.50.10\tprinter\n",'stderr'=>''];
+        }
         return ['exit_code'=>2,'stdout'=>'','stderr'=>'not found'];
     }
 };
