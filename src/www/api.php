@@ -111,7 +111,8 @@ try {
         if ($operation === 'step') {
             $runner = new \IPScope\LanScanTaskRunner(
                 $taskStore,
-                new \IPScope\LanScanEngine(new \IPScope\ArpProbeEngine(new \IPScope\ProcessRunner()))
+                new \IPScope\LanScanEngine(new \IPScope\ArpProbeEngine(new \IPScope\ProcessRunner())),
+                new \IPScope\LanDeviceNameResolver(new \IPScope\ProcessRunner())
             );
             $task = $runner->step((string)($payload['id'] ?? ''));
             if (($task['status'] ?? '') === 'completed') {
