@@ -92,7 +92,7 @@ final class LanDeviceNameResolver
 
     private function cleanName(string $name): ?string
     {
-        $name = trim($name, " .\\t\\r\\n");
+        $name = trim($name, " .\t\r\n");
         if ($name === '' || filter_var($name, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) return null;
         if (!preg_match('/^[A-Za-z0-9][A-Za-z0-9._-]{0,62}$/', $name)) return null;
         return $name;
