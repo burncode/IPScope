@@ -684,3 +684,45 @@ tbody tr:last-child td { border-bottom: 0; }
 .lan-scan-progress-meta strong { color:var(--text); font-size:13px; }
 .lan-scan-results { min-height:80px; }
 @media(max-width:600px) { .lan-scan-form,.lan-scan-task-panel { padding:14px; } .lan-scan-actions { align-items:stretch; flex-direction:column; } .lan-scan-actions .button { width:100%; } .lan-scan-progress-meta { align-items:flex-start; flex-direction:column; } }
+
+
+/* B4-E5: LAN scan result overview, filters and compact device rows */
+.lan-scan-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:4px 0 16px; }
+.lan-scan-summary-card { display:flex; align-items:baseline; gap:9px; padding:12px 14px; border:1px solid var(--line); border-radius:8px; background:#fbfcfd; }
+.lan-scan-summary-card strong { color:var(--text); font-size:21px; font-weight:750; font-variant-numeric:tabular-nums; }
+.lan-scan-summary-card span { color:var(--muted); font-size:11px; }
+.lan-scan-summary-card.is-online { border-color:#cfe8dc; background:#f4faf7; }
+.lan-scan-summary-card.is-online strong { color:#16835e; }
+.lan-scan-filter-bar { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin:0 0 12px; padding-bottom:12px; border-bottom:1px solid var(--line); }
+.lan-scan-filter { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:6px; padding:7px 10px; background:#fff; color:var(--muted); font:inherit; font-size:11px; cursor:pointer; transition:background .15s,border-color .15s,color .15s; }
+.lan-scan-filter:hover { border-color:var(--accent); color:var(--text); }
+.lan-scan-filter.is-active { border-color:var(--accent); background:var(--accent-soft); color:var(--accent); font-weight:700; }
+.lan-scan-filter span { min-width:18px; border-radius:10px; padding:1px 5px; background:#eef1f3; color:#5d6972; text-align:center; font-size:10px; font-variant-numeric:tabular-nums; }
+.lan-scan-filter.is-active span { background:#fff; color:var(--accent); }
+.lan-scan-table { width:100%; border-collapse:collapse; }
+.lan-scan-table th { padding:10px 12px; background:#f7f9fa; color:var(--muted); text-align:left; font-size:10px; font-weight:700; }
+.lan-scan-table td { padding:11px 12px; border-top:1px solid var(--line); color:var(--text); font-size:12px; vertical-align:middle; }
+.lan-scan-table tbody tr:hover { background:#fafcfc; }
+.lan-device-cell { display:flex; align-items:center; gap:11px; min-width:220px; }
+.lan-device-icon { display:inline-flex; flex:0 0 34px; width:34px; height:34px; align-items:center; justify-content:center; border:1px solid var(--line); border-radius:8px; background:#f7f9fa; color:#52616a; font-size:17px; line-height:1; }
+.lan-device-icon-router,.lan-device-icon-nas { border-color:#cfe8dc; background:#f2f9f5; color:#187a58; }
+.lan-device-icon-smart { border-color:#eadfbe; background:#fbf8ef; color:#987321; }
+.lan-device-copy { display:grid; gap:4px; min-width:0; }
+.lan-device-name { overflow-wrap:anywhere; color:var(--text); font-size:12px; font-weight:700; }
+.lan-device-meta { color:var(--muted); font-size:10px; }
+.lan-scan-result-status { display:inline-flex; align-items:center; border-radius:20px; padding:4px 8px; background:#f0f2f4; color:#69747c; font-size:10px; white-space:nowrap; }
+.lan-scan-result-status.is-online { background:#eaf6ef; color:#16835e; }
+.lan-scan-result-status.is-error { background:#fff0ed; color:#b34b3d; }
+.lan-scan-filter-empty { display:grid; justify-items:center; gap:5px; padding:30px 14px; color:var(--muted); text-align:center; }
+.lan-scan-filter-empty strong { color:var(--text); font-size:12px; }
+.lan-scan-filter-empty span { font-size:11px; }
+@media(max-width:600px) {
+ .lan-scan-summary { gap:6px; }
+ .lan-scan-summary-card { align-items:flex-start; flex-direction:column; gap:2px; padding:9px; }
+ .lan-scan-summary-card strong { font-size:18px; }
+ .lan-scan-filter-bar { gap:5px; }
+ .lan-scan-filter { gap:5px; padding:6px 8px; }
+ .lan-scan-table th,.lan-scan-table td { padding:9px 7px; }
+ .lan-device-cell { min-width:150px; gap:7px; }
+ .lan-device-icon { flex-basis:30px; width:30px; height:30px; }
+}
