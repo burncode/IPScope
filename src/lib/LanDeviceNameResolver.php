@@ -16,7 +16,7 @@ final class LanDeviceNameResolver
 
     public function __construct(
         ProcessRunner $runner,
-        string $getentBinary = '/usr/bin/getent',
+        string $getentBinary = 'getent',
         string $avahiBinary = '/usr/bin/avahi-resolve-address',
         string $nmblookupBinary = '/usr/bin/nmblookup'
     ) {
@@ -51,7 +51,6 @@ final class LanDeviceNameResolver
 
     private function resolveGetent(string $ip): ?string
     {
-        if (!is_executable($this->getentBinary)) return null;
         try {
             $result = $this->runner->run([$this->getentBinary, 'hosts', $ip], 1);
         } catch (\Throwable $error) {
