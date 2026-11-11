@@ -360,6 +360,7 @@
   "lan_scan.device": "设备名称",
   "lan_scan.unknown_device": "未知设备",
   "lan_scan.name_not_found": "未识别名称",
+  "lan_scan.mac_fallback": "未识别名称 · MAC 地址",
   "lan_scan.name_source_reverse_dns": "DNS 主机名",
   "lan_scan.name_source_mdns": "mDNS 设备名",
   "lan_scan.name_source_netbios": "NetBIOS 主机名"
