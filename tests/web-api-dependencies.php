@@ -16,6 +16,7 @@ $required = [
     "require_once __DIR__ . '/../lib/SnapshotBuilder.php';",
     "require_once __DIR__ . '/../lib/LanScanTaskStore.php';",
     "require_once __DIR__ . '/../lib/LanScanResultStore.php';",
+    "require_once __DIR__ . '/../lib/LanDeviceNameResolver.php';",
     "require_once __DIR__ . '/../lib/LanScanTaskRunner.php';",
     "\$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations', 'lanscan', 'laninterfaces'];",
     "if (\$action === 'laninterfaces')",
