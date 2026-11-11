@@ -24,10 +24,12 @@ $checks = [
     $resolved['name_source'] === 'reverse_dns',
     count($runner->calls) === 1,
 ];
+$trailingR = $resolver->resolve('192.168.50.10');
+$checks[] = $trailingR['name'] === 'printer';
 $unknown = $resolver->resolve('192.168.50.99');
 $checks[] = $unknown['name'] === null;
 $checks[] = $unknown['name_source'] === null;
-$checks[] = count($runner->calls) === 2;
+$checks[] = count($runner->calls) === 3;
 $invalidRejected = false;
 try { $resolver->resolve('not-an-ip'); } catch (InvalidArgumentException $error) { $invalidRejected = true; }
 $checks[] = $invalidRejected;
