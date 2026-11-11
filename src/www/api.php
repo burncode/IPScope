@@ -114,7 +114,7 @@ try {
             );
             $task = $runner->step((string)($payload['id'] ?? ''));
             if (($task['status'] ?? '') === 'completed') {
-                (new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json'))->save($task);
+                (new \IPScope\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json'))->save($task);
             }
             ipscopeRespond(200, ['ok'=>true, 'task'=>$task]);
         }
@@ -220,9 +220,9 @@ try {
                 'error' => 'No snapshot is available. Run a scan first.',
             ]);
         }
-        $activeScan = (new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json'))->load();
+        $activeScan = (new \IPScope\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json'))->load();
         if ($activeScan !== null) {
-            $merged = (new \\IPScope\\LanAddressMerger())->merge(
+            $merged = (new \IPScope\LanAddressMerger())->merge(
                 $snapshot['networks'] ?? [],
                 $snapshot['lan_discovery'] ?? [],
                 $snapshot['containers'] ?? [],
