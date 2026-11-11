@@ -122,7 +122,7 @@ try {
         $interface = (string)($payload['interface'] ?? '');
         $targets = $payload['targets'] ?? null;
         if (!is_array($targets) || count($targets) < 1 || count($targets) > 256) {
-            ipscopeRespond(422, ['ok'=>false, 'error'=>'Provide between 1 and 256 explicit IPv4 targets.']);
+            ipscopeRespond(422, ['ok'=>false, 'error'=>'Provide between 1 and 256 IPv4 addresses or CIDR ranges.']);
         }
         $processRunner = new \IPScope\ProcessRunner();
         $interfaceData = (new \IPScope\LanInterfaceCollector($processRunner))->collect([$interface]);
@@ -130,23 +130,46 @@ try {
         $active = array_values(array_filter($interfaceAddresses, static fn(array $entry): bool => !empty($entry['up']) && $entry['prefix'] >= 1 && $entry['prefix'] <= 30));
         if (!$active) ipscopeRespond(422, ['ok'=>false, 'error'=>'Selected interface is not an active IPv4 interface.']);
         $localIps = array_column($active, 'ipv4');
-        $allowedTargets = [];
-        foreach ($active as $entry) {
-            $ipLong = ip2long($entry['ipv4']);
-            $mask = -1 << (32 - (int)$entry['prefix']);
-            $network = $ipLong & $mask;
-            $allowedTargets[] = [$network, $mask];
-        }
         foreach ($targets as $target) {
-            if (!is_string($target) || filter_var($target, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-                ipscopeRespond(422, ['ok'=>false, 'error'=>'All scan targets must be valid IPv4 addresses.']);
+            if (!is_string($target)) ipscopeRespond(422, ['ok'=>false, 'error'=>'Targets must be IPv4 addresses or CIDR ranges.']);
+            $target = trim($target);
+            if (str_contains($target, '/')) {
+                if (!preg_match('/^((?:\d{1,3}\.){3}\d{1,3})\/(\d|[12]\d|3[0-2])$/', $target, $matches)
+                    || filter_var($matches[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                    ipscopeRespond(422, ['ok'=>false, 'error'=>'CIDR target must use valid IPv4/prefix notation.']);
+                }
+                $prefix = (int)$matches[2];
+                $targetLong = (int)sprintf('%u', ip2long($matches[1]));
+                $mask = $prefix === 0 ? 0 : ((0xFFFFFFFF << (32 - $prefix)) & 0xFFFFFFFF);
+                $network = $targetLong & $mask;
+                $broadcast = $network | ((~$mask) & 0xFFFFFFFF);
+                $contained = false;
+                foreach ($active as $entry) {
+                    $interfacePrefix = (int)$entry['prefix'];
+                    $interfaceIp = (int)sprintf('%u', ip2long($entry['ipv4']));
+                    $interfaceMask = $interfacePrefix === 0 ? 0 : ((0xFFFFFFFF << (32 - $interfacePrefix)) & 0xFFFFFFFF);
+                    $interfaceNetwork = $interfaceIp & $interfaceMask;
+                    $interfaceBroadcast = $interfaceNetwork | ((~$interfaceMask) & 0xFFFFFFFF);
+                    if ($prefix >= $interfacePrefix && $network >= $interfaceNetwork && $broadcast <= $interfaceBroadcast) {
+                        $contained = true;
+                        break;
+                    }
+                }
+                if (!$contained) ipscopeRespond(422, ['ok'=>false, 'error'=>'CIDR ranges must be inside the selected interface subnet.']);
+            } else {
+                if (filter_var($target, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                    ipscopeRespond(422, ['ok'=>false, 'error'=>'All scan targets must be valid IPv4 addresses or CIDR ranges.']);
+                }
+                $targetLong = (int)sprintf('%u', ip2long($target));
+                $sameSubnet = false;
+                foreach ($active as $entry) {
+                    $prefix = (int)$entry['prefix'];
+                    $mask = $prefix === 0 ? 0 : ((0xFFFFFFFF << (32 - $prefix)) & 0xFFFFFFFF);
+                    $network = ((int)sprintf('%u', ip2long($entry['ipv4']))) & $mask;
+                    if (($targetLong & $mask) === $network) { $sameSubnet = true; break; }
+                }
+                if (!$sameSubnet) ipscopeRespond(422, ['ok'=>false, 'error'=>'Scan targets must belong to the selected interface subnet.']);
             }
-            $targetLong = ip2long($target);
-            $sameSubnet = false;
-            foreach ($allowedTargets as [$network, $mask]) {
-                if (($targetLong & $mask) === $network) { $sameSubnet = true; break; }
-            }
-            if (!$sameSubnet) ipscopeRespond(422, ['ok'=>false, 'error'=>'Scan targets must belong to the selected interface subnet.']);
         }
         try {
             $plan = (new \IPScope\LanScanPlanner())->plan($interface, $targets, $localIps, 32);
