@@ -23,6 +23,7 @@ $required = [
     "if (\$action === 'lanscan')",
     "if (\$operation === 'cancel')",
     "if (\$operation === 'step')",
+    "new \\IPScope\\LanDeviceNameResolver(new \\IPScope\\ProcessRunner())",
     "new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json')",
 ];
 $last = -1;
