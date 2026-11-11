@@ -1101,7 +1101,7 @@
         return '<tr class="' + (item.status === "responding" ? "is-responding" : "") + '">' +
           '<td><div class="lan-device-cell"><span class="lan-device-icon lan-device-icon-' + type + '" aria-hidden="true">' + typeIcon + '</span>' +
           '<span class="lan-device-copy"><span class="lan-device-name">' + escapeHtml(deviceName) + '</span>' +
-          '<span class="lan-device-meta">' + escapeHtml(typeLabel) + ' · ' + escapeHtml(nameSource) + '</span></span></span></td>' +
+          '<span class="lan-device-meta">' + escapeHtml(typeLabel) + ' · ' + escapeHtml(nameSource) + '</span></span></div></td>' +
           '<td class="ip-cell">' + escapeHtml(item.ip) + '</td><td><span class="lan-scan-result-status ' +
           (item.status === "responding" ? "is-online" : (item.status === "no_response" ? "is-unknown" : "is-error")) + '">' +
           escapeHtml(statusLabel) + '</span></td></tr>';
