@@ -112,7 +112,8 @@ try {
             $runner = new \IPScope\LanScanTaskRunner(
                 $taskStore,
                 new \IPScope\LanScanEngine(new \IPScope\ArpProbeEngine(new \IPScope\ProcessRunner())),
-                new \IPScope\LanDeviceNameResolver(new \IPScope\ProcessRunner())
+                new \IPScope\LanDeviceNameResolver(new \IPScope\ProcessRunner()),
+                new \IPScope\LanDeviceIdentityCache('/var/local/emhttp/plugins/ipscope/device-identity-cache.json')
             );
             $task = $runner->step((string)($payload['id'] ?? ''));
             if (($task['status'] ?? '') === 'completed') {
