@@ -322,7 +322,7 @@
   "lan_scan.description": "在指定网卡上探测明确选择的 IPv4 地址。没有收到 ARP 响应，并不能证明地址可用。",
   "lan_scan.interface": "网络接口",
   "lan_scan.targets": "IPv4 目标地址",
-  "lan_scan.targets_help": "每行输入一个 IPv4 地址，也可以用逗号分隔。最多 256 个；目标地址必须属于所选网卡的子网。",
+  "lan_scan.targets_help": "每行输入 IPv4 地址或 CIDR 网段（例如 192.168.50.0/24），也可以用逗号分隔。网段会自动展开为可探测主机地址，自动排除网络地址、广播地址及本机地址；每次最多扫描 256 个目标。",
   "lan_scan.start": "开始扫描",
   "lan_scan.cancel": "取消任务",
   "lan_scan.task": "扫描任务",
