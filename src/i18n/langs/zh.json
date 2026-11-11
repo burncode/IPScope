@@ -353,5 +353,8 @@
   "lan_scan.no_interfaces": "没有符合条件的 IPv4 网卡",
   "lan_scan.no_interfaces_help": "未发现具有可扫描子网的活动 IPv4 网卡。",
   "lan_scan.default_route": "默认路由",
-  "lan_scan.interface_load_failed": "无法加载网卡列表"
+  "lan_scan.interface_load_failed": "无法加载网卡列表",
+  "lan_scan.completed_notice": "局域网扫描已完成。",
+  "lan_scan.failed_notice": "局域网扫描失败。",
+  "lan_scan.progress_notice": "正在扫描… 已完成 {completed} / {total} 个目标地址。"
 }
