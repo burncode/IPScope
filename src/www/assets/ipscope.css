@@ -14,6 +14,11 @@
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 * { box-sizing: border-box; }
+/* Keep the workspace width stable while switching between panels of different heights. */
+html { scrollbar-gutter: stable; }
+@supports not (scrollbar-gutter: stable) {
+  html { overflow-y: scroll; }
+}
 body { margin: 0; background: var(--page); color: var(--text); font-size: 14px; }
 button { font: inherit; }
 .ipscope { max-width: 1440px; margin: 0 auto; padding: 24px 28px 36px; }
