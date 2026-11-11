@@ -360,6 +360,7 @@
   "lan_scan.device": "Device",
   "lan_scan.unknown_device": "Unknown device",
   "lan_scan.name_not_found": "Name not discovered",
+  "lan_scan.mac_fallback": "Name unavailable · MAC address",
   "lan_scan.name_source_reverse_dns": "DNS hostname",
   "lan_scan.name_source_mdns": "mDNS name",
   "lan_scan.name_source_netbios": "NetBIOS name"
