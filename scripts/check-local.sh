@@ -38,6 +38,7 @@ php tests/lan-scan-planner.php
 php tests/lan-scan-engine.php
 php tests/lan-scan-task-store.php
 php tests/lan-scan-result-store.php
+php tests/lan-device-name-resolver.php
 php tests/lan-scan-ui.php
 php tests/i18n-engine.php
 php tests/about-page.php
