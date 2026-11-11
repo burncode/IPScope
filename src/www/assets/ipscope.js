@@ -1029,6 +1029,8 @@
   var lanScanTimer = null;
   var lanScanBusy = false;
   var lanScanTerminal = false;
+  var lanScanCurrentTask = null;
+  var lanScanFilter = "responding";
 
   function lanScanStatusLabel(status) {
     var labels = {
@@ -1041,8 +1043,86 @@
     return labels[status] || status || "—";
   }
 
+  function lanScanDeviceType(item) {
+    var name = String(item.device_name || "").toLowerCase();
+    if (/router|gateway|^rt-|asus|aimesh|access[- ]?point/.test(name)) return "router";
+    if (/\bnas\b|synology|qnap|unraid|diskstation|terramaster/.test(name)) return "nas";
+    if (/lamp|light|yeelink|plug|switchbot|sensor|smart[- ]?home/.test(name)) return "smart";
+    if (/iphone|ipad|android|phone|pixel|galaxy/.test(name)) return "mobile";
+    if (/desktop|laptop|windows|macbook|imac|workstation|pc-/.test(name)) return "computer";
+    return "other";
+  }
+
+  function lanScanIpSort(a, b) {
+    var aa = String(a.ip || "").split(".").reduce(function (value, part) { return value * 256 + Number(part); }, 0);
+    var bb = String(b.ip || "").split(".").reduce(function (value, part) { return value * 256 + Number(part); }, 0);
+    return aa - bb;
+  }
+
+  function renderLanScanResults(task, results) {
+    var rows = task.results || [];
+    var responding = rows.filter(function (item) { return item.status === "responding"; });
+    var noResponse = rows.filter(function (item) { return item.status === "no_response"; });
+    var errors = rows.filter(function (item) { return item.status === "probe_error" || item.status === "response_unparsed"; });
+    var filtered = lanScanFilter === "all" ? rows :
+      (lanScanFilter === "responding" ? responding :
+      (lanScanFilter === "no_response" ? noResponse : errors));
+    filtered = filtered.slice().sort(lanScanIpSort);
+
+    var summary = '<div class="lan-scan-summary">' +
+      '<div class="lan-scan-summary-card is-online"><strong>' + responding.length + '</strong><span>' + t("lan_scan.filter_online") + '</span></div>' +
+      '<div class="lan-scan-summary-card"><strong>' + noResponse.length + '</strong><span>' + t("lan_scan.filter_no_response") + '</span></div>' +
+      '<div class="lan-scan-summary-card"><strong>' + errors.length + '</strong><span>' + t("lan_scan.filter_errors") + '</span></div>' +
+      '</div>';
+    var filters = [
+      { id: "responding", label: t("lan_scan.filter_online"), count: responding.length },
+      { id: "no_response", label: t("lan_scan.filter_no_response"), count: noResponse.length },
+      { id: "errors", label: t("lan_scan.filter_errors"), count: errors.length },
+      { id: "all", label: t("lan_scan.filter_all"), count: rows.length }
+    ];
+    var filterHtml = '<div class="lan-scan-filter-bar" role="group" aria-label="' + escapeHtml(t("lan_scan.filter_results")) + '">' +
+      filters.map(function (filter) {
+        return '<button type="button" class="lan-scan-filter' + (lanScanFilter === filter.id ? ' is-active' : '') +
+          '" data-lan-filter="' + filter.id + '" aria-pressed="' + (lanScanFilter === filter.id ? 'true' : 'false') + '">' +
+          escapeHtml(filter.label) + '<span>' + filter.count + '</span></button>';
+      }).join("") + '</div>';
+
+    var table = filtered.length ? '<div class="table-wrap"><table class="lan-scan-table"><thead><tr><th>' +
+      t("lan_scan.device") + '</th><th>IPv4</th><th>' + t("lan_scan.result") + '</th></tr></thead><tbody>' +
+      filtered.map(function (item) {
+        var deviceName = item.device_name || item.mac || t("lan_scan.unknown_device");
+        var nameSource = item.device_name
+          ? (item.name_source ? t("lan_scan.name_source_" + item.name_source) : t("lan_scan.name_not_found"))
+          : (item.mac ? t("lan_scan.mac_fallback") : t("lan_scan.name_not_found"));
+        var type = item.status === "responding" ? lanScanDeviceType(item) : "other";
+        var typeIcon = { router: "📡", nas: "▤", smart: "◉", mobile: "▯", computer: "▣", other: "◇" }[type];
+        var typeLabel = t("lan_scan.type_" + type);
+        var statusLabel = t("lan_scan." + item.status) || item.status;
+        return '<tr class="' + (item.status === "responding" ? "is-responding" : "") + '">' +
+          '<td><div class="lan-device-cell"><span class="lan-device-icon lan-device-icon-' + type + '" aria-hidden="true">' + typeIcon + '</span>' +
+          '<span class="lan-device-copy"><span class="lan-device-name">' + escapeHtml(deviceName) + '</span>' +
+          '<span class="lan-device-meta">' + escapeHtml(typeLabel) + ' · ' + escapeHtml(nameSource) + '</span></span></span></td>' +
+          '<td class="ip-cell">' + escapeHtml(item.ip) + '</td><td><span class="lan-scan-result-status ' +
+          (item.status === "responding" ? "is-online" : (item.status === "no_response" ? "is-unknown" : "is-error")) + '">' +
+          escapeHtml(statusLabel) + '</span></td></tr>';
+      }).join("") + '</tbody></table></div>' :
+      '<div class="lan-scan-filter-empty"><strong>' + escapeHtml(t("lan_scan.filter_empty_title")) +
+      '</strong><span>' + escapeHtml(lanScanFilter === "responding" && task.status !== "completed" ? t("lan_scan.filter_waiting_online") : t("lan_scan.filter_empty_help")) + '</span></div>';
+    results.innerHTML = summary + filterHtml + table;
+    if (!results.dataset.filterBound) {
+      results.dataset.filterBound = "1";
+      results.addEventListener("click", function (event) {
+        var button = event.target.closest("[data-lan-filter]");
+        if (!button || !lanScanCurrentTask) return;
+        lanScanFilter = button.getAttribute("data-lan-filter") || "responding";
+        renderLanScanTask(lanScanCurrentTask);
+      });
+    }
+  }
+
   function renderLanScanTask(task) {
     if (!task) return;
+    lanScanCurrentTask = task;
     var state = document.getElementById("lan-scan-state");
     var bar = document.getElementById("lan-scan-progress-bar");
     var progress = document.getElementById("lan-scan-progress-text");
@@ -1060,17 +1140,7 @@
       t("lan_scan.responding") + " " + (c.responding || 0) + " · " +
       t("lan_scan.no_response") + " " + (c.no_response || 0) + " · " +
       t("lan_scan.errors") + " " + ((c.probe_error || 0) + (c.response_unparsed || 0));
-    var rows = task.results || [];
-    results.innerHTML = rows.length ? '<div class="table-wrap"><table><thead><tr><th>' +
-      t("lan_scan.device") + '</th><th>IPv4</th><th>' + t("lan_scan.result") + '</th></tr></thead><tbody>' + rows.map(function (item) {
-        var deviceName = item.device_name || item.mac || t("lan_scan.unknown_device");
-        var nameSource = item.device_name
-          ? (item.name_source ? t("lan_scan.name_source_" + item.name_source) : t("lan_scan.name_not_found"))
-          : (item.mac ? t("lan_scan.mac_fallback") : t("lan_scan.name_not_found"));
-        return '<tr><td><div class="lan-device-name">' + escapeHtml(deviceName) +
-          '</div><div class="lan-device-meta">' + escapeHtml(nameSource) + '</div></td><td class="ip-cell">' +
-          escapeHtml(item.ip) + '</td><td>' + escapeHtml(t("lan_scan." + item.status) || item.status) + '</td></tr>';
-      }).join("") + '</tbody></table></div>' : '<div class="empty-state">' + t("lan_scan.waiting_results") + '</div>';
+    renderLanScanResults(task, results);
     var feedback = document.getElementById("lan-scan-feedback");
     if (task.status === "completed") feedback.textContent = t("lan_scan.completed_notice");
     else if (task.status === "cancelled") feedback.textContent = t("lan_scan.cancelled_notice");
