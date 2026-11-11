@@ -353,5 +353,8 @@
   "lan_scan.no_interfaces": "No eligible IPv4 interface",
   "lan_scan.no_interfaces_help": "No active IPv4 interface with a scannable subnet was found.",
   "lan_scan.default_route": "default route",
-  "lan_scan.interface_load_failed": "Could not load interfaces"
+  "lan_scan.interface_load_failed": "Could not load interfaces",
+  "lan_scan.completed_notice": "LAN scan completed.",
+  "lan_scan.failed_notice": "LAN scan failed.",
+  "lan_scan.progress_notice": "Scanning… {completed} of {total} targets completed."
 }
