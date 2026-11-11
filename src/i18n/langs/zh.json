@@ -363,5 +363,19 @@
   "lan_scan.mac_fallback": "未识别名称 · MAC 地址",
   "lan_scan.name_source_reverse_dns": "DNS 主机名",
   "lan_scan.name_source_mdns": "mDNS 设备名",
-  "lan_scan.name_source_netbios": "NetBIOS 主机名"
+  "lan_scan.name_source_netbios": "NetBIOS 主机名",
+  "lan_scan.filter_online": "在线设备",
+  "lan_scan.filter_no_response": "无响应",
+  "lan_scan.filter_errors": "探测错误",
+  "lan_scan.filter_all": "全部地址",
+  "lan_scan.filter_results": "扫描结果筛选",
+  "lan_scan.filter_empty_title": "当前分类没有记录",
+  "lan_scan.filter_empty_help": "可以切换其他分类查看扫描结果。",
+  "lan_scan.filter_waiting_online": "扫描仍在进行，发现在线设备后会显示在这里。",
+  "lan_scan.type_router": "路由器 / 网络设备",
+  "lan_scan.type_nas": "NAS / 存储设备",
+  "lan_scan.type_smart": "智能家居",
+  "lan_scan.type_mobile": "手机 / 平板",
+  "lan_scan.type_computer": "电脑",
+  "lan_scan.type_other": "网络设备"
 }
