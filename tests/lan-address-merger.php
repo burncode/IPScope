@@ -48,6 +48,7 @@ $checks=[
     ($result['lan_discovery']['matched_docker_claim_count']??null)===1,
     in_array('docker_lan_mac_mismatch',$types,true),
     ($result['lan_discovery']['availability_inferred']??null)===false,
+    !($addresses['192.168.50.15']['active_scan_evidence']??[]),
 ];
 foreach($checks as $i=>$passed) {
     if(!$passed) { fwrite(STDERR,'LAN address merger test failed at assertion '.($i+1).PHP_EOL); exit(1); }
