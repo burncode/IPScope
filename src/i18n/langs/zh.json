@@ -356,5 +356,11 @@
   "lan_scan.interface_load_failed": "无法加载网卡列表",
   "lan_scan.completed_notice": "局域网扫描已完成。",
   "lan_scan.failed_notice": "局域网扫描失败。",
-  "lan_scan.progress_notice": "正在扫描… 已完成 {completed} / {total} 个目标地址。"
+  "lan_scan.progress_notice": "正在扫描… 已完成 {completed} / {total} 个目标地址。",
+  "lan_scan.device": "设备名称",
+  "lan_scan.unknown_device": "未知设备",
+  "lan_scan.name_not_found": "未识别名称",
+  "lan_scan.name_source_reverse_dns": "DNS 主机名",
+  "lan_scan.name_source_mdns": "mDNS 设备名",
+  "lan_scan.name_source_netbios": "NetBIOS 主机名"
 }
