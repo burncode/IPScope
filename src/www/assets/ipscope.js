@@ -1061,11 +1061,13 @@
       t("lan_scan.no_response") + " " + (c.no_response || 0) + " · " +
       t("lan_scan.errors") + " " + ((c.probe_error || 0) + (c.response_unparsed || 0));
     var rows = task.results || [];
-    results.innerHTML = rows.length ? '<div class="table-wrap"><table><thead><tr><th>IPv4</th><th>' +
-      t("lan_scan.result") + '</th><th>MAC</th></tr></thead><tbody>' + rows.map(function (item) {
-        return '<tr><td class="ip-cell">' + escapeHtml(item.ip) + '</td><td>' +
-          escapeHtml(t("lan_scan." + item.status) || item.status) + '</td><td class="ip-cell">' +
-          escapeHtml(item.mac || "—") + '</td></tr>';
+    results.innerHTML = rows.length ? '<div class="table-wrap"><table><thead><tr><th>' +
+      t("lan_scan.device") + '</th><th>IPv4</th><th>' + t("lan_scan.result") + '</th></tr></thead><tbody>' + rows.map(function (item) {
+        var deviceName = item.device_name || t("lan_scan.unknown_device");
+        var nameSource = item.name_source ? t("lan_scan.name_source_" + item.name_source) : t("lan_scan.name_not_found");
+        return '<tr><td><div class="lan-device-name">' + escapeHtml(deviceName) +
+          '</div><div class="lan-device-meta">' + escapeHtml(nameSource) + '</div></td><td class="ip-cell">' +
+          escapeHtml(item.ip) + '</td><td>' + escapeHtml(t("lan_scan." + item.status) || item.status) + '</td></tr>';
       }).join("") + '</tbody></table></div>' : '<div class="empty-state">' + t("lan_scan.waiting_results") + '</div>';
     var feedback = document.getElementById("lan-scan-feedback");
     if (task.status === "completed") feedback.textContent = t("lan_scan.completed_notice");
