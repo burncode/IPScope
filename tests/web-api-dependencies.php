@@ -18,6 +18,8 @@ $required = [
     "require_once __DIR__ . '/../lib/LanScanTaskRunner.php';",
     "\$allowedActions = ['snapshot', 'scan', 'exclusions', 'dhcp', 'recommendations', 'lanscan', 'laninterfaces'];",
     "if (\$action === 'laninterfaces')",
+    "require_once __DIR__ . '/../lib/LanScanResultStore.php';",
+    "new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json')",
     "if (\$action === 'lanscan')",
     "if (\$operation === 'cancel')",
     "if (\$operation === 'step')",
