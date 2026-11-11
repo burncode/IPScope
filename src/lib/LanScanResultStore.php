@@ -16,7 +16,7 @@ final class LanScanResultStore
     public function save(array $task): array
     {
         if (($task['status'] ?? '') !== 'completed' || !is_array($task['results'] ?? null)) {
-            throw new InvalidArgumentException('Only completed LAN scan tasks can be persisted.');
+            throw new \\InvalidArgumentException('Only completed LAN scan tasks can be persisted.');
         }
         $payload = [
             'schema_version'=>1,
@@ -30,7 +30,7 @@ final class LanScanResultStore
         ];
         $directory = dirname($this->path);
         if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) {
-            throw new RuntimeException('Unable to create LAN scan result directory.');
+            throw new \\RuntimeException('Unable to create LAN scan result directory.');
         }
         $lock = fopen($this->path . '.lock', 'c');
         if ($lock === false) throw new RuntimeException('Unable to open LAN scan result lock.');
