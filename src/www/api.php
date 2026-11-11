@@ -22,6 +22,7 @@ require_once __DIR__ . '/../lib/ArpProbeEngine.php';
 require_once __DIR__ . '/../lib/LanScanPlanner.php';
 require_once __DIR__ . '/../lib/LanScanEngine.php';
 require_once __DIR__ . '/../lib/LanScanTaskStore.php';
+require_once __DIR__ . '/../lib/LanScanResultStore.php';
 require_once __DIR__ . '/../lib/LanScanTaskRunner.php';
 
 
@@ -112,6 +113,9 @@ try {
                 new \IPScope\LanScanEngine(new \IPScope\ArpProbeEngine(new \IPScope\ProcessRunner()))
             );
             $task = $runner->step((string)($payload['id'] ?? ''));
+            if (($task['status'] ?? '') === 'completed') {
+                (new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json'))->save($task);
+            }
             ipscopeRespond(200, ['ok'=>true, 'task'=>$task]);
         }
         if ($operation !== 'create') ipscopeRespond(422, ['ok'=>false, 'error'=>'Unsupported scan task operation.']);
@@ -215,6 +219,23 @@ try {
                 'ok' => false,
                 'error' => 'No snapshot is available. Run a scan first.',
             ]);
+        }
+        $activeScan = (new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json'))->load();
+        if ($activeScan !== null) {
+            $merged = (new \\IPScope\\LanAddressMerger())->merge(
+                $snapshot['networks'] ?? [],
+                $snapshot['lan_discovery'] ?? [],
+                $snapshot['containers'] ?? [],
+                $activeScan
+            );
+            $snapshot['networks'] = $merged['networks'];
+            $snapshot['lan_discovery'] = $merged['lan_discovery'];
+            $snapshot['active_lan_scan'] = [
+                'interface'=>$activeScan['interface'],
+                'scanned_at'=>$activeScan['scanned_at'],
+                'target_count'=>$activeScan['target_count'],
+                'availability_inferred'=>false,
+            ];
         }
         ipscopeRespond(200, ['ok' => true, 'snapshot' => $snapshot]);
     }
