@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace IPScope;
 
 /**
- * Builds a bounded ARP scan plan from an explicit list of user-selected IPv4
- * targets. It never expands a subnet or scans an entire network implicitly.
+ * Builds a bounded ARP scan plan from explicit IPv4 targets and CIDR ranges.
+ * CIDR expansion is limited to 256 usable targets per task.
  */
 final class LanScanPlanner
 {
@@ -18,8 +18,8 @@ final class LanScanPlanner
         if ($batchSize < 1 || $batchSize > 64) {
             throw new \InvalidArgumentException('Batch size must be between 1 and 64.');
         }
-        if (count($targets) > 256) {
-            throw new \InvalidArgumentException('A scan plan cannot contain more than 256 targets.');
+        if (count($targets) < 1 || count($targets) > 256) {
+            throw new \InvalidArgumentException('A scan request must contain between 1 and 256 entries.');
         }
 
         $local = [];
@@ -31,14 +31,41 @@ final class LanScanPlanner
         }
 
         $unique = [];
-        foreach ($targets as $ip) {
-            if (!is_string($ip) || filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-                throw new \InvalidArgumentException('Scan target list contains an invalid IPv4 address.');
+        foreach ($targets as $target) {
+            if (!is_string($target)) {
+                throw new \InvalidArgumentException('Scan targets must be IPv4 addresses or CIDR ranges.');
             }
-            if (isset($local[$ip])) {
-                continue;
+            $target = trim($target);
+            if (str_contains($target, '/')) {
+                if (!preg_match('/^((?:\d{1,3}\.){3}\d{1,3})\/(\d|[12]\d|3[0-2])$/', $target, $matches)
+                    || filter_var($matches[1], FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                    throw new \InvalidArgumentException('CIDR target must use valid IPv4/prefix notation.');
+                }
+                $prefix = (int)$matches[2];
+                $ipLong = (int)sprintf('%u', ip2long($matches[1]));
+                $mask = $prefix === 0 ? 0 : ((0xFFFFFFFF << (32 - $prefix)) & 0xFFFFFFFF);
+                $network = $ipLong & $mask;
+                $broadcast = $network | ((~$mask) & 0xFFFFFFFF);
+                $first = $prefix <= 30 ? $network + 1 : $network;
+                $last = $prefix <= 30 ? $broadcast - 1 : $broadcast;
+                if ($last >= $first) {
+                    for ($value = $first; $value <= $last; $value++) {
+                        $ip = long2ip($value);
+                        if (!isset($local[$ip])) $unique[$ip] = true;
+                        if (count($unique) > 256) {
+                            throw new \InvalidArgumentException('A scan plan cannot contain more than 256 expanded targets. Use a smaller subnet.');
+                        }
+                    }
+                }
+            } else {
+                if (filter_var($target, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+                    throw new \InvalidArgumentException('Scan target list contains an invalid IPv4 address.');
+                }
+                if (!isset($local[$target])) $unique[$target] = true;
+                if (count($unique) > 256) {
+                    throw new \InvalidArgumentException('A scan plan cannot contain more than 256 targets.');
+                }
             }
-            $unique[$ip] = true;
         }
 
         $ips = array_keys($unique);
