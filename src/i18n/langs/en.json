@@ -356,5 +356,11 @@
   "lan_scan.interface_load_failed": "Could not load interfaces",
   "lan_scan.completed_notice": "LAN scan completed.",
   "lan_scan.failed_notice": "LAN scan failed.",
-  "lan_scan.progress_notice": "Scanning… {completed} of {total} targets completed."
+  "lan_scan.progress_notice": "Scanning… {completed} of {total} targets completed.",
+  "lan_scan.device": "Device",
+  "lan_scan.unknown_device": "Unknown device",
+  "lan_scan.name_not_found": "Name not discovered",
+  "lan_scan.name_source_reverse_dns": "DNS hostname",
+  "lan_scan.name_source_mdns": "mDNS name",
+  "lan_scan.name_source_netbios": "NetBIOS name"
 }
