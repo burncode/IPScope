@@ -322,7 +322,7 @@
   "lan_scan.description": "Probe explicitly selected IPv4 addresses on a local interface. A missing ARP reply does not prove an address is available.",
   "lan_scan.interface": "Network interface",
   "lan_scan.targets": "IPv4 targets",
-  "lan_scan.targets_help": "Enter one IPv4 address per line, or separate addresses with commas. Up to 256 targets; targets must belong to the selected interface subnet.",
+  "lan_scan.targets_help": "Enter IPv4 addresses or CIDR ranges (for example, 192.168.50.0/24), one per line or comma-separated. CIDR ranges expand to probeable host addresses; network, broadcast and local interface addresses are excluded. Up to 256 targets per scan.",
   "lan_scan.start": "Start scan",
   "lan_scan.cancel": "Cancel task",
   "lan_scan.task": "Scan task",
