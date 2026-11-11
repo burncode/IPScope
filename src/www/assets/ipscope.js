@@ -1063,8 +1063,10 @@
     var rows = task.results || [];
     results.innerHTML = rows.length ? '<div class="table-wrap"><table><thead><tr><th>' +
       t("lan_scan.device") + '</th><th>IPv4</th><th>' + t("lan_scan.result") + '</th></tr></thead><tbody>' + rows.map(function (item) {
-        var deviceName = item.device_name || t("lan_scan.unknown_device");
-        var nameSource = item.name_source ? t("lan_scan.name_source_" + item.name_source) : t("lan_scan.name_not_found");
+        var deviceName = item.device_name || item.mac || t("lan_scan.unknown_device");
+        var nameSource = item.device_name
+          ? (item.name_source ? t("lan_scan.name_source_" + item.name_source) : t("lan_scan.name_not_found"))
+          : (item.mac ? t("lan_scan.mac_fallback") : t("lan_scan.name_not_found"));
         return '<tr><td><div class="lan-device-name">' + escapeHtml(deviceName) +
           '</div><div class="lan-device-meta">' + escapeHtml(nameSource) + '</div></td><td class="ip-cell">' +
           escapeHtml(item.ip) + '</td><td>' + escapeHtml(t("lan_scan." + item.status) || item.status) + '</td></tr>';
