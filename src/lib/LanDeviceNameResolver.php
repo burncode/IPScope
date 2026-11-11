@@ -30,7 +30,7 @@ final class LanDeviceNameResolver
     public function resolve(string $ip): array
     {
         if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-            throw new \\InvalidArgumentException('Device-name lookup requires a valid IPv4 address.');
+            throw new \InvalidArgumentException('Device-name lookup requires a valid IPv4 address.');
         }
 
         $name = $this->resolveGetent($ip);
@@ -54,7 +54,7 @@ final class LanDeviceNameResolver
         if (!is_executable($this->getentBinary)) return null;
         try {
             $result = $this->runner->run([$this->getentBinary, 'hosts', $ip], 1);
-        } catch (\\Throwable $error) {
+        } catch (\Throwable $error) {
             return null;
         }
         if (($result['exit_code'] ?? 1) !== 0) return null;
@@ -67,7 +67,7 @@ final class LanDeviceNameResolver
     {
         try {
             $result = $this->runner->run([$this->avahiBinary, '-4', $ip], 1);
-        } catch (\\Throwable $error) {
+        } catch (\Throwable $error) {
             return null;
         }
         if (($result['exit_code'] ?? 1) !== 0) return null;
@@ -80,7 +80,7 @@ final class LanDeviceNameResolver
     {
         try {
             $result = $this->runner->run([$this->nmblookupBinary, '-A', $ip], 1);
-        } catch (\\Throwable $error) {
+        } catch (\Throwable $error) {
             return null;
         }
         if (($result['exit_code'] ?? 1) !== 0) return null;
