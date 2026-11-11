@@ -16,7 +16,7 @@ final class LanScanResultStore
     public function save(array $task): array
     {
         if (($task['status'] ?? '') !== 'completed' || !is_array($task['results'] ?? null)) {
-            throw new \\InvalidArgumentException('Only completed LAN scan tasks can be persisted.');
+            throw new \InvalidArgumentException('Only completed LAN scan tasks can be persisted.');
         }
         $payload = [
             'schema_version'=>1,
@@ -30,22 +30,22 @@ final class LanScanResultStore
         ];
         $directory = dirname($this->path);
         if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) {
-            throw new \\RuntimeException('Unable to create LAN scan result directory.');
+            throw new \RuntimeException('Unable to create LAN scan result directory.');
         }
         $lock = fopen($this->path . '.lock', 'c');
-        if ($lock === false) throw new RuntimeException('Unable to open LAN scan result lock.');
+        if ($lock === false) throw new \RuntimeException('Unable to open LAN scan result lock.');
         try {
-            if (!flock($lock, LOCK_EX)) throw new RuntimeException('Unable to lock LAN scan result store.');
+            if (!flock($lock, LOCK_EX)) throw new \RuntimeException('Unable to lock LAN scan result store.');
             $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
             $tmp = $this->path . '.tmp.' . getmypid() . '.' . bin2hex(random_bytes(4));
             if (file_put_contents($tmp, $json . PHP_EOL, LOCK_EX) === false) {
                 @unlink($tmp);
-                throw new RuntimeException('Unable to write LAN scan results.');
+                throw new \RuntimeException('Unable to write LAN scan results.');
             }
             @chmod($tmp, 0640);
             if (!rename($tmp, $this->path)) {
                 @unlink($tmp);
-                throw new RuntimeException('Unable to publish LAN scan results.');
+                throw new \RuntimeException('Unable to publish LAN scan results.');
             }
         } finally {
             flock($lock, LOCK_UN);
