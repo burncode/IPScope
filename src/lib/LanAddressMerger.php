@@ -10,7 +10,7 @@ namespace IPScope;
 final class LanAddressMerger
 {
     /** @return array{networks:array,lan_discovery:array,conflicts:array} */
-    public function merge(array $networks, array $lanDiscovery, array $containers = []): array
+    public function merge(array $networks, array $lanDiscovery, array $containers = [], ?array $activeScan = null): array
     {
         $devices = is_array($lanDiscovery['devices'] ?? null) ? $lanDiscovery['devices'] : [];
         $deviceByIp = [];
@@ -59,6 +59,18 @@ final class LanAddressMerger
                     }
                 }
                 $address['lan_evidence'] = [];
+                $address['active_scan_evidence'] = [];
+                if (is_array($activeScan) && ($activeScan['interface'] ?? '') === ($network['name'] ?? null)) {
+                    foreach (($activeScan['results'] ?? []) as $scanResult) {
+                        if (!is_array($scanResult) || ($scanResult['ip'] ?? null) !== $ip) continue;
+                        $address['active_scan_evidence'][] = [
+                            'status' => (string)($scanResult['status'] ?? 'unknown'),
+                            'mac' => $scanResult['mac'] ?? null,
+                            'scanned_at' => $activeScan['scanned_at'] ?? null,
+                            'task_id' => $activeScan['task_id'] ?? null,
+                        ];
+                    }
+                }
                 if (isset($localByIp[$ip])) {
                     $address['lan_evidence'][] = [
                         'type' => 'local_interface',
