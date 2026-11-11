@@ -29,6 +29,9 @@ $checks = [
     'UI restores task id after refresh' => str_contains($js, 'sessionStorage.getItem("ipscope.lanscan.task")'),
     'UI persists active task id' => str_contains($js, 'sessionStorage.setItem("ipscope.lanscan.task"'),
     'target parser accepts whitespace and commas' => str_contains($js, 'rawTargets.split(/[\\s,;]+/)'),
+    'target parser accepts CIDR prefixes' => str_contains($js, '(?:\\\\/(?:[0-9]|[12][0-9]|3[0-2]))?'),
+    'target help documents subnet expansion and cap' => str_contains($zh['lan_scan.targets_help'], '192.168.50.0/24') && str_contains($zh['lan_scan.targets_help'], '256'),
+
     'responsive scan controls are styled' => str_contains($css, '.lan-scan-form') && str_contains($css, '@media(max-width:600px)'),
 ];
 $keys = ['ui.lan_scan','lan_scan.heading','lan_scan.description','lan_scan.interface','lan_scan.targets','lan_scan.targets_help','lan_scan.start','lan_scan.cancel','lan_scan.task','lan_scan.empty','lan_scan.safety_title','lan_scan.safety_description','lan_scan.queued','lan_scan.running','lan_scan.completed','lan_scan.cancelled','lan_scan.failed','lan_scan.responding','lan_scan.no_response','lan_scan.probe_error','lan_scan.response_unparsed','lan_scan.errors','lan_scan.result','lan_scan.waiting_results','lan_scan.validation','lan_scan.invalid_ip','lan_scan.creating','lan_scan.started','lan_scan.restoring','lan_scan.completed_notice','lan_scan.failed_notice','lan_scan.progress_notice','lan_scan.loading_interfaces','lan_scan.no_interfaces','lan_scan.no_interfaces_help','lan_scan.default_route','lan_scan.interface_load_failed'];
