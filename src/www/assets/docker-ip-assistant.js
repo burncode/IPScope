@@ -468,6 +468,7 @@
       pagination.hidden = true;
       totalCandidates = 0;
       currentOffset = 0;
+      setLoading(false);
       meta.textContent = t("js.suggestions_are_advisory");
       setMessage(t("js.network_changed_find_available_ips_to_check_this_networ"), false);
     });
