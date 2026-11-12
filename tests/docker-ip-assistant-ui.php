@@ -2,8 +2,10 @@
 declare(strict_types=1);
 
 $source = file_get_contents(__DIR__ . '/../src/www/assets/docker-ip-assistant.js');
+$api = file_get_contents(__DIR__ . '/../src/www/api.php');
+$engine = file_get_contents(__DIR__ . '/../src/lib/AddressRecommendationEngine.php');
 $css = file_get_contents(__DIR__ . '/../src/www/assets/docker-ip-assistant.css');
-if (!is_string($source) || !is_string($css)) {
+if (!is_string($source) || !is_string($css) || !is_string($api) || !is_string($engine)) {
     fwrite(STDERR, "Could not read Docker IP assistant assets.\n");
     exit(1);
 }
@@ -12,6 +14,8 @@ $englishCatalog = json_decode((string)file_get_contents(__DIR__ . '/../src/i18n/
 $chineseCatalog = json_decode((string)file_get_contents(__DIR__ . '/../src/i18n/langs/zh.json'), true);
 
 $checks = [
+    'recommendation API applies the five-minute freshness limit' => str_contains($api, '->recommend($snapshot, $network, $limit, 300, $offset)') && str_contains($engine, 'int $maxSnapshotAgeSeconds = 300'),
+    'refresh failure restores both helper actions' => str_contains($source, 'setLoading(false);') && str_contains($source, 'refreshButton.textContent = t("js.refresh_inventory");'),
     'refresh inventory action uses the existing POST scan endpoint' => str_contains($source, 'refreshInventory') && str_contains($source, '?action=scan') && str_contains($source, 'method: "POST"'),
     'refresh inventory action is available in both locales' => isset($englishCatalog['js.refresh_inventory'], $chineseCatalog['js.refresh_inventory']),
     'recommendations request supports 20-address offset batches' => str_contains($source, 'var PAGE_SIZE = 20;') && str_contains($source, '&offset=" + offset'),
