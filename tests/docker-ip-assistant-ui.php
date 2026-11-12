@@ -41,7 +41,7 @@ $checks = [
     'network changes invalidate in-flight recommendation requests' => str_contains($source, 'requestSequence += 1;') && str_contains($source, 'networkSelect.addEventListener("change", function () {'),
     'recommendation payload requires an object response with ok true' => str_contains($source, 'function validateRecommendationPayload(body, expectedNetwork)') && str_contains($source, 'body.ok !== true'),
     'recommendation network collection must be an array' => str_contains($source, '!Array.isArray(recommendation.networks)'),
-    'snapshot timestamp status is restricted to engine-defined values' => str_contains($source, '["valid", "missing", "future", "invalid"].indexOf(timeStatus) === -1'),
+    'snapshot timestamp status is restricted to engine-defined values' => str_contains($source, '["valid", "stale", "missing", "future", "invalid"].indexOf(timeStatus) === -1'),
     'snapshot age must agree with timestamp validity' => str_contains($source, '(timeStatus === "valid" && typeof age !== "number")') && str_contains($source, '(timeStatus !== "valid" && age !== null)'),
     'candidate records must be valid objects before rendering' => str_contains($source, 'js.ipscope_returned_a_candidate_that_is_not_an_object') && isset($englishCatalog['js.ipscope_returned_a_candidate_that_is_not_an_object'], $chineseCatalog['js.ipscope_returned_a_candidate_that_is_not_an_object']),
     'candidate IPv4 addresses reject invalid and non-canonical octets' => str_contains($source, 'function isValidIPv4Address(value)') && str_contains($source, 'number <= 255') && str_contains($source, 'octet.charAt(0) === "0"'),
