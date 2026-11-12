@@ -24,7 +24,6 @@ require_once __DIR__ . '/../lib/LanScanEngine.php';
 require_once __DIR__ . '/../lib/LanScanTaskStore.php';
 require_once __DIR__ . '/../lib/LanScanResultStore.php';
 require_once __DIR__ . '/../lib/LanDeviceNameResolver.php';
-require_once __DIR__ . '/../lib/LanDeviceIdentityCache.php';
 require_once __DIR__ . '/../lib/LanScanTaskRunner.php';
 
 
