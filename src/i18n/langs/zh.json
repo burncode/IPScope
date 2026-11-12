@@ -377,5 +377,13 @@
   "lan_scan.type_smart": "智能家居",
   "lan_scan.type_mobile": "手机 / 平板",
   "lan_scan.type_computer": "电脑",
-  "lan_scan.type_other": "网络设备"
+  "lan_scan.type_other": "网络设备",
+  "js.refresh_inventory": "刷新 IP 状态",
+  "js.refreshing_inventory": "正在刷新…",
+  "js.refreshing_ipscope_inventory": "正在刷新 IPScope 数据…",
+  "js.inventory_refresh_failed": "无法刷新 IPScope 数据。",
+  "js.inventory_refreshed_loading_candidates": "数据已刷新，正在加载可用 IP…",
+  "js.previous_batch": "上一批",
+  "js.next_batch": "下一批",
+  "js.candidates_total": "个候选"
 }
