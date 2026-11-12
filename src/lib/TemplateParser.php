@@ -13,8 +13,11 @@ final class TemplateParser
      */
     public function collect(string $directory): array
     {
-        if (!is_dir($directory) || !is_readable($directory)) {
-            return [];
+        if (!is_dir($directory)) {
+            throw new \\RuntimeException('Unraid user template directory does not exist.');
+        }
+        if (!is_readable($directory)) {
+            throw new \\RuntimeException('Unraid user template directory is not readable.');
         }
 
         $files = glob(rtrim($directory, '/') . '/*.xml') ?: [];
