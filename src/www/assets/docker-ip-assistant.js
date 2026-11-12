@@ -315,7 +315,7 @@
         setMessage(error.message || t("js.inventory_refresh_failed"), true);
       }).finally(function () {
         if (requestId !== requestSequence) return;
-        refreshButton.disabled = false;
+        setLoading(false);
         refreshButton.textContent = t("js.refresh_inventory");
       });
     }
