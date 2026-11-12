@@ -12,6 +12,12 @@ $englishCatalog = json_decode((string)file_get_contents(__DIR__ . '/../src/i18n/
 $chineseCatalog = json_decode((string)file_get_contents(__DIR__ . '/../src/i18n/langs/zh.json'), true);
 
 $checks = [
+    'refresh inventory action uses the existing POST scan endpoint' => str_contains($source, 'refreshInventory') && str_contains($source, '?action=scan') && str_contains($source, 'method: "POST"'),
+    'refresh inventory action is available in both locales' => isset($englishCatalog['js.refresh_inventory'], $chineseCatalog['js.refresh_inventory']),
+    'recommendations request supports 20-address offset batches' => str_contains($source, 'var PAGE_SIZE = 20;') && str_contains($source, '&offset=" + offset'),
+    'pagination controls show total candidate count and batch range' => str_contains($source, 'totalCandidates') && str_contains($source, 'previousButton') && str_contains($source, 'nextButton'),
+    'loading keeps current candidate DOM until replacement response arrives' => str_contains($source, 'candidateButtons.forEach(function (button) { button.disabled = true; });') && str_contains($source, 'candidates.textContent = "";'),
+    'pagination styles are included' => str_contains($css, '.ipscope-docker-ip-pagination'),
     'helper is appended inside the native Fixed IP input cell' => str_contains($source, 'anchor.appendChild(panel)'),
     'helper does not become a sibling grid cell' => !str_contains($source, 'anchor.parentElement.insertBefore(panel, anchor.nextSibling)'),
     'freshness requires a valid timestamp and live-clock expiry' => str_contains($source, 'snapshotTimeStatus === "valid"') && str_contains($source, 'now - snapshotGeneratedAt <= 300000'),
