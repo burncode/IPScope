@@ -8,7 +8,8 @@ require_once __DIR__ . '/../src/lib/AddressRecommendationEngine.php';
 use IPScope\AddressRecommendationEngine;
 
 $snapshot = [
-    'generated_at' => '2026-11-05T12:00:00+00:00',
+    'generated_at' => date(DATE_ATOM),
+    'lan_discovery' => ['status'=>'collected'],
     'dhcp' => ['mode'=>'disabled','pools'=>[],'reservations'=>[]],
     'networks' => [
         [
@@ -123,18 +124,39 @@ $missingTimeSnapshot = $snapshot;
 unset($missingTimeSnapshot['generated_at']);
 $missingTimeResult = $engine->recommend($missingTimeSnapshot);
 $checks[] = $missingTimeResult['snapshot_time_status'] === 'missing';
+$checks[] = $missingTimeResult['candidate_count'] === 0;
 
 $futureTimeSnapshot = $snapshot;
 $futureTimeSnapshot['generated_at'] = '2099-01-01T00:00:00+00:00';
 $futureTimeResult = $engine->recommend($futureTimeSnapshot);
 $checks[] = $futureTimeResult['snapshot_time_status'] === 'future';
 $checks[] = $futureTimeResult['snapshot_age_seconds'] === null;
+$checks[] = $futureTimeResult['candidate_count'] === 0;
+$checks[] = $futureTimeResult['blocked_reason'] === 'snapshot_future';
 
 $unknownDhcpSnapshot = $snapshot;
 unset($unknownDhcpSnapshot['dhcp']);
 $unknownDhcpResult = $engine->recommend($unknownDhcpSnapshot);
 $checks[] = $unknownDhcpResult['candidate_count'] === 0;
 $checks[] = $unknownDhcpResult['dhcp_mode'] === 'unknown';
+
+$unavailableLanSnapshot = $snapshot;
+$unavailableLanSnapshot['lan_discovery'] = ['status'=>'unavailable'];
+$unavailableLanResult = $engine->recommend($unavailableLanSnapshot);
+$checks[] = $unavailableLanResult['candidate_count'] === 0;
+$checks[] = $unavailableLanResult['blocked_reason'] === 'lan_discovery_unavailable';
+
+$activeResponseSnapshot = $snapshot;
+$activeResponseSnapshot['networks'][0]['known_addresses'][0]['active_scan_evidence'] = [['status'=>'responding']];
+$activeResponseResult = $engine->recommend($activeResponseSnapshot);
+$activeIps = array_column($activeResponseResult['networks'][0]['candidates'] ?? [], 'ip');
+$checks[] = !in_array('192.168.50.8', $activeIps, true);
+
+$staleSnapshot = $snapshot;
+$staleSnapshot['generated_at'] = date(DATE_ATOM, time() - 901);
+$staleResult = $engine->recommend($staleSnapshot);
+$checks[] = $staleResult['snapshot_time_status'] === 'stale';
+$checks[] = $staleResult['candidate_count'] === 0;
 
 $configuredDhcpSnapshot = $snapshot;
 $configuredDhcpSnapshot['dhcp'] = [
