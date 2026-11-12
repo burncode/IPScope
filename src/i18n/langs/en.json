@@ -377,5 +377,13 @@
   "lan_scan.type_smart": "Smart home",
   "lan_scan.type_mobile": "Phone / tablet",
   "lan_scan.type_computer": "Computer",
-  "lan_scan.type_other": "Network device"
+  "lan_scan.type_other": "Network device",
+  "js.refresh_inventory": "Refresh inventory",
+  "js.refreshing_inventory": "Refreshing…",
+  "js.refreshing_ipscope_inventory": "Refreshing IPScope inventory…",
+  "js.inventory_refresh_failed": "Could not refresh the IPScope inventory.",
+  "js.inventory_refreshed_loading_candidates": "Inventory refreshed. Loading available IPs…",
+  "js.previous_batch": "Previous",
+  "js.next_batch": "Next",
+  "js.candidates_total": "candidates"
 }
