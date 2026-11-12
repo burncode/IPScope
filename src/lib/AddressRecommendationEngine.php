@@ -22,7 +22,7 @@ final class AddressRecommendationEngine
         }
 
         if ($maxSnapshotAgeSeconds < 60 || $maxSnapshotAgeSeconds > 86400) {
-            throw new \\InvalidArgumentException('Maximum snapshot age must be between 60 seconds and 24 hours.');
+            throw new \InvalidArgumentException('Maximum snapshot age must be between 60 seconds and 24 hours.');
         }
 
         $networks = $snapshot['networks'] ?? null;
@@ -35,7 +35,7 @@ final class AddressRecommendationEngine
         $snapshotAgeSeconds = null;
         if ($generatedAt !== '') {
             try {
-                $snapshotTimestamp = (new \\DateTimeImmutable($generatedAt))->getTimestamp();
+                $snapshotTimestamp = (new \DateTimeImmutable($generatedAt))->getTimestamp();
                 $now = time();
                 if ($snapshotTimestamp > $now + 60) {
                     $snapshotTimeStatus = 'future';
@@ -43,7 +43,7 @@ final class AddressRecommendationEngine
                     $snapshotAgeSeconds = max(0, $now - $snapshotTimestamp);
                     $snapshotTimeStatus = $snapshotAgeSeconds > $maxSnapshotAgeSeconds ? 'stale' : 'valid';
                 }
-            } catch (\\Exception $error) {
+            } catch (\Exception $error) {
                 $snapshotTimeStatus = 'invalid';
             }
         }
