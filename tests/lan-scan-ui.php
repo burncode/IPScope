@@ -15,7 +15,7 @@ $checks = [
     'LAN scan navigation exists' => str_contains($index, 'data-view="lan-scan"'),
     'workspace reserves scrollbar gutter to prevent tab layout shift' => str_contains($css, 'html { scrollbar-gutter: stable; }') && str_contains($css, '@supports not (scrollbar-gutter: stable)') && str_contains($css, 'html { overflow-y: scroll; }'),
     'LAN scan panel exists' => str_contains($index, 'data-panel="lan-scan"'),
-    'LAN scan API loads and uses the persistent MAC-bound identity cache' => str_contains($api, "LanDeviceIdentityCache.php") && str_contains($api, "device-identity-cache.json") && str_contains($api, "new \\IPScope\\LanDeviceIdentityCache"),
+    'LAN scan API does not depend on persistent device identity cache' => !str_contains($api, "LanDeviceIdentityCache.php") && !str_contains($api, "device-identity-cache.json") && !str_contains($api, "LanDeviceIdentityCache("),
     'interface is selected from discovered options' => str_contains($index, '<select id="lan-scan-interface"') && str_contains($js, '?action=laninterfaces'),
     'API exposes active interface discovery' => str_contains(file_get_contents(__DIR__ . '/../src/www/api.php'), "'laninterfaces'"),
     'target field is explicit and bounded by help text' => str_contains($index, 'id="lan-scan-targets"') && str_contains($index, 'lan_scan.targets_help'),
