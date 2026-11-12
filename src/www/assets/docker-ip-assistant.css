@@ -112,3 +112,39 @@
 .ipscope-docker-ip-message.is-warning {
   color: #8a5a00;
 }
+
+.ipscope-docker-ip-assistant button.ipscope-docker-ip-refresh {
+  border-color: #cbd5dc;
+  color: #526575;
+}
+.ipscope-docker-ip-assistant button.ipscope-docker-ip-refresh:hover:not(:disabled) {
+  border-color: #9aabb7;
+  background: #eef3f6;
+  color: #334b5b;
+}
+.ipscope-docker-ip-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 10px;
+  min-height: 30px;
+}
+.ipscope-docker-ip-pagination[hidden] { display: none !important; }
+.ipscope-docker-ip-page-meta {
+  margin-right: auto;
+  color: #718397;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.ipscope-docker-ip-assistant button.ipscope-docker-ip-page {
+  min-height: 28px;
+  border-color: #d5dee4;
+  color: #526575;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ipscope-docker-ip-assistant button.ipscope-docker-ip-page:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
