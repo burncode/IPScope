@@ -39,7 +39,7 @@
     var timeStatus = recommendation.snapshot_time_status;
     var age = recommendation.snapshot_age_seconds;
     if (typeof timeStatus !== "string" ||
-        ["valid", "missing", "future", "invalid"].indexOf(timeStatus) === -1 ||
+        ["valid", "stale", "missing", "future", "invalid"].indexOf(timeStatus) === -1 ||
         (age !== null && (typeof age !== "number" || !Number.isFinite(age) || age < 0)) ||
         (timeStatus === "valid" && typeof age !== "number") ||
         (timeStatus !== "valid" && age !== null)) {
@@ -381,6 +381,7 @@
 
         if (!selected || !Array.isArray(selected.candidates) || !selected.candidates.length) {
           candidates.hidden = true;
+          pagination.hidden = true;
           meta.textContent = t("js.0_candidates");
           if (String(ipInput.value || "").trim()) {
             syncSelectedCandidate();
