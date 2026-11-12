@@ -15,15 +15,46 @@ final class AddressRecommendationEngine
      * @param array<string,mixed> $snapshot
      * @return array<string,mixed>
      */
-    public function recommend(array $snapshot, ?string $networkName = null, int $limit = 20): array
+    public function recommend(array $snapshot, ?string $networkName = null, int $limit = 20, int $maxSnapshotAgeSeconds = 900): array
     {
         if ($limit < 1 || $limit > 100) {
             throw new \InvalidArgumentException('Recommendation limit must be between 1 and 100.');
         }
 
+        if ($maxSnapshotAgeSeconds < 60 || $maxSnapshotAgeSeconds > 86400) {
+            throw new \\InvalidArgumentException('Maximum snapshot age must be between 60 seconds and 24 hours.');
+        }
+
         $networks = $snapshot['networks'] ?? null;
         if (!is_array($networks)) {
             throw new \InvalidArgumentException('Snapshot does not contain a valid network inventory.');
+        }
+
+        $generatedAt = (string)($snapshot['generated_at'] ?? '');
+        $snapshotTimeStatus = 'missing';
+        $snapshotAgeSeconds = null;
+        if ($generatedAt !== '') {
+            try {
+                $snapshotTimestamp = (new \\DateTimeImmutable($generatedAt))->getTimestamp();
+                $now = time();
+                if ($snapshotTimestamp > $now + 60) {
+                    $snapshotTimeStatus = 'future';
+                } else {
+                    $snapshotAgeSeconds = max(0, $now - $snapshotTimestamp);
+                    $snapshotTimeStatus = $snapshotAgeSeconds > $maxSnapshotAgeSeconds ? 'stale' : 'valid';
+                }
+            } catch (\\Exception $error) {
+                $snapshotTimeStatus = 'invalid';
+            }
+        }
+
+        $lanDiscovery = $snapshot['lan_discovery'] ?? null;
+        $lanStatus = is_array($lanDiscovery) ? (string)($lanDiscovery['status'] ?? 'unavailable') : 'unavailable';
+        $recommendationBlockedReason = null;
+        if ($snapshotTimeStatus !== 'valid') {
+            $recommendationBlockedReason = 'snapshot_' . $snapshotTimeStatus;
+        } elseif ($lanStatus !== 'collected') {
+            $recommendationBlockedReason = 'lan_discovery_' . $lanStatus;
         }
 
         $calculator = new IPv4Calculator();
@@ -43,6 +74,11 @@ final class AddressRecommendationEngine
             }
 
             $knownNetwork = true;
+
+            // Fail closed when the snapshot or passive LAN evidence is unavailable or stale.
+            if ($recommendationBlockedReason !== null) {
+                continue;
+            }
 
             // Fail closed: only explicitly managed address pools can produce suggestions.
             if (($network['address_space_managed'] ?? null) !== true) {
@@ -96,6 +132,17 @@ final class AddressRecommendationEngine
                 // neither may be advertised as a safe candidate until re-probed
                 // or explicitly reviewed by the user.
                 if (!empty($address['lan_evidence']) && is_array($address['lan_evidence'])) {
+                    continue;
+                }
+                $activeEvidence = is_array($address['active_scan_evidence'] ?? null) ? $address['active_scan_evidence'] : [];
+                $hasActiveResponse = false;
+                foreach ($activeEvidence as $evidence) {
+                    if (is_array($evidence) && in_array(($evidence['status'] ?? ''), ['responding', 'response_unparsed'], true)) {
+                        $hasActiveResponse = true;
+                        break;
+                    }
+                }
+                if ($hasActiveResponse) {
                     continue;
                 }
 
@@ -158,23 +205,7 @@ final class AddressRecommendationEngine
             $selected
         ));
 
-        $generatedAt = (string)($snapshot['generated_at'] ?? '');
-        $snapshotTimeStatus = 'missing';
-        $snapshotAgeSeconds = null;
-        if ($generatedAt !== '') {
-            try {
-                $snapshotTimestamp = (new \DateTimeImmutable($generatedAt))->getTimestamp();
-                $now = time();
-                if ($snapshotTimestamp > $now + 60) {
-                    $snapshotTimeStatus = 'future';
-                } else {
-                    $snapshotTimeStatus = 'valid';
-                    $snapshotAgeSeconds = max(0, $now - $snapshotTimestamp);
-                }
-            } catch (\Exception $error) {
-                $snapshotTimeStatus = 'invalid';
-            }
-        }
+
 
         return [
             'generated_at' => $generatedAt,
@@ -185,6 +216,8 @@ final class AddressRecommendationEngine
             'candidate_count' => $candidateCount,
             'dhcp_mode' => (string)($snapshot['dhcp']['mode'] ?? 'unknown'),
             'networks' => $selected,
+            'blocked_reason' => $recommendationBlockedReason,
+            'max_snapshot_age_seconds' => $maxSnapshotAgeSeconds,
             'notice' => 'Suggestions are advisory only. Candidates must be inside an explicitly managed IPv4 host range, marked available, and have no LAN neighbor evidence. REACHABLE and STALE neighbor observations are excluded pending verification. Addresses in configured DHCP dynamic pools or static reservations are excluded. When DHCP mode is unknown, no address is presented as recommendable until the user configures DHCP mode or confirms DHCP is disabled.',
         ];
     }
