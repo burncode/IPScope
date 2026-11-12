@@ -22,7 +22,7 @@ final class AddressRecommendationEngine
         }
 
         if ($offset < 0 || $offset > 10000) {
-            throw new \\InvalidArgumentException('Recommendation offset must be between 0 and 10000.');
+            throw new \InvalidArgumentException('Recommendation offset must be between 0 and 10000.');
         }
 
         if ($maxSnapshotAgeSeconds < 60 || $maxSnapshotAgeSeconds > 86400) {
