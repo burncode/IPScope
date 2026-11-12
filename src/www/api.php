@@ -280,13 +280,13 @@ try {
         $snapshot['dhcp'] = (new \IPScope\DhcpConfigStore($dhcpPath))->load();
 
         // Apply only recent explicit LAN scan evidence to recommendations.
-        $activeScan = (new \\IPScope\\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json'))->load();
+        $activeScan = (new \IPScope\LanScanResultStore('/boot/config/plugins/ipscope/lan-scan-results.json'))->load();
         if ($activeScan !== null) {
             try {
-                $scanAt = new \\DateTimeImmutable((string)($activeScan['scanned_at'] ?? ''));
+                $scanAt = new \DateTimeImmutable((string)($activeScan['scanned_at'] ?? ''));
                 $scanAge = time() - $scanAt->getTimestamp();
                 if ($scanAge >= 0 && $scanAge <= 900) {
-                    $merged = (new \\IPScope\\LanAddressMerger())->merge(
+                    $merged = (new \IPScope\LanAddressMerger())->merge(
                         $snapshot['networks'] ?? [],
                         $snapshot['lan_discovery'] ?? [],
                         $snapshot['containers'] ?? [],
@@ -295,7 +295,7 @@ try {
                     $snapshot['networks'] = $merged['networks'];
                     $snapshot['lan_discovery'] = $merged['lan_discovery'];
                 }
-            } catch (\\Throwable $error) {
+            } catch (\Throwable $error) {
                 // Invalid optional scan evidence is ignored; base evidence gates remain.
             }
         }
