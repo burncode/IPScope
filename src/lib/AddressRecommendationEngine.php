@@ -15,10 +15,14 @@ final class AddressRecommendationEngine
      * @param array<string,mixed> $snapshot
      * @return array<string,mixed>
      */
-    public function recommend(array $snapshot, ?string $networkName = null, int $limit = 20, int $maxSnapshotAgeSeconds = 900): array
+    public function recommend(array $snapshot, ?string $networkName = null, int $limit = 20, int $maxSnapshotAgeSeconds = 900, int $offset = 0): array
     {
         if ($limit < 1 || $limit > 100) {
             throw new \InvalidArgumentException('Recommendation limit must be between 1 and 100.');
+        }
+
+        if ($offset < 0 || $offset > 10000) {
+            throw new \\InvalidArgumentException('Recommendation offset must be between 0 and 10000.');
         }
 
         if ($maxSnapshotAgeSeconds < 60 || $maxSnapshotAgeSeconds > 86400) {
@@ -192,7 +196,9 @@ final class AddressRecommendationEngine
                 'driver' => (string)($network['driver'] ?? 'unknown'),
                 'subnets' => array_values(array_unique($subnets)),
                 'candidate_count' => count($candidates),
-                'candidates' => array_slice($candidates, 0, $limit),
+                'candidates' => array_slice($candidates, $offset, $limit),
+                'candidate_offset' => $offset,
+                'candidate_limit' => $limit,
             ];
         }
 
@@ -213,6 +219,7 @@ final class AddressRecommendationEngine
             'snapshot_age_seconds' => $snapshotAgeSeconds,
             'network_filter' => $networkName,
             'limit_per_network' => $limit,
+            'offset_per_network' => $offset,
             'candidate_count' => $candidateCount,
             'dhcp_mode' => (string)($snapshot['dhcp']['mode'] ?? 'unknown'),
             'networks' => $selected,
