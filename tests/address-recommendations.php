@@ -106,6 +106,20 @@ try {
 }
 $checks[] = $unknownNetworkRejected;
 
+$firstPage = $engine->recommend($snapshot, 'bond0', 1, 900, 0);
+$secondPage = $engine->recommend($snapshot, 'bond0', 1, 900, 1);
+$checks[] = count($firstPage['networks'][0]['candidates'] ?? []) === 1;
+$checks[] = count($secondPage['networks'][0]['candidates'] ?? []) === 1;
+$checks[] = ($firstPage['networks'][0]['candidates'][0]['ip'] ?? null) !== ($secondPage['networks'][0]['candidates'][0]['ip'] ?? null);
+$checks[] = ($secondPage['networks'][0]['candidate_offset'] ?? null) === 1;
+$invalidOffsetRejected = false;
+try {
+    $engine->recommend($snapshot, null, 20, 900, -1);
+} catch (InvalidArgumentException $error) {
+    $invalidOffsetRejected = true;
+}
+$checks[] = $invalidOffsetRejected;
+
 $invalidLimitRejected = false;
 try {
     $engine->recommend($snapshot, null, 101);
