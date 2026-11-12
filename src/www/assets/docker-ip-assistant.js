@@ -452,6 +452,7 @@
         if (requestId !== requestSequence) return;
         setLoading(false);
         findButton.textContent = t("js.find_available_ips");
+        refreshButton.textContent = t("js.refresh_inventory");
       });
     }
 
