@@ -15,7 +15,7 @@ final class AddressRecommendationEngine
      * @param array<string,mixed> $snapshot
      * @return array<string,mixed>
      */
-    public function recommend(array $snapshot, ?string $networkName = null, int $limit = 20, int $maxSnapshotAgeSeconds = 900, int $offset = 0): array
+    public function recommend(array $snapshot, ?string $networkName = null, int $limit = 20, int $maxSnapshotAgeSeconds = 300, int $offset = 0): array
     {
         if ($limit < 1 || $limit > 100) {
             throw new \InvalidArgumentException('Recommendation limit must be between 1 and 100.');
