@@ -302,12 +302,17 @@ try {
         $network = isset($_GET['network']) ? trim((string)$_GET['network']) : null;
         $rawLimit = $_GET['limit'] ?? '20';
         $limit = filter_var($rawLimit, FILTER_VALIDATE_INT);
-        if ($limit === false) {
+        $rawOffset = $_GET['offset'] ?? '0';
+        $offset = filter_var($rawOffset, FILTER_VALIDATE_INT);
+        if ($limit === false || $limit < 1 || $limit > 100) {
             ipscopeRespond(422, ['ok' => false, 'error' => 'Recommendation limit must be an integer between 1 and 100.']);
+        }
+        if ($offset === false || $offset < 0 || $offset > 10000) {
+            ipscopeRespond(422, ['ok' => false, 'error' => 'Recommendation offset must be an integer between 0 and 10000.']);
         }
 
         try {
-            $recommendations = (new AddressRecommendationEngine())->recommend($snapshot, $network, $limit);
+            $recommendations = (new AddressRecommendationEngine())->recommend($snapshot, $network, $limit, 900, $offset);
             ipscopeRespond(200, ['ok' => true, 'recommendations' => $recommendations]);
         } catch (InvalidArgumentException $error) {
             ipscopeRespond(422, ['ok' => false, 'error' => $error->getMessage()]);
