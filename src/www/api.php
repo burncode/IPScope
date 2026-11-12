@@ -312,7 +312,7 @@ try {
         }
 
         try {
-            $recommendations = (new AddressRecommendationEngine())->recommend($snapshot, $network, $limit, 900, $offset);
+            $recommendations = (new AddressRecommendationEngine())->recommend($snapshot, $network, $limit, 300, $offset);
             ipscopeRespond(200, ['ok' => true, 'recommendations' => $recommendations]);
         } catch (InvalidArgumentException $error) {
             ipscopeRespond(422, ['ok' => false, 'error' => $error->getMessage()]);
