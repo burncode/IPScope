@@ -125,7 +125,9 @@
     var actions = document.createElement("div");
     actions.className = "ipscope-docker-ip-actions";
 
-    var findButton = makeButton(t("js.find_available_ips"), "ipscope-docker-ip-find", loadCandidates);
+    var refreshButton = makeButton(t("js.refresh_inventory"), "ipscope-docker-ip-refresh", refreshInventory);
+    var findButton = makeButton(t("js.find_available_ips"), "ipscope-docker-ip-find", function () { loadCandidates(0); });
+    actions.appendChild(refreshButton);
     actions.appendChild(findButton);
 
     var message = document.createElement("p");
@@ -137,10 +139,26 @@
     candidates.className = "ipscope-docker-ip-candidates";
     candidates.hidden = true;
 
+    var pagination = document.createElement("div");
+    pagination.className = "ipscope-docker-ip-pagination";
+    var pageMeta = document.createElement("span");
+    pageMeta.className = "ipscope-docker-ip-page-meta";
+    var previousButton = makeButton(t("js.previous_batch"), "ipscope-docker-ip-page", function () {
+      if (currentOffset >= PAGE_SIZE) loadCandidates(currentOffset - PAGE_SIZE);
+    });
+    var nextButton = makeButton(t("js.next_batch"), "ipscope-docker-ip-page", function () {
+      if (currentOffset + PAGE_SIZE < totalCandidates) loadCandidates(currentOffset + PAGE_SIZE);
+    });
+    pagination.appendChild(pageMeta);
+    pagination.appendChild(previousButton);
+    pagination.appendChild(nextButton);
+    pagination.hidden = true;
+
     panel.appendChild(heading);
     panel.appendChild(actions);
     panel.appendChild(message);
     panel.appendChild(candidates);
+    panel.appendChild(pagination);
 
     // Keep the helper inside the native Fixed IP input cell. Inserting it as
     // a sibling of that cell makes Unraid's Markdown grid place it in column 1.
@@ -168,6 +186,9 @@
       window.addEventListener("resize", syncPanelWidth);
     }
 
+    var PAGE_SIZE = 20;
+    var currentOffset = 0;
+    var totalCandidates = 0;
     var candidateButtons = [];
     var suggestionsLoaded = false;
     var requestSequence = 0;
@@ -244,8 +265,59 @@
       candidateButtons = [];
       snapshotGeneratedAt = null;
       snapshotTimeStatus = "";
+      totalCandidates = 0;
+      currentOffset = 0;
       candidates.textContent = "";
       candidates.hidden = true;
+      pagination.hidden = true;
+    }
+
+    function setLoading(loading) {
+      findButton.disabled = loading;
+      refreshButton.disabled = loading;
+      previousButton.disabled = loading || currentOffset <= 0;
+      nextButton.disabled = loading || currentOffset + PAGE_SIZE >= totalCandidates;
+      candidateButtons.forEach(function (button) { button.disabled = loading || !isSnapshotFresh(); });
+    }
+
+    function refreshInventory() {
+      var network = currentNetwork();
+      if (!network || /^(bridge|host|container|none)$/i.test(network)) {
+        setMessage(t("js.select_a_custom_docker_network_with_a_managed_ipv4_addr"), true);
+        return;
+      }
+      var requestId = ++requestSequence;
+      setLoading(true);
+      refreshButton.textContent = t("js.refreshing_inventory");
+      setMessage(t("js.refreshing_ipscope_inventory"), false);
+      fetch(API_URL + "?action=scan", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Accept": "application/json" },
+        cache: "no-store"
+      }).then(function (response) {
+        return response.text().then(function (raw) {
+          var body;
+          try { body = raw ? JSON.parse(raw) : null; }
+          catch (error) { throw new Error(t("js.ipscope_returned_an_invalid_response")); }
+          if (!response.ok || !body || body.ok !== true) {
+            throw new Error(body && body.error ? body.error : t("js.inventory_refresh_failed"));
+          }
+          return body;
+        });
+      }).then(function () {
+        if (requestId !== requestSequence || currentNetwork() !== network) return;
+        clearCandidateState();
+        loadCandidates(0);
+        setMessage(t("js.inventory_refreshed_loading_candidates"), false);
+      }).catch(function (error) {
+        if (requestId !== requestSequence) return;
+        setMessage(error.message || t("js.inventory_refresh_failed"), true);
+      }).finally(function () {
+        if (requestId !== requestSequence) return;
+        refreshButton.disabled = false;
+        refreshButton.textContent = t("js.refresh_inventory");
+      });
     }
 
     function setMessage(text, error, warning) {
@@ -254,7 +326,8 @@
       message.classList.toggle("is-warning", !!warning && !error);
     }
 
-    function loadCandidates() {
+    function loadCandidates(offset) {
+      offset = Number.isInteger(offset) && offset >= 0 ? offset : 0;
       var network = currentNetwork();
       if (!network || /^(bridge|host|container|none)$/i.test(network)) {
         setMessage(t("js.select_a_custom_docker_network_with_a_managed_ipv4_addr"), true);
@@ -263,17 +336,12 @@
       }
 
       var requestId = ++requestSequence;
-      findButton.disabled = true;
+      setLoading(true);
       findButton.textContent = t("js.checking");
-      suggestionsLoaded = false;
-      candidateButtons = [];
-      snapshotGeneratedAt = null;
-      snapshotTimeStatus = "";
-      candidates.textContent = "";
-      candidates.hidden = true;
+      candidateButtons.forEach(function (button) { button.disabled = true; });
       setMessage(t("js.checking_the_latest_ipscope_inventory"), false);
 
-      var query = "?action=recommendations&network=" + encodeURIComponent(network) + "&limit=20";
+      var query = "?action=recommendations&network=" + encodeURIComponent(network) + "&limit=" + PAGE_SIZE + "&offset=" + offset;
       fetch(API_URL + query, {
         method: "GET",
         credentials: "same-origin",
@@ -308,6 +376,8 @@
         candidates.textContent = "";
         candidateButtons = [];
         suggestionsLoaded = true;
+        currentOffset = offset;
+        totalCandidates = selected ? Number(selected.candidate_count || 0) : 0;
 
         if (!selected || !Array.isArray(selected.candidates) || !selected.candidates.length) {
           candidates.hidden = true;
@@ -361,7 +431,13 @@
 
         var count = candidates.children.length;
         candidates.hidden = count === 0;
-        meta.textContent = count + " " + t("js.shown_snapshot") + " " + ageLabel;
+        pagination.hidden = totalCandidates <= PAGE_SIZE;
+        pageMeta.textContent = totalCandidates
+          ? (currentOffset + 1) + "–" + Math.min(currentOffset + count, totalCandidates) + " / " + totalCandidates
+          : "";
+        previousButton.disabled = currentOffset <= 0;
+        nextButton.disabled = currentOffset + PAGE_SIZE >= totalCandidates;
+        meta.textContent = totalCandidates + " " + t("js.candidates_total") + " · " + count + " " + t("js.shown_snapshot") + " " + ageLabel;
         if (!snapshotFresh && !String(ipInput.value || "").trim()) {
           setMessage(t("js.suggestions_are_disabled_because_the_inventory_snapshot"), true);
         } else {
@@ -374,7 +450,7 @@
         meta.textContent = t("js.suggestions_unavailable");
       }).finally(function () {
         if (requestId !== requestSequence) return;
-        findButton.disabled = false;
+        setLoading(false);
         findButton.textContent = t("js.find_available_ips");
       });
     }
@@ -387,6 +463,9 @@
       snapshotTimeStatus = "";
       candidates.textContent = "";
       candidates.hidden = true;
+      pagination.hidden = true;
+      totalCandidates = 0;
+      currentOffset = 0;
       meta.textContent = t("js.suggestions_are_advisory");
       setMessage(t("js.network_changed_find_available_ips_to_check_this_networ"), false);
     });
