@@ -21,7 +21,7 @@ $checks = [
     'selected IP label remains compact without appended Selected text' => str_contains($source, 'button.textContent = button.dataset.ip;') && !str_contains($source, 'button.dataset.ip + " · Selected"'),
     'find and refresh controls keep stable labels while loading' => !str_contains($source, 'findButton.textContent = t("js.checking")') && !str_contains($source, 'refreshButton.textContent = t("js.refreshing_inventory")'),
     'loading state does not disable or fade the find and refresh controls' => str_contains($source, 'panel.dataset.busy = loading ? "true" : "false";') && !str_contains($source, 'findButton.disabled = loading') && !str_contains($source, 'refreshButton.disabled = loading'),
-    'candidate list is replaced only after a recommendation response arrives' => str.indexOf('candidates.textContent = "";', str.indexOf('function loadCandidates')) > str.indexOf('}).then(function (body)', str.indexOf('function loadCandidates')),
+    'candidate list is replaced only after a recommendation response arrives' => strpos($source, 'candidates.textContent = "";', strpos($source, 'function loadCandidates')) > strpos($source, '}).then(function (body)', strpos($source, 'function loadCandidates')),
     'refresh inventory action uses the existing POST scan endpoint' => str_contains($source, 'refreshInventory') && str_contains($source, '?action=scan') && str_contains($source, 'method: "POST"'),
     'refresh inventory action is available in both locales' => isset($englishCatalog['js.refresh_inventory'], $chineseCatalog['js.refresh_inventory']),
     'recommendations request supports 20-address offset batches' => str_contains($source, 'var PAGE_SIZE = 20;') && str_contains($source, '&offset=" + offset'),
