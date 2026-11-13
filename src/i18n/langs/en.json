@@ -385,5 +385,6 @@
   "js.inventory_refreshed_loading_candidates": "Inventory refreshed. Loading available IPs…",
   "js.previous_batch": "Previous",
   "js.next_batch": "Next",
-  "js.candidates_total": "candidates"
+  "js.candidates_total": "candidates",
+  "js.ipscope_recommendation_candidate_ip_list_is_invalid": "Recommendation candidate IP list is invalid."
 }
