@@ -10,7 +10,7 @@ namespace IPScope;
 final class LanAddressMerger
 {
     /** @return array{networks:array,lan_discovery:array,conflicts:array} */
-    public function merge(array $networks, array $lanDiscovery, array $containers = []): array
+    public function merge(array $networks, array $lanDiscovery, array $containers = [], ?array $activeScan = null): array
     {
         $devices = is_array($lanDiscovery['devices'] ?? null) ? $lanDiscovery['devices'] : [];
         $deviceByIp = [];
@@ -41,6 +41,7 @@ final class LanAddressMerger
 
         $conflicts = [];
         $matchedIps = [];
+        $dockerClaimIps = [];
         foreach ($networks as &$network) {
             if (!is_array($network)) {
                 continue;
@@ -51,7 +52,25 @@ final class LanAddressMerger
                     continue;
                 }
                 $ip = $address['ip'];
+                foreach (($address['owners'] ?? []) as $owner) {
+                    if (in_array($owner['source'] ?? '', ['docker_runtime', 'docker_ipam', 'unraid_template'], true)) {
+                        $dockerClaimIps[$ip] = true;
+                        break;
+                    }
+                }
                 $address['lan_evidence'] = [];
+                $address['active_scan_evidence'] = [];
+                if (is_array($activeScan) && ($activeScan['interface'] ?? '') === ($network['name'] ?? null)) {
+                    foreach (($activeScan['results'] ?? []) as $scanResult) {
+                        if (!is_array($scanResult) || ($scanResult['ip'] ?? null) !== $ip) continue;
+                        $address['active_scan_evidence'][] = [
+                            'status' => (string)($scanResult['status'] ?? 'unknown'),
+                            'mac' => $scanResult['mac'] ?? null,
+                            'scanned_at' => $activeScan['scanned_at'] ?? null,
+                            'task_id' => $activeScan['task_id'] ?? null,
+                        ];
+                    }
+                }
                 if (isset($localByIp[$ip])) {
                     $address['lan_evidence'][] = [
                         'type' => 'local_interface',
@@ -121,6 +140,13 @@ final class LanAddressMerger
         }
 
         $lanDiscovery['matched_device_count'] = count(array_filter($devices, static fn(array $device): bool => isset($matchedIps[$device['ip'] ?? ''])));
+        // A device can match the full subnet inventory without matching any
+        // Docker reservation/occupancy claim. Keep these concepts separate.
+        $lanDiscovery['matched_inventory_address_count'] = $lanDiscovery['matched_device_count'];
+        $lanDiscovery['matched_docker_claim_count'] = count(array_filter(
+            $devices,
+            static fn(array $device): bool => isset($dockerClaimIps[$device['ip'] ?? ''])
+        ));
         $lanDiscovery['unmatched_devices'] = $unmatchedDevices;
         $lanDiscovery['availability_inferred'] = false;
 

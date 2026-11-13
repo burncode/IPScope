@@ -2,12 +2,17 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/lib/ProcessRunner.php';
+require_once __DIR__ . '/lib/LanInterfaceCollector.php';
+require_once __DIR__ . '/lib/NeighborCollector.php';
+require_once __DIR__ . '/lib/LanDiscoveryCollector.php';
+require_once __DIR__ . '/lib/LanAddressMerger.php';
 require_once __DIR__ . '/lib/DockerClient.php';
 require_once __DIR__ . '/lib/NetworkCollector.php';
 require_once __DIR__ . '/lib/ContainerCollector.php';
 require_once __DIR__ . '/lib/TemplateParser.php';
 require_once __DIR__ . '/lib/IPv4Calculator.php';
 require_once __DIR__ . '/lib/AddressInventory.php';
+require_once __DIR__ . '/lib/AddressExclusionStore.php';
 require_once __DIR__ . '/lib/SnapshotBuilder.php';
 require_once __DIR__ . '/lib/SnapshotStore.php';
 

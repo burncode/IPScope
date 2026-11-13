@@ -15,7 +15,7 @@ final class AddressInventory
      * @param list<array<string,mixed>> $templates
      * @return array{networks:list<array<string,mixed>>,conflicts:list<array<string,mixed>>}
      */
-    public function build(array $networks, array $containers, array $templates): array
+    public function build(array $networks, array $containers, array $templates, array $exclusionRules = []): array
     {
         $containerByName = [];
         foreach ($containers as $container) {
@@ -24,6 +24,13 @@ final class AddressInventory
                 $containerByName[$name] = $container;
             }
         }
+
+        // Container ID is the stable identity for claim de-duplication.
+        // Fall back to name for older fixtures/snapshots without an ID.
+        $containerIdentity = static function (array $container): string {
+            $id = trim((string)($container['id'] ?? ''));
+            return $id !== '' ? 'id:' . $id : 'name:' . (string)($container['name'] ?? 'unknown');
+        };
 
         $claims = [];
         $orphanTemplates = [];
@@ -86,6 +93,7 @@ final class AddressInventory
                 }
                 $this->addClaim($claims, $networkName, $ip, [
                     'container' => $containerName,
+                    'identity' => $containerIdentity($containerByName[$containerName]),
                     'source' => 'unraid_template',
                     'kind' => 'reservation',
                     'state' => $containerByName[$containerName]['state'] ?? 'not_found',
@@ -95,8 +103,9 @@ final class AddressInventory
 
         foreach ($containers as $container) {
             $containerName = (string)($container['name'] ?? 'unknown-container');
-            $running = (bool)($container['running'] ?? false);
-
+            $state = strtolower((string)($container['state'] ?? 'unknown'));
+            $active = (bool)($container['active'] ?? ($container['running'] ?? false))
+                || in_array($state, ['running', 'paused'], true);
             foreach (($container['networks'] ?? []) as $networkName => $details) {
                 if (!isset($networkNames[$networkName]) || !is_array($details)) {
                     continue;
@@ -105,23 +114,26 @@ final class AddressInventory
                 $actualIp = $details['ipv4'] ?? null;
                 $requestedIp = $details['ipam_ipv4'] ?? null;
 
-                if ($running && $this->isIPv4($actualIp)) {
+                if ($active && $this->isIPv4($actualIp)) {
                     $this->addClaim($claims, $networkName, $actualIp, [
                         'container' => $containerName,
+                        'identity' => $containerIdentity($container),
                         'source' => 'docker_runtime',
                         'kind' => 'occupied',
-                        'state' => 'running',
+                        'state' => $state,
                     ]);
                 }
 
-                // A stopped container's stale endpoint IP is intentionally ignored.
-                // Its explicit IPAM request, if present, remains reservation evidence.
+                // Stopped containers retain their configured IP through Docker IPAM.
+                // Paused containers remain active network owners; their actual endpoint
+                // address is treated as occupied just like a running container.
                 if ($this->isIPv4($requestedIp)) {
                     $this->addClaim($claims, $networkName, $requestedIp, [
                         'container' => $containerName,
+                        'identity' => $containerIdentity($container),
                         'source' => 'docker_ipam',
                         'kind' => 'reservation',
-                        'state' => $running ? 'running' : (string)($container['state'] ?? 'stopped'),
+                        'state' => $state,
                     ]);
                 }
             }
@@ -143,13 +155,14 @@ final class AddressInventory
                 $reservationOwners = [];
                 $systemOwners = [];
                 foreach ($owners as $owner) {
-                    $distinctContainers[$owner['container']] = true;
+                    $identity = (string)($owner['identity'] ?? $owner['container']);
+                    $distinctContainers[$identity] = (string)$owner['container'];
                     if ($owner['kind'] === 'occupied') {
-                        $runtimeOwners[$owner['container']] = true;
+                        $runtimeOwners[$identity] = (string)$owner['container'];
                     } elseif ($owner['kind'] === 'system') {
-                        $systemOwners[$owner['container']] = true;
+                        $systemOwners[$identity] = (string)$owner['container'];
                     } else {
-                        $reservationOwners[$owner['container']] = true;
+                        $reservationOwners[$identity] = (string)$owner['container'];
                     }
                 }
 
@@ -202,9 +215,9 @@ final class AddressInventory
                         'severity' => $severity,
                         'network' => $networkName,
                         'ip' => $ip,
-                        'containers' => array_keys($distinctContainers),
-                        'running_containers' => array_keys($runtimeOwners),
-                        'reserved_containers' => array_keys($reservationOwners),
+                        'containers' => array_values(array_unique(array_values($distinctContainers))),
+                        'running_containers' => array_values(array_unique(array_values($runtimeOwners))),
+                        'reserved_containers' => array_values(array_unique(array_values($reservationOwners))),
                         'runtime_owner_count' => $runtimeCount,
                         'reservation_owner_count' => $reservationCount,
                         'system_owners' => array_keys($systemOwners),
@@ -294,6 +307,34 @@ final class AddressInventory
                 }
             }
 
+            foreach ($addressMap as $ip => &$address) {
+                foreach ($exclusionRules as $rule) {
+                    if (empty($rule['enabled'])) continue;
+                    $ruleNetwork = (string)($rule['network'] ?? '*');
+                    if ($ruleNetwork !== '*' && $ruleNetwork !== $networkName) continue;
+                    $matchType = (string)($rule['match_type'] ?? '');
+                    $value = (string)($rule['value'] ?? '');
+                    $matches = $matchType === 'ip' ? $ip === $value
+                        : ($matchType === 'cidr' && (new IPv4Calculator())->contains($value, $ip));
+                    if (!$matches) continue;
+                    $address['exclusions'] ??= [];
+                    $address['exclusions'][] = ['id'=>(string)($rule['id']??''),'match_type'=>$matchType,'value'=>$value,'reason'=>(string)($rule['reason']??'')];
+                    if (($address['status'] ?? '') === 'available') {
+                        $address['status'] = 'excluded';
+                        $address['available'] = false;
+                    } else {
+                        $conflicts[] = [
+                            'type'=>'excluded_address_in_use',
+                            'severity'=>in_array(($address['status']??''),['occupied','system','conflict'],true)?'critical':'warning',
+                            'network'=>$networkName,'ip'=>$ip,'status'=>(string)($address['status']??'unknown'),
+                            'rule_id'=>(string)($rule['id']??''),'reason'=>(string)($rule['reason']??''),
+                            'owners'=>array_values(array_unique(array_map(static fn(array $owner):string=>(string)($owner['container']??''),$address['owners']??[]))),
+                        ];
+                    }
+                }
+            }
+            unset($address);
+
             $addresses = array_values($addressMap);
             usort($addresses, static function (array $a, array $b): int {
                 return ip2long($a['ip']) <=> ip2long($b['ip']);
@@ -352,7 +393,8 @@ final class AddressInventory
 
     private function addClaim(array &$claims, string $network, string $ip, array $owner): void
     {
-        $key = $owner['container'] . '|' . $owner['source'] . '|' . $owner['kind'];
+        $identity = (string)($owner['identity'] ?? $owner['container']);
+        $key = $identity . '|' . $owner['source'] . '|' . $owner['kind'];
         $claims[$network][$ip][$key] = $owner;
     }
 

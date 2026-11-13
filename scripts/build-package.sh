@@ -28,16 +28,29 @@ mkdir -p "$STAGE/usr/local/emhttp/plugins/ipscope"
 
 DEST="$STAGE/usr/local/emhttp/plugins/ipscope"
 mkdir -p "$DEST/src"
+cp -a "$ROOT/src/i18n" "$DEST/src/i18n"
+cp "$ROOT/src/version.json" "$DEST/src/version.json"
+cat > "$DEST/src/version.json" <<EOF_VERSION
+{
+  "version": "$VERSION",
+  "built_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF_VERSION
 cp -a "$ROOT/src/lib" "$DEST/src/lib"
 mkdir -p "$DEST/src/www/assets"
 cp "$ROOT/src/www/index.php" "$DEST/src/www/index.php"
 cp "$ROOT/src/www/api.php" "$DEST/src/www/api.php"
 cp -a "$ROOT/src/www/assets/." "$DEST/src/www/assets/"
+mkdir -p "$DEST/images"
+cp "$ROOT/assets/ipscope.png" "$DEST/images/ipscope.png"
 cp -a "$ROOT/src/ipscope-scan.php" "$DEST/"
 
 # The page and API live at stable plugin URLs; implementation remains under src/www.
 cp "$ROOT/packaging/IPScope.page" "$DEST/IPScope.page"
 cp "$ROOT/packaging/api.php" "$DEST/api.php"
+cp "$ROOT/packaging/IPScopeDockerHook.page" "$DEST/IPScopeDockerHook.page"
+mkdir -p "$DEST/include"
+cp "$ROOT/packaging/include/docker-hook.php" "$DEST/include/docker-hook.php"
 mkdir -p "$STAGE/install"
 cat > "$STAGE/install/slack-desc" <<'EOF'
 ipscope: IPScope (Unraid Docker IPv4 inventory)
@@ -74,12 +87,16 @@ cat > "$PLG" <<EOF
   <!ENTITY cfgdir "/boot/config/plugins/ipscope">
 ]>
 <PLUGIN name="&name;" author="burncode" version="&version;"
+        launch="Settings/IPScope" icon="images/ipscope.png"
         pluginURL="https://github.com/burncode/IPScope/releases/download/v$VERSION/ipscope.plg"
         min="7.0.0" support="https://github.com/burncode/IPScope/issues" >
   <CHANGES>
     ### $VERSION
-    - Initial installable IPScope package.
-    - Read-only Docker IPv4 inventory and saved-template reservations.
+    - Docker IP assistant with paginated recommendations and quick inventory refresh.
+    - Conservative IP recommendations using Docker, template, LAN, DHCP, and exclusion evidence.
+    - LAN device discovery, device-name hints, and active scan evidence.
+    - English and Simplified Chinese interface.
+    - See the project CHANGELOG for full details.
   </CHANGES>
   <FILE Name="&cfgdir;/&packageName;">
     <URL>&packageURL;</URL>

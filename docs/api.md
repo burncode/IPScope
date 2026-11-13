@@ -44,6 +44,16 @@ Success:
 
 Errors return `ok: false` with a short message. Detailed exceptions are written to the Unraid system log; internal paths and command output are not exposed to the browser.
 
+## Request IP suggestions
+
+```http
+GET /plugins/ipscope/api.php?action=recommendations&network=bond0&limit=20
+```
+
+The network filter is optional; `limit` is 1–100 per network. Suggestions are returned only for explicitly managed networks with a valid IPv4 host range. Each candidate includes evidence that the saved inventory marked it available and that it belongs to a managed subnet host range. This evidence describes the snapshot only; it does not prove the address is unused on the physical LAN.
+
+The response includes `generated_at`, `snapshot_time_status` (`valid`, `missing`, `invalid`, or `future`), and `snapshot_age_seconds` when the timestamp is valid. The age is calculated when the recommendation request is handled; it is not a live refresh. A future timestamp is reported as a possible system-clock mismatch.
+
 ## Runtime paths
 
 - Snapshot: `/var/local/emhttp/plugins/ipscope/snapshot.json` (RAM-backed runtime state)

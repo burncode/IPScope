@@ -36,11 +36,26 @@ final class DockerClient
     /** @return list<array<string,mixed>> */
     public function inspectNetworks(): array
     {
+        $names = $this->networkNames();
+        if ($names === []) {
+            return [];
+        }
+
+        $decoded = json_decode(
+            $this->run(array_merge(['network', 'inspect'], $names), 40),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
+
+        if (!is_array($decoded)) {
+            throw new \RuntimeException('Docker network inspect returned an invalid response.');
+        }
+
         $networks = [];
-        foreach ($this->networkNames() as $name) {
-            $decoded = json_decode($this->run(['network', 'inspect', $name]), true, 512, JSON_THROW_ON_ERROR);
-            if (isset($decoded[0]) && is_array($decoded[0])) {
-                $networks[] = $decoded[0];
+        foreach ($decoded as $network) {
+            if (is_array($network)) {
+                $networks[] = $network;
             }
         }
         return $networks;

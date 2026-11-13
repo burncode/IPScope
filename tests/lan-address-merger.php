@@ -32,7 +32,16 @@ $containers = [[
     'name'=>'webui',
     'networks'=>['bond0'=>['mac'=>'aa:bb:cc:dd:ee:99']],
 ]];
-$result=(new LanAddressMerger())->merge($networks,$lan,$containers);
+$activeScan = [
+    'interface'=>'bond0',
+    'scanned_at'=>'2026-11-11T08:00:00+08:00',
+    'task_id'=>'task-test',
+    'results'=>[
+        ['ip'=>'192.168.50.15','status'=>'responding','mac'=>'aa:bb:cc:dd:ee:15'],
+        ['ip'=>'192.168.50.222','status'=>'no_response','mac'=>null],
+    ],
+];
+$result=(new LanAddressMerger())->merge($networks,$lan,$containers,$activeScan);
 $addresses=[];
 foreach($result['networks'][0]['known_addresses'] as $address) $addresses[$address['ip']]=$address;
 $types=array_column($result['conflicts'],'type');
@@ -44,8 +53,14 @@ $checks=[
     ($addresses['192.168.50.21']['lan_evidence'][0]['status']??null)==='local',
     in_array('192.168.50.97',array_column($result['lan_discovery']['unmatched_devices'],'ip'),true),
     ($result['lan_discovery']['matched_device_count']??null)===3,
+    ($result['lan_discovery']['matched_inventory_address_count']??null)===3,
+    ($result['lan_discovery']['matched_docker_claim_count']??null)===1,
     in_array('docker_lan_mac_mismatch',$types,true),
     ($result['lan_discovery']['availability_inferred']??null)===false,
+    ($addresses['192.168.50.15']['active_scan_evidence'][0]['status']??null)==='responding',
+    ($addresses['192.168.50.222']['status']??null)==='occupied',
+    ($addresses['192.168.50.222']['available']??null)===false,
+    ($addresses['192.168.50.222']['active_scan_evidence'][0]['status']??null)==='no_response',
 ];
 foreach($checks as $i=>$passed) {
     if(!$passed) { fwrite(STDERR,'LAN address merger test failed at assertion '.($i+1).PHP_EOL); exit(1); }

@@ -39,6 +39,23 @@ $containers = [
         'name' => 'stopped-reserver', 'state' => 'exited', 'running' => false,
         'networks' => [],
     ],
+    [
+        'name' => 'paused-worker', 'state' => 'paused', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => '192.168.50.106', 'ipam_ipv4' => '192.168.50.106']],
+    ],
+    [
+        'name' => 'stopped-ipam-only', 'state' => 'exited', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => '192.168.50.107', 'ipam_ipv4' => '192.168.50.107']],
+    ],
+    [
+        'name' => 'created-ipam-only', 'state' => 'created', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => null, 'ipam_ipv4' => '192.168.50.108']],
+    ],
+    [
+        'id' => 'container-id-duplicate-name',
+        'name' => 'duplicate-id-test', 'state' => 'exited', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => null, 'ipam_ipv4' => '192.168.50.109']],
+    ],
 ];
 $templates = [
     ['name' => 'plex', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
@@ -46,6 +63,7 @@ $templates = [
     ['name' => 'mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.103']],
     ['name' => 'saved-only-app', 'network' => 'bond0', 'ips' => ['192.168.50.105']],
     ['name' => 'stopped-reserver', 'network' => 'bond0', 'ips' => ['192.168.50.104']],
+    ['name' => 'duplicate-id-test', 'network' => 'bond0', 'ips' => ['192.168.50.109']],
 ];
 
 $result = (new AddressInventory())->build($networks, $containers, $templates);
@@ -74,8 +92,13 @@ $checks = [
     ($addresses['192.168.50.100'] ?? null) === 'conflict',
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'reservation_conflict')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'active_reservation_collision')) === 1,
+    count(array_filter($result['conflicts'], static fn(array $c): bool => ($c['ip'] ?? '') === '192.168.50.106')) === 0,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
     ($addresses['192.168.50.105'] ?? null) === 'available',
+    ($addresses['192.168.50.106'] ?? null) === 'occupied',
+    ($addresses['192.168.50.107'] ?? null) === 'reserved',
+    ($addresses['192.168.50.108'] ?? null) === 'reserved',
+    ($addresses['192.168.50.109'] ?? null) === 'reserved',
     count($result['orphan_templates']) === 1,
 ];
 

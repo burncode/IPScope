@@ -28,11 +28,15 @@ final class ContainerCollector
                 ];
             }
 
+            $state = strtolower((string)($container['State']['Status'] ?? 'unknown'));
+            $active = in_array($state, ['running', 'paused'], true);
+
             $containers[] = [
                 'id' => $container['Id'] ?? null,
                 'name' => ltrim((string)($container['Name'] ?? ''), '/'),
-                'state' => $container['State']['Status'] ?? 'unknown',
-                'running' => (bool)($container['State']['Running'] ?? false),
+                'state' => $state,
+                'running' => $state === 'running',
+                'active' => $active,
                 'networks' => $networks,
             ];
         }

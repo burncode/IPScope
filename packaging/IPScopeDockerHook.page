@@ -1,0 +1,11 @@
+Menu="Buttons:99"
+Title="IPScope Docker IP Assistant"
+Icon="network-wired"
+Link="ipscope-docker-ip-hook"
+Cond="preg_match('/AddContainer|UpdateContainer/', $_SERVER['REQUEST_URI'] ?? '')"
+Markdown="false"
+---
+<?PHP
+require_once "/usr/local/emhttp/plugins/ipscope/include/docker-hook.php";
+ipscope_docker_hook_render();
+?>
