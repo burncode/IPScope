@@ -1,76 +1,86 @@
 # IPScope
 
-IPv4 address visibility and reservation tracking for Unraid Docker networks.
+IPScope is an IPv4 inventory and address-selection assistant for Unraid Docker networks.
 
-> Early development. V0.1 is read-only: it discovers Docker networks, running/stopped containers, and Unraid user-template IP reservations. It does not modify containers, networks, or templates.
+It helps users understand which addresses are known to be allocated, reserved, observed on the LAN, excluded, or suitable as candidates before creating a Docker container.
 
-## Target
+## Current status
 
-- Unraid 7.3.x
-- IPv4 only
-- PHP bundled with Unraid + Docker CLI
-- No external runtime dependencies
-- No GitHub Actions / workflow dependency
+- Target: Unraid 7.3.x
+- Address family: IPv4
+- Runtime: Unraid-provided PHP and Docker CLI; no external runtime service
+- UI: Unraid WebGUI plugin page plus Docker create/edit IP helper
+- Languages: English and Simplified Chinese
+- License: MIT
+
+The current development line is preparing the 0.1.2 release. See [CHANGELOG.md](CHANGELOG.md) for the release scope.
+
+## Main capabilities
+
+- Docker network and container address inventory.
+- Running-container allocation and stopped-container/template reservation tracking.
+- Duplicate ownership and address conflict detection.
+- LAN neighbor discovery and optional active scan evidence.
+- DHCP pool/reservation risk awareness and user-managed exclusions.
+- Candidate IP recommendations with freshness gates and pagination.
+- Docker create/edit helper to find, refresh, and select candidate addresses.
+- English and Simplified Chinese interface.
 
 ## Safety model
 
-IPScope distinguishes runtime allocations from persistent reservations:
+IPScope combines several independent evidence sources rather than treating a single scan as absolute truth:
 
-- Running container addresses are reported as allocated.
-- Stopped containers' Unraid template `MyIP` values are reported as reserved.
-- Docker inspect data is retained as a second source of truth.
-- Duplicate owners and template/runtime mismatches are reported as conflicts.
-- "Available candidate" means no known conflict was found; it is not a guarantee against DHCP clients, offline devices, or hosts outside Docker.
+- Running Docker container addresses are allocated.
+- Stopped-container and saved-template addresses can be reserved.
+- LAN neighbor and active scan responses are occupancy evidence.
+- DHCP pools, infrastructure addresses, and user exclusions affect recommendation eligibility.
+- Stale snapshots or unavailable required LAN discovery prevent recommendations.
 
-Configure exclusions for DHCP pools and infrastructure addresses before relying on candidate addresses.
+A candidate means that the current inventory has not found a known reason to exclude that address. It is **not** a guarantee that the address is unused: DHCP clients, sleeping devices, devices on isolated segments, and other hosts may not be visible. Configure DHCP exclusions/reservations and infrastructure ranges appropriately, and verify the network design before assigning addresses.
 
-## Development status
+IPScope does not automatically change Docker containers, networks, router DHCP settings, or Unraid templates.
 
-- [x] Repository initialized
-- [x] T001 base project structure and local check scripts (installable .plg packaging still pending)
-- [x] T002 initial Docker network collector (real-host validation pending)
-- [x] T003 initial all-container collector (real-host validation pending)
-- [x] T004 initial Unraid template parser + stopped-container fixture
-- [x] T005 initial IPv4 CIDR calculator + smoke tests
-- [x] T006 address ownership merge and conflict detection; install-only templates without matching Docker containers are reported separately and do not reserve IPs
-- [x] T007 snapshot builder, atomic JSON store, and read-only PHP API (installation and host verification pending)
-- [x] T008 initial read-only inventory dashboard (visual and Unraid route validation pending)
-- [x] T009 core address inventory validated on Unraid 7.3.x (bond0 /24 = 256 records; built-in bridge not expanded)
-- [x] T010 address table UI with search, status filter, owner details, and copy-IP action (browser validation pending)
-- [x] T011 saved-template audit table with orphan-template and duplicate-template-IP detection (browser validation pending)
-- [x] T012 workspace navigation: Overview, IP Manager, Templates, Conflicts, Containers
-- [x] T013 per-network IPv4 pagination (25/50/100 rows) and network overview summaries (browser validation pending)
-- [ ] T014-A initial .plg packaging and runtime installer (manual package build/release validation pending)
-- [ ] T014-B native WebGUI page and API route validation
-- [ ] T014-C install/uninstall/upgrade lifecycle validation
-- [ ] T015 Docker template integration (planned; not part of T014-A)
-- [ ] T022 plugin-owned i18n: locale resolver and starter catalogs added; UI migration and Unraid locale-switch validation pending
+## Development checks
 
-## Local checks (no Actions)
-
-Run on a machine with PHP CLI:
+Run on Unraid or another machine with PHP CLI:
 
 ```sh
-sh scripts/check-local.sh
+bash scripts/check-local.sh
 ```
 
-The Docker integration scan is intended to run on the Unraid host. It is read-only.
+If Node.js is available, the check script also runs JavaScript syntax checks.
 
+The Docker integration tests are fixture/unit tests. Validate the actual Unraid Docker create/edit page and network behavior on an Unraid host before publishing a release.
 
-## Local installation on Unraid (development)
+## Local installation on Unraid
 
-Run directly in the Unraid SSH terminal from the repository checkout as `root`.
-No second SSH connection, SCP, GitHub Release, or manual uninstall is needed.
+Run from the repository checkout as root:
 
 ```sh
 cd /root/IPScope
-git pull origin feat/t016-a-inventory-interactions
+git fetch origin
+git switch feat/t024-runtime-reservations
+git pull --ff-only origin feat/t024-runtime-reservations
 bash scripts/install-local.sh
 ```
 
-The script runs local checks, builds a development `.txz`, verifies the WebGUI entry
-files, and replaces the installed package with `upgradepkg --install-new`.
-Pass an explicit version if desired: `bash scripts/install-local.sh 0.1.1-dev.1`.
+The installer runs the local checks, builds a development Slackware package, verifies required WebGUI files, and installs it locally.
+
+To specify a development build label:
+
+```sh
+bash scripts/install-local.sh 0.1.2-dev.1
+```
+
+## Release packaging
+
+Build a release candidate package after all checks and Unraid host validation pass:
+
+```sh
+bash scripts/build-package.sh 0.1.2
+```
+
+The package and PLG manifest are written to `dist/`. Do not publish them until the package install, upgrade, and uninstall lifecycle has been verified on the target Unraid version.
 
 ## License
 
