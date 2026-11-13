@@ -26,7 +26,16 @@ $checks = [
     'refresh inventory action is available in both locales' => isset($englishCatalog['js.refresh_inventory'], $chineseCatalog['js.refresh_inventory']),
     'recommendations request supports 20-address offset batches' => str_contains($source, 'var PAGE_SIZE = 20;') && str_contains($source, '&offset=" + offset'),
     'pagination controls show total candidate count and batch range' => str_contains($source, 'totalCandidates') && str_contains($source, 'previousButton') && str_contains($source, 'nextButton'),
-    'loading keeps current candidate DOM until replacement response arrives' => strpos($source, 'candidates.textContent = "";', strpos($source, 'function loadCandidates')) > strpos($source, '}).then(function (body)', strpos($source, 'function loadCandidates')) && !str_contains(substr($source, strpos($source, 'function loadCandidates'), strpos($source, 'function loadCandidates') + 650), 'candidates.textContent = "";'),
+    'loading keeps current candidate DOM until replacement response arrives' => (function () use ($source) {
+        $start = strpos($source, 'function loadCandidates');
+        $fetch = strpos($source, 'fetch(API_URL + query', $start);
+        $response = strpos($source, '}).then(function (body)', $fetch);
+        $replace = strpos($source, 'candidates.textContent = "";', $response);
+        return $start !== false && $fetch !== false && $response !== false && $replace !== false
+            && strpos(substr($source, $start, $fetch - $start), 'candidates.textContent = "";') === false
+            && strpos(substr($source, $start, $fetch - $start), 'setLoading(true);') !== false
+            && $replace > $response;
+    })(),
     'pagination styles are included' => str_contains($css, '.ipscope-docker-ip-pagination'),
     'helper is appended inside the native Fixed IP input cell' => str_contains($source, 'anchor.appendChild(panel)'),
     'helper does not become a sibling grid cell' => !str_contains($source, 'anchor.parentElement.insertBefore(panel, anchor.nextSibling)'),
