@@ -196,6 +196,9 @@ final class AddressRecommendationEngine
                 'driver' => (string)($network['driver'] ?? 'unknown'),
                 'subnets' => array_values(array_unique($subnets)),
                 'candidate_count' => count($candidates),
+                // Compact full membership list lets the Docker helper validate
+                // a selected IP regardless of which 20-item page is visible.
+                'candidate_ips' => array_column($candidates, 'ip'),
                 'candidates' => array_slice($candidates, $offset, $limit),
                 'candidate_offset' => $offset,
                 'candidate_limit' => $limit,
