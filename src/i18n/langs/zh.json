@@ -385,5 +385,6 @@
   "js.inventory_refreshed_loading_candidates": "数据已刷新，正在加载可用 IP…",
   "js.previous_batch": "上一批",
   "js.next_batch": "下一批",
-  "js.candidates_total": "个候选"
+  "js.candidates_total": "个候选",
+  "js.ipscope_recommendation_candidate_ip_list_is_invalid": "推荐 IP 地址清单无效。"
 }
