@@ -2,7 +2,7 @@
 
 All notable IPScope changes are documented here.
 
-## [0.1.2] - Unreleased
+## [0.1.2] - 2026-11-13
 
 ### Added
 - LAN device discovery with device-name resolution and recognizable device-type hints.
