@@ -126,7 +126,7 @@
     actions.className = "ipscope-docker-ip-actions";
 
     var refreshButton = makeButton(t("js.refresh_inventory"), "ipscope-docker-ip-refresh", refreshInventory);
-    var findButton = makeButton(t("js.find_available_ips"), "ipscope-docker-ip-find", function () { loadCandidates(0); });
+    var findButton = makeButton(t("js.find_available_ips"), "ipscope-docker-ip-find", function () { loadCandidates(0, true); });
     actions.appendChild(refreshButton);
     actions.appendChild(findButton);
 
@@ -190,6 +190,7 @@
     var currentOffset = 0;
     var totalCandidates = 0;
     var candidateButtons = [];
+    var knownCandidateIps = Object.create(null);
     var suggestionsLoaded = false;
     var requestSequence = 0;
     var snapshotGeneratedAt = null;
@@ -215,12 +216,16 @@
     function syncSelectedCandidate() {
       var currentIp = String(ipInput.value || "").trim();
       var matchingButton = null;
-      var snapshotFresh = candidateButtons.length > 0 && isSnapshotFresh();
+      var matchingKnownCandidate = !!knownCandidateIps[currentIp];
+      var snapshotFresh = suggestionsLoaded && isSnapshotFresh();
 
       candidateButtons.forEach(function (button) {
         var selected = button.dataset.ip === currentIp;
         var buttonSnapshotFresh = isSnapshotFresh();
-        if (selected) matchingButton = button;
+        if (selected) {
+          matchingButton = button;
+          matchingKnownCandidate = true;
+        }
 
         // A stale recommendation must never look like a verified selection.
         button.classList.toggle("is-selected", selected && buttonSnapshotFresh);
@@ -239,18 +244,16 @@
           button.title = t("js.select_this_ip_address");
         }
 
-        button.textContent = selected && buttonSnapshotFresh
-          ? button.dataset.ip + " · Selected"
-          : button.dataset.ip;
+        button.textContent = button.dataset.ip;
       });
 
       if (!suggestionsLoaded) return;
 
       if (!currentIp) {
         setMessage(t("js.select_an_address_to_fill_the_fixed_ip_address_field_ip"), false);
-      } else if (matchingButton && snapshotFresh) {
+      } else if (matchingKnownCandidate && snapshotFresh) {
         setMessage(t("js.selected_ip_review_the_container_settings_before_applyi").replace("{ip}", currentIp), false);
-      } else if (matchingButton) {
+      } else if (matchingKnownCandidate) {
         setMessage(t("js.fixed_ip_ip_matches_an_old_suggestion_but_the_inventory").replace("{ip}", currentIp), false, true);
       } else {
         setMessage(t("js.fixed_ip_ip_is_not_in_the_current_ipscope_suggestions_i").replace("{ip}", currentIp), false, true);
@@ -263,6 +266,7 @@
     function clearCandidateState() {
       suggestionsLoaded = false;
       candidateButtons = [];
+      knownCandidateIps = Object.create(null);
       snapshotGeneratedAt = null;
       snapshotTimeStatus = "";
       totalCandidates = 0;
@@ -273,14 +277,14 @@
     }
 
     function setLoading(loading) {
-      findButton.disabled = loading;
-      refreshButton.disabled = loading;
+      panel.dataset.busy = loading ? "true" : "false";
+      panel.setAttribute("aria-busy", loading ? "true" : "false");
       previousButton.disabled = loading || currentOffset <= 0;
       nextButton.disabled = loading || currentOffset + PAGE_SIZE >= totalCandidates;
-      candidateButtons.forEach(function (button) { button.disabled = loading || !isSnapshotFresh(); });
     }
 
     function refreshInventory() {
+      if (panel.dataset.busy === "true") return;
       var network = currentNetwork();
       if (!network || /^(bridge|host|container|none)$/i.test(network)) {
         setMessage(t("js.select_a_custom_docker_network_with_a_managed_ipv4_addr"), true);
@@ -288,12 +292,15 @@
       }
       var requestId = ++requestSequence;
       setLoading(true);
-      refreshButton.textContent = t("js.refreshing_inventory");
       setMessage(t("js.refreshing_ipscope_inventory"), false);
+      var scanHeaders = { "Accept": "application/json" };
+      if (typeof csrf_token !== "undefined" && csrf_token) {
+        scanHeaders["X-CSRF-Token"] = csrf_token;
+      }
       fetch(API_URL + "?action=scan", {
         method: "POST",
         credentials: "same-origin",
-        headers: { "Accept": "application/json" },
+        headers: scanHeaders,
         cache: "no-store"
       }).then(function (response) {
         return response.text().then(function (raw) {
@@ -308,15 +315,15 @@
       }).then(function () {
         if (requestId !== requestSequence || currentNetwork() !== network) return;
         clearCandidateState();
-        loadCandidates(0);
+        setLoading(false);
         setMessage(t("js.inventory_refreshed_loading_candidates"), false);
+        loadCandidates(0, true);
       }).catch(function (error) {
         if (requestId !== requestSequence) return;
         setMessage(error.message || t("js.inventory_refresh_failed"), true);
       }).finally(function () {
         if (requestId !== requestSequence) return;
         setLoading(false);
-        refreshButton.textContent = t("js.refresh_inventory");
       });
     }
 
@@ -326,8 +333,10 @@
       message.classList.toggle("is-warning", !!warning && !error);
     }
 
-    function loadCandidates(offset) {
+    function loadCandidates(offset, resetKnownCandidates) {
+      if (panel.dataset.busy === "true") return;
       offset = Number.isInteger(offset) && offset >= 0 ? offset : 0;
+      if (resetKnownCandidates) knownCandidateIps = Object.create(null);
       var network = currentNetwork();
       if (!network || /^(bridge|host|container|none)$/i.test(network)) {
         setMessage(t("js.select_a_custom_docker_network_with_a_managed_ipv4_addr"), true);
@@ -337,8 +346,6 @@
 
       var requestId = ++requestSequence;
       setLoading(true);
-      findButton.textContent = t("js.checking");
-      candidateButtons.forEach(function (button) { button.disabled = true; });
       setMessage(t("js.checking_the_latest_ipscope_inventory"), false);
 
       var query = "?action=recommendations&network=" + encodeURIComponent(network) + "&limit=" + PAGE_SIZE + "&offset=" + offset;
@@ -373,6 +380,10 @@
         var validated = validateRecommendationPayload(body, network);
         var recommendation = validated.recommendation;
         var selected = validated.selected;
+        var incomingCandidates = selected && Array.isArray(selected.candidates) ? selected.candidates : [];
+        incomingCandidates.forEach(function (candidate) {
+          knownCandidateIps[String(candidate.ip)] = true;
+        });
         candidates.textContent = "";
         candidateButtons = [];
         suggestionsLoaded = true;
@@ -402,6 +413,7 @@
           var ip = String(candidate.ip || "");
           if (!/^\d{1,3}(?:\.\d{1,3}){3}$/.test(ip)) return;
           var useButton = makeButton(ip, "ipscope-docker-ip-candidate", function () {
+            if (panel.dataset.busy === "true") return;
             if (!isSnapshotFresh()) {
               syncSelectedCandidate();
               setMessage(t("js.this_inventory_snapshot_is_not_fresh_enough_rescan_in_i"), true);
@@ -452,8 +464,6 @@
       }).finally(function () {
         if (requestId !== requestSequence) return;
         setLoading(false);
-        findButton.textContent = t("js.find_available_ips");
-        refreshButton.textContent = t("js.refresh_inventory");
       });
     }
 
@@ -461,6 +471,7 @@
       requestSequence += 1;
       suggestionsLoaded = false;
       candidateButtons = [];
+      knownCandidateIps = Object.create(null);
       snapshotGeneratedAt = null;
       snapshotTimeStatus = "";
       candidates.textContent = "";
