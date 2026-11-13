@@ -13,7 +13,7 @@ It helps users understand which addresses are known to be allocated, reserved, o
 - Languages: English and Simplified Chinese
 - License: MIT
 
-The current development line is preparing the 0.1.2 release. See [CHANGELOG.md](CHANGELOG.md) for the release scope.
+Release 0.1.2 has passed RC validation on Unraid 7.3.x. See [CHANGELOG.md](CHANGELOG.md) for the release scope.
 
 ## Main capabilities
 
