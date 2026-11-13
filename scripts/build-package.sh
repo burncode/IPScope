@@ -92,8 +92,11 @@ cat > "$PLG" <<EOF
         min="7.0.0" support="https://github.com/burncode/IPScope/issues" >
   <CHANGES>
     ### $VERSION
-    - Initial installable IPScope package.
-    - Read-only Docker IPv4 inventory and saved-template reservations.
+    - Docker IP assistant with paginated recommendations and quick inventory refresh.
+    - Conservative IP recommendations using Docker, template, LAN, DHCP, and exclusion evidence.
+    - LAN device discovery, device-name hints, and active scan evidence.
+    - English and Simplified Chinese interface.
+    - See the project CHANGELOG for full details.
   </CHANGES>
   <FILE Name="&cfgdir;/&packageName;">
     <URL>&packageURL;</URL>
