@@ -15,7 +15,7 @@ $chineseCatalog = json_decode((string)file_get_contents(__DIR__ . '/../src/i18n/
 
 $checks = [
     'recommendation API applies the five-minute freshness limit' => str_contains($api, '->recommend($snapshot, $network, $limit, 300, $offset)') && str_contains($engine, 'int $maxSnapshotAgeSeconds = 300'),
-    'refresh failure restores both helper actions' => str_contains($source, 'setLoading(false);') && str_contains($source, 'refreshButton.textContent = t("js.refresh_inventory");'),
+    'refresh failure reports the error and always clears the loading state' => str_contains($source, 'function refreshInventory()') && str_contains($source, 'setMessage(error.message || t("js.inventory_refresh_failed"), true);') && str_contains($source, '}).finally(function () {') && str_contains($source, 'if (requestId !== requestSequence) return;') && str_contains($source, 'setLoading(false);'),
     'refresh scan request includes the Unraid CSRF token' => str_contains($source, 'scanHeaders["X-CSRF-Token"] = csrf_token;'),
     'pagination preserves candidate identities from previously visited pages' => str_contains($source, 'var knownCandidateIps = Object.create(null);') && str_contains($source, 'knownCandidateIps[String(candidate.ip)] = true;') && str_contains($source, 'matchingKnownCandidate && snapshotFresh'),
     'selected IP label remains compact without appended Selected text' => str_contains($source, 'button.textContent = button.dataset.ip;') && !str_contains($source, 'button.dataset.ip + " · Selected"'),
