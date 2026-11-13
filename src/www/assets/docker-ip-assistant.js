@@ -62,6 +62,21 @@
 
     var selected = matches[0] || null;
     if (selected) {
+      if (selected.candidate_ips !== undefined) {
+        if (!Array.isArray(selected.candidate_ips)) {
+          throw new Error(t("js.ipscope_recommendation_candidate_ip_list_is_invalid"));
+        }
+        var seenCandidateIps = Object.create(null);
+        selected.candidate_ips.forEach(function (ip) {
+          if (!isValidIPv4Address(ip) || seenCandidateIps[ip]) {
+            throw new Error(t("js.ipscope_recommendation_candidate_ip_list_is_invalid"));
+          }
+          seenCandidateIps[ip] = true;
+        });
+        if (selected.candidate_count !== selected.candidate_ips.length) {
+          throw new Error(t("js.ipscope_recommendation_candidate_ip_list_is_invalid"));
+        }
+      }
       var seenCandidates = Object.create(null);
       selected.candidates.forEach(function (candidate) {
         if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
@@ -381,9 +396,17 @@
         var recommendation = validated.recommendation;
         var selected = validated.selected;
         var incomingCandidates = selected && Array.isArray(selected.candidates) ? selected.candidates : [];
-        incomingCandidates.forEach(function (candidate) {
-          knownCandidateIps[String(candidate.ip)] = true;
-        });
+        // Validate against every candidate, not only the visible 20-item page.
+        if (selected && Array.isArray(selected.candidate_ips)) {
+          knownCandidateIps = Object.create(null);
+          selected.candidate_ips.forEach(function (ip) {
+            knownCandidateIps[String(ip)] = true;
+          });
+        } else {
+          incomingCandidates.forEach(function (candidate) {
+            knownCandidateIps[String(candidate.ip)] = true;
+          });
+        }
         candidates.textContent = "";
         candidateButtons = [];
         suggestionsLoaded = true;
