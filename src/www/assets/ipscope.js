@@ -144,7 +144,9 @@
         var status = address.status || "reserved";
         var ownerNames = Array.from(new Set((address.owners || []).map(function (owner) {
           return owner.container;
-        }).filter(Boolean)));
+        }).filter(function (name) {
+          return Boolean(name) && String(name).indexOf("system:") !== 0;
+        })));
         var ownerText = ownerNames.length ? ownerNames.join(", ") : "—";
         var reason = address.system_reason ? address.system_reason.replace(/_/g, " ") : "";
         var exclusionReasons = (address.exclusions || []).map(function (rule) { return rule.reason; }).filter(Boolean);
