@@ -22,6 +22,7 @@ php tests/dhcp-config-risk.php
 php tests/dhcp-ui.php
 php tests/docker-ip-hook.php
 php tests/docker-ip-assistant-ui.php
+php tests/ip-management-ui.php
 php tests/snapshot-store.php
 php tests/snapshot-store-concurrency.php
 php tests/snapshot-store-failures.php
