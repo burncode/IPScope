@@ -250,6 +250,22 @@
           detailRight = '<section class="address-detail-panel"><h4>' + t("js.address_status_information") + '</h4>' +
             '<p class="detail-empty">' + (status === "available" ? t("js.no_docker_owner_detected") : t("js.address_has_no_runtime_owner")) + '</p></section>';
         }
+        var matchingExclusions = address.exclusions || [];
+        var disabledRule = exclusionRules.find(function (rule) {
+          return !rule.enabled && (rule.network === "*" || rule.network === network.name) &&
+            (rule.match_type === "ip" ? rule.value === address.ip : cidrContains(rule.value, address.ip));
+        });
+        var exclusionAction = matchingExclusions.length ?
+          '<div class="detail-exclusion-state"><span class="status-pill status-excluded">' + t("js.excluded_by_rule") + '</span>' +
+          '<span>' + escapeHtml(matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ")) + '</span>' +
+          '<button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("js.view_rule") + '</button></div>' :
+          (disabledRule ?
+            '<div class="detail-exclusion-action"><span class="muted-inline">' + t("js.a_matching_rule_is_disabled") + '</span>' +
+            '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("js.enable_rule") + '</button></div>' :
+            '<form class="detail-exclusion-action" data-detail-exclusion-form>' +
+            '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclude_this_ip") + '</span>' +
+            '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("js.reason_e_g_dhcp_reservation") + '" required></label>' +
+            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.add_rule") + '</button></form>');
         var detailContent = '<div class="address-detail-layout">' + addressInformation + detailRight + '</div>' +
           '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>';
         var ownerChips = ownerNames.length ? ownerNames.map(function (name) {
