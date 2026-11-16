@@ -87,10 +87,12 @@
         row.hidden = !show;
         var detailRow = row.nextElementSibling;
         if (detailRow && detailRow.classList.contains("address-detail-row")) {
-          detailRow.hidden = !show || detailRow.hidden;
           if (!show) {
+            detailRow.hidden = true;
             var detailButton = row.querySelector("[data-toggle-details]");
-            if (detailButton) detailButton.textContent = t("js.details");
+            if (detailButton) detailButton.setAttribute("aria-expanded", "false");
+          } else {
+            detailRow.hidden = detailRow.hidden;
           }
         }
       });
@@ -131,6 +133,10 @@
     setMetric("metric-conflicts", summary.conflict_count || 0);
 
     var networks = snapshot.networks || [];
+    var containersByName = Object.create(null);
+    (snapshot.containers || []).forEach(function (container) {
+      if (container && container.name) containersByName[container.name] = container;
+    });
     document.getElementById("network-list").innerHTML = networks.map(function (network) {
       var addresses = network.known_addresses || [];
       var subnet = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
@@ -153,44 +159,108 @@
           excluded: t("js.excluded")
         }[status] || status;
         var detailKey = network.name + "|" + address.ip;
-        var ownerDetails = (address.owners || []).map(function (owner) {
-          return '<div class="detail-owner"><strong>' + escapeHtml(owner.container) + '</strong>' +
-            '<span>' + escapeHtml(owner.source || t("js.unknown_source")) + '</span>' +
-            '<span>' + escapeHtml(owner.kind || t("js.unknown")) + '</span>' +
-            '<span>' + escapeHtml(owner.state || t("js.unknown_state")) + '</span></div>';
-        }).join("");
-        var matchingExclusions = address.exclusions || [];
-        var disabledRule = exclusionRules.find(function (rule) {
-          return !rule.enabled && (rule.network === "*" || rule.network === network.name) &&
-            (rule.match_type === "ip" ? rule.value === address.ip : cidrContains(rule.value, address.ip));
+        var detailOwnersByName = Object.create(null);
+        (address.owners || []).forEach(function (owner) {
+          var name = String(owner.container || "");
+          if (!name || name.indexOf("system:") === 0) return;
+          var identity = String(owner.identity || name);
+          var existing = detailOwnersByName[identity];
+          if (!existing || (existing.kind !== "occupied" && owner.kind === "occupied")) {
+            detailOwnersByName[identity] = owner;
+          }
         });
-        var exclusionAction = matchingExclusions.length ?
-          '<div class="detail-exclusion-state"><span class="status-pill status-excluded">' + t("js.excluded_by_rule") + '</span>' +
-          '<span>' + escapeHtml(matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ")) + '</span>' +
-          '<button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("js.view_rule") + '</button></div>' :
-          (disabledRule ?
-            '<div class="detail-exclusion-action"><span class="muted-inline">' + t("js.a_matching_rule_is_disabled") + '</span>' +
-            '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("js.enable_rule") + '</button></div>' :
-            '<form class="detail-exclusion-action" data-detail-exclusion-form>' +
-            '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclude_this_ip") + '</span>' +
-            '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("js.reason_e_g_dhcp_reservation") + '" required></label>' +
-            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.add_rule") + '</button></form>');
-        var detailContent = '<div class="address-detail-content">' +
-          '<div><span class="detail-label">' + t("js.network") + '</span><strong>' + escapeHtml(network.name) + '</strong></div>' +
-          '<div><span class="detail-label">' + t("js.address_state") + '</span><strong>' + escapeHtml(label) + '</strong></div>' +
-          '<div><span class="detail-label">' + t("js.runtime_owners") + '</span><strong>' + escapeHtml(address.runtime_owner_count || 0) + '</strong></div>' +
-          '<div><span class="detail-label">' + t("js.reservation_owners") + '</span><strong>' + escapeHtml(address.reservation_owner_count || 0) + '</strong></div>' +
-          (reason ? '<div><span class="detail-label">' + t("js.system_reason") + '</span><strong>' + escapeHtml(reason) + '</strong></div>' : '') +
-          (exclusionReasons.length ? '<div><span class="detail-label">' + t("js.exclusion_reason") + '</span><strong>' + escapeHtml(exclusionReasons.join(", ")) + '</strong></div>' : '') +
-          '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>' +
-          '<div class="detail-owner-list">' + (ownerDetails || '<span class="muted-inline">' + t("js.no_known_owner_candidate_is_based_on_docker_and_saved_t") + '</span>') + '</div>' +
-          '</div>';
-        return '<tr class="address-row" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
-          '<td class="ip-cell">' + escapeHtml(address.ip) + '</td>' +
+        var detailOwners = Object.keys(detailOwnersByName).map(function (identity) {
+          var owner = detailOwnersByName[identity];
+          var container = containersByName[owner.container] || null;
+          var networkDetails = container && container.networks ? container.networks[network.name] : null;
+          var mac = networkDetails && networkDetails.mac ? networkDetails.mac : "";
+          var containerIp = networkDetails && (networkDetails.ipv4 || networkDetails.ipam_ipv4)
+            ? (networkDetails.ipv4 || networkDetails.ipam_ipv4) : address.ip;
+          var state = String(owner.state || (container && container.state) || "unknown").toLowerCase();
+          var stateLabel = state === "running" ? t("js.running") :
+            (state === "paused" ? t("js.paused") :
+            (state === "exited" || state === "stopped" ? t("js.stopped") : t("js.unknown_state")));
+          return {
+            name: owner.container,
+            source: String(owner.source || ""),
+            kind: String(owner.kind || ""),
+            state: stateLabel,
+            ip: containerIp,
+            mac: mac
+          };
+        });
+        var ownerDetails = detailOwners.map(function (owner) {
+          return '<div class="detail-entity-card">' +
+            '<div class="detail-entity-heading"><strong>' + escapeHtml(owner.name) + '</strong>' +
+            '<span class="detail-state-pill ' + (owner.state === t("js.running") ? 'is-running' : '') + '">' + escapeHtml(owner.state) + '</span></div>' +
+            '<div class="detail-entity-meta"><span>' + t("js.container_ip") + ' <strong>' + escapeHtml(owner.ip) + '</strong></span>' +
+            (owner.mac ? '<span>MAC <strong>' + escapeHtml(owner.mac) + '</strong></span>' : '') + '</div></div>';
+        }).join("");
+        var addressInformation = '<section class="address-detail-panel">' +
+          '<h4>' + t("js.address_information") + '</h4>' +
+          '<dl class="address-detail-list">' +
+          '<div><dt>' + t("js.ip_address") + '</dt><dd><code>' + escapeHtml(address.ip) + '</code></dd></div>' +
+          '<div><dt>' + t("js.network") + '</dt><dd>' + escapeHtml(network.name) + '</dd></div>' +
+          '<div><dt>' + t("js.address_state") + '</dt><dd><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></dd></div>' +
+          (status === "conflict" ? '<div><dt>' + t("js.conflict_count") + '</dt><dd>' + detailOwners.length + '</dd></div>' : '') +
+          '</dl></section>';
+        var detailRight = "";
+        if (status === "occupied") {
+          detailRight = '<section class="address-detail-panel"><h4>' + t("js.container_information") + '</h4>' +
+            (ownerDetails || '<p class="detail-empty">' + t("js.no_container_details") + '</p>') + '</section>';
+        } else if (status === "conflict") {
+          detailRight = '<section class="address-detail-panel"><h4>' + t("js.occupied_containers") + ' (' + detailOwners.length + ')</h4>' +
+            (ownerDetails || '<p class="detail-empty">' + t("js.no_container_details") + '</p>') + '</section>';
+        } else if (status === "reserved") {
+          var reservationOwner = detailOwners[0] || null;
+          var rawReservationSource = reservationOwner ? reservationOwner.source : "";
+          var reservationSource = rawReservationSource === "unraid_template" ? t("js.container_template") :
+            (rawReservationSource === "docker_ipam" ? "Docker IPAM" : t("js.unknown_source"));
+          var reservationReason = reservationOwner && reservationOwner.state
+            ? (reservationOwner.state === t("js.stopped") ? t("js.stopped_container_keeps_ip") : t("js.saved_container_ip_reservation"))
+            : t("js.saved_ip_reservation");
+          detailRight = '<section class="address-detail-panel"><h4>' + t("js.reservation_information") + '</h4>' +
+            '<dl class="address-detail-list">' +
+            '<div><dt>' + t("js.reservation_source") + '</dt><dd>' + escapeHtml(reservationSource) + '</dd></div>' +
+            '<div><dt>' + t("js.related_container") + '</dt><dd>' + escapeHtml(reservationOwner ? reservationOwner.name : t("js.not_available")) + '</dd></div>' +
+            '<div><dt>' + t("js.reservation_type") + '</dt><dd>' + escapeHtml(rawReservationSource === "unraid_template" ? t("js.template_reservation") : t("js.docker_ipam_reservation")) + '</dd></div>' +
+            '<div><dt>' + t("js.reservation_reason") + '</dt><dd>' + escapeHtml(reservationReason) + '</dd></div>' +
+            '</dl></section>';
+        } else if (status === "system") {
+          var systemOwnerNames = (address.owners || []).filter(function (owner) {
+            return owner.kind === "system" && owner.container;
+          }).map(function (owner) { return String(owner.container).replace(/^system:/, ""); });
+          var systemReason = address.system_reason || systemOwnerNames[0] || "system";
+          var systemReasonLabel = ({
+            gateway: t("js.system_gateway"),
+            auxiliary: t("js.system_auxiliary_address"),
+            network_address: t("js.system_network_address"),
+            broadcast_address: t("js.system_broadcast_address")
+          })[systemReason] || systemReason.replace(/_/g, " ");
+          var subnetLabel = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
+          detailRight = '<section class="address-detail-panel"><h4>' + t("js.system_information") + '</h4>' +
+            '<dl class="address-detail-list">' +
+            '<div><dt>' + t("js.system_usage") + '</dt><dd>' + escapeHtml(systemReasonLabel) + '</dd></div>' +
+            '<div><dt>' + t("js.usage_details") + '</dt><dd>' + escapeHtml(t("js.docker_network_infrastructure_address")) + '</dd></div>' +
+            '<div><dt>' + t("js.reservation_scope") + '</dt><dd><code>' + escapeHtml(subnetLabel || t("js.not_available")) + '</code></dd></div>' +
+            '</dl></section>';
+        } else {
+          detailRight = '<section class="address-detail-panel"><h4>' + t("js.address_status_information") + '</h4>' +
+            '<p class="detail-empty">' + (status === "available" ? t("js.no_docker_owner_detected") : t("js.address_has_no_runtime_owner")) + '</p></section>';
+        }
+        var detailContent = '<div class="address-detail-layout">' + addressInformation + detailRight + '</div>' +
+          '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>';
+        var ownerChips = ownerNames.length ? ownerNames.map(function (name) {
+          return '<span class="address-owner-chip' + (status === "conflict" ? ' is-conflict' : '') + '">' + escapeHtml(name) + '</span>';
+        }).join("") : (reason ? '<span class="muted-inline">' + escapeHtml(reason) + '</span>' : '—');
+        return '<tr class="address-row status-row-' + escapeHtml(status) + '" data-status="' + escapeHtml(status) + '" data-search="' + escapeHtml(searchText) + '">' +
+          '<td class="ip-cell"><code>' + escapeHtml(address.ip) + '</code></td>' +
           '<td><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></td>' +
-          '<td title="' + escapeHtml(ownerText + (reason ? ' · ' + reason : '') + (exclusionReasons.length ? ' · ' + t("js.exclusion") + ' ' + exclusionReasons.join(', ') : '')) + '">' + escapeHtml(ownerText) + (reason ? ' <span class="muted-inline">· ' + escapeHtml(reason) + '</span>' : '') + (exclusionReasons.length ? ' <span class="exclusion-match-tag" title="' + escapeHtml(exclusionReasons.join(', ')) + '">' + t("js.rule_match") + '</span>' : '') + '</td>' +
-          '<td class="address-actions"><button class="copy-ip" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="' + t("js.copy") + ' ' + escapeHtml(address.ip) + '">' + t("js.copy") + '</button>' +
-          '<button class="details-ip" type="button" data-toggle-details="' + escapeHtml(detailKey) + '">' + t("js.details") + '</button></td>' +
+          '<td class="address-owner-cell">' + ownerChips + (exclusionReasons.length ? ' <span class="exclusion-match-tag" title="' + escapeHtml(exclusionReasons.join(', ')) + '">' + t("js.rule_match") + '</span>' : '') + '</td>' +
+          '<td class="address-actions"><button class="copy-ip icon-action" type="button" data-copy-ip="' + escapeHtml(address.ip) + '" aria-label="' + t("js.copy") + ' ' + escapeHtml(address.ip) + '" title="' + t("js.copy") + '">' +
+          '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2"></path></svg></button>' +
+          '<button class="details-ip icon-action" type="button" data-toggle-details="' + escapeHtml(detailKey) + '" aria-expanded="false" aria-label="' + t("js.details") + '" title="' + t("js.details") + '">' +
+          '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"></path></svg></button></td>' +
           '</tr><tr class="address-detail-row" data-detail-for="' + escapeHtml(detailKey) + '" hidden><td colspan="4">' + detailContent + '</td></tr>';
       }).join("");
       var managed = network.address_space_managed !== false;
@@ -965,7 +1035,8 @@
       });
       if (detailRow) {
         detailRow.hidden = !detailRow.hidden;
-        detailsButton.textContent = detailRow.hidden ? t("js.details") : t("js.hide");
+        detailsButton.setAttribute("aria-expanded", detailRow.hidden ? "false" : "true");
+        detailsButton.classList.toggle("is-expanded", !detailRow.hidden);
       }
       return;
     }
