@@ -30,6 +30,10 @@ $checks = [
         str_contains($js, 'aria-expanded="false"') && str_contains($js, 'detailsButton.setAttribute("aria-expanded"'),
     'exclusion rule actions remain available in the detail panel' =>
         str_contains($js, 'detail-exclusion-wrap') && str_contains($js, 'data-detail-exclusion-form'),
+    'exclusion action is initialized before detail content references it' =>
+        strpos($js, 'var exclusionAction =') !== false &&
+        strpos($js, 'var exclusionAction =') < strpos($js, "' + exclusionAction + '") &&
+        str_contains($js, 'data-add-exclusion') && str_contains($js, 'data-enable-exclusion'),
     'two-column detail panels align and collapse responsively' =>
         str_contains($css, '.address-detail-layout') && str_contains($css, 'align-items: stretch') && str_contains($css, '@media (max-width: 900px)'),
     'conflict rows use a restrained red treatment' =>
