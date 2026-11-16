@@ -731,3 +731,200 @@ tbody tr:last-child td { border-bottom: 0; }
  .lan-device-cell { min-width:150px; gap:7px; }
  .lan-device-icon { flex-basis:30px; width:30px; height:30px; }
 }
+
+
+/* IP management V2: spacious inventory rows and state-aware, aligned details. */
+.ipscope .network-card {
+  padding: 18px 20px 8px;
+  margin: 0 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.ipscope .network-head {
+  align-items: center;
+  margin: 0 0 14px;
+  padding: 0 2px;
+}
+.ipscope .network-name { font-size: 16px; }
+.ipscope .network-meta { margin-top: 5px; }
+.ipscope .address-table-wrap { padding-top: 0; overflow-x: auto; }
+.ipscope .address-table { border-collapse: separate; border-spacing: 0; }
+.ipscope .address-table .col-ip { width: 19% !important; }
+.ipscope .address-table .col-status { width: 14% !important; }
+.ipscope .address-table .col-owner { width: auto !important; }
+.ipscope .address-table .col-actions { width: 104px !important; }
+.ipscope .address-table th {
+  padding: 14px 16px;
+  background: #f7f8fa;
+  color: #64748b;
+  font-size: 11px;
+  letter-spacing: .02em;
+}
+.ipscope .address-table td {
+  padding: 16px;
+  min-height: 58px;
+  font-size: 13px;
+  border-bottom: 1px solid #edf0f2;
+}
+.ipscope .address-table .ip-cell code,
+.ipscope .address-detail-list code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #263746;
+}
+.ipscope .address-table .address-owner-cell {
+  white-space: normal;
+  overflow: visible;
+}
+.ipscope .address-owner-chip {
+  display: inline-flex;
+  align-items: center;
+  margin: 2px 7px 2px 0;
+  padding: 6px 10px;
+  border: 1px solid #e3e8ed;
+  border-radius: 6px;
+  background: #f8fafb;
+  color: #344454;
+  font-size: 12px;
+  font-weight: 650;
+}
+.ipscope .address-owner-chip.is-conflict {
+  border-color: #f4c8c5;
+  background: #fff1f0;
+  color: #a52a22;
+}
+.ipscope .address-table .status-row-conflict > td { background: #fff8f7; }
+.ipscope .address-table .status-row-conflict > td:first-child { box-shadow: inset 3px 0 0 #d92d20; }
+.ipscope .address-table .status-row-conflict:hover > td { background: #fff2f0; }
+.ipscope .address-table .address-actions { min-width: 0; }
+.ipscope .address-table .address-actions button.icon-action {
+  width: 34px !important;
+  min-width: 34px !important;
+  max-width: 34px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  margin: 0 0 0 6px !important;
+  padding: 7px !important;
+  border: 1px solid transparent !important;
+  border-radius: 7px !important;
+  background: transparent !important;
+  color: #64748b !important;
+}
+.ipscope .address-table .address-actions button.icon-action svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ipscope .address-table .address-actions button.icon-action:hover {
+  border-color: var(--line) !important;
+  background: #f4f7f8 !important;
+  color: var(--accent) !important;
+}
+.ipscope .address-table .address-actions button.details-ip svg { transition: transform .16s ease; }
+.ipscope .address-table .address-actions button.details-ip.is-expanded svg { transform: rotate(180deg); }
+.ipscope .address-detail-row > td {
+  padding: 8px 14px 18px !important;
+  background: #fafbfc;
+  border-bottom: 1px solid var(--line);
+  white-space: normal;
+}
+.ipscope .address-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, .88fr) minmax(380px, 1.12fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.ipscope .address-detail-panel {
+  min-width: 0;
+  min-height: 150px;
+  padding: 17px 19px;
+  border: 1px solid #e3e8ed;
+  border-radius: 9px;
+  background: #fff;
+}
+.ipscope .address-detail-panel h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 15px;
+  color: #263746;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ipscope .address-detail-list {
+  display: grid;
+  grid-template-columns: minmax(90px, 34%) minmax(0, 1fr);
+  gap: 11px 12px;
+  margin: 0;
+}
+.ipscope .address-detail-list > div { display: contents; }
+.ipscope .address-detail-list dt {
+  color: #718096;
+  font-size: 12px;
+}
+.ipscope .address-detail-list dd {
+  min-width: 0;
+  margin: 0;
+  color: #263746;
+  font-size: 12px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.ipscope .detail-entity-card {
+  padding: 12px 14px;
+  border: 1px solid #e8edf1;
+  border-radius: 8px;
+  background: #fbfcfd;
+}
+.ipscope .detail-entity-card + .detail-entity-card { margin-top: 9px; }
+.ipscope .detail-entity-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.ipscope .detail-entity-heading strong { color: #253746; font-size: 13px; }
+.ipscope .detail-state-pill {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: #f0f2f4;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 650;
+}
+.ipscope .detail-state-pill.is-running { background: #e8f6ee; color: #187044; }
+.ipscope .detail-entity-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 9px;
+  color: #718096;
+  font-size: 11px;
+}
+.ipscope .detail-entity-meta strong { margin-left: 4px; color: #344454; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-weight: 600; }
+.ipscope .detail-empty { margin: 0; color: var(--muted); font-size: 12px; }
+.ipscope .detail-exclusion-wrap { margin-top: 12px; }
+.ipscope .address-detail-row .address-detail-layout + .detail-exclusion-wrap:empty { display: none; }
+.ipscope .address-detail-row:has(.status-conflict) > td { background: #fff6f5; }
+@media (max-width: 900px) {
+  .ipscope .address-detail-layout { grid-template-columns: minmax(0, 1fr); }
+  .ipscope .address-detail-panel { min-height: 0; }
+}
+@media (max-width: 600px) {
+  .ipscope .network-card { padding: 13px 10px 6px; }
+  .ipscope .address-table .col-ip { width: 155px !important; }
+  .ipscope .address-table .col-status { width: 96px !important; }
+  .ipscope .address-table .col-actions { width: 88px !important; }
+  .ipscope .address-table th, .ipscope .address-table td { padding-left: 10px; padding-right: 10px; }
+  .ipscope .address-detail-row > td { padding: 8px !important; }
+  .ipscope .address-detail-panel { padding: 14px; }
+  .ipscope .address-detail-list { grid-template-columns: 96px minmax(0, 1fr); }
+  .ipscope .address-table .address-actions button.icon-action { margin-left: 0 !important; }
+}
