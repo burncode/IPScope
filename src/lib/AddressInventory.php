@@ -307,31 +307,78 @@ final class AddressInventory
                 }
             }
 
+            $ipv4Calculator = new IPv4Calculator();
             foreach ($addressMap as $ip => &$address) {
+                // Keep the inventory classification stable while applying rules.
+                // A previous matching rule may change "available" to "excluded",
+                // but must not make subsequent rules look like an in-use address.
+                $originalStatus = (string)($address['status'] ?? 'unknown');
+                $matchedRules = [];
+
                 foreach ($exclusionRules as $rule) {
-                    if (empty($rule['enabled'])) continue;
+                    if (empty($rule['enabled'])) {
+                        continue;
+                    }
                     $ruleNetwork = (string)($rule['network'] ?? '*');
-                    if ($ruleNetwork !== '*' && $ruleNetwork !== $networkName) continue;
+                    if ($ruleNetwork !== '*' && $ruleNetwork !== $networkName) {
+                        continue;
+                    }
                     $matchType = (string)($rule['match_type'] ?? '');
                     $value = (string)($rule['value'] ?? '');
-                    $matches = $matchType === 'ip' ? $ip === $value
-                        : ($matchType === 'cidr' && (new IPv4Calculator())->contains($value, $ip));
-                    if (!$matches) continue;
-                    $address['exclusions'] ??= [];
-                    $address['exclusions'][] = ['id'=>(string)($rule['id']??''),'match_type'=>$matchType,'value'=>$value,'reason'=>(string)($rule['reason']??'')];
-                    if (($address['status'] ?? '') === 'available') {
-                        $address['status'] = 'excluded';
-                        $address['available'] = false;
-                    } else {
-                        $conflicts[] = [
-                            'type'=>'excluded_address_in_use',
-                            'severity'=>in_array(($address['status']??''),['occupied','system','conflict'],true)?'critical':'warning',
-                            'network'=>$networkName,'ip'=>$ip,'status'=>(string)($address['status']??'unknown'),
-                            'rule_id'=>(string)($rule['id']??''),'reason'=>(string)($rule['reason']??''),
-                            'owners'=>array_values(array_unique(array_map(static fn(array $owner):string=>(string)($owner['container']??''),$address['owners']??[]))),
-                        ];
+                    $matches = $matchType === 'ip'
+                        ? $ip === $value
+                        : ($matchType === 'cidr' && $ipv4Calculator->contains($value, $ip));
+                    if (!$matches) {
+                        continue;
                     }
+
+                    $matchedRules[] = $rule;
+                    $address['exclusions'] ??= [];
+                    $address['exclusions'][] = [
+                        'id' => (string)($rule['id'] ?? ''),
+                        'match_type' => $matchType,
+                        'value' => $value,
+                        'reason' => (string)($rule['reason'] ?? ''),
+                    ];
                 }
+
+                if ($matchedRules === []) {
+                    continue;
+                }
+
+                if ($originalStatus === 'available') {
+                    $address['status'] = 'excluded';
+                    $address['available'] = false;
+                    continue;
+                }
+
+                // Emit one in-use event per address, carrying every matching rule.
+                $ruleIds = array_values(array_unique(array_filter(array_map(
+                    static fn(array $rule): string => (string)($rule['id'] ?? ''),
+                    $matchedRules
+                ))));
+                $reasons = array_values(array_unique(array_filter(array_map(
+                    static fn(array $rule): string => (string)($rule['reason'] ?? ''),
+                    $matchedRules
+                ))));
+
+                $conflicts[] = [
+                    'type' => 'excluded_address_in_use',
+                    'severity' => in_array($originalStatus, ['occupied', 'system', 'conflict'], true)
+                        ? 'critical'
+                        : 'warning',
+                    'network' => $networkName,
+                    'ip' => $ip,
+                    'status' => $originalStatus,
+                    'rule_id' => $ruleIds[0] ?? '',
+                    'rule_ids' => $ruleIds,
+                    'rule_count' => count($matchedRules),
+                    'reason' => implode('; ', $reasons),
+                    'owners' => array_values(array_unique(array_map(
+                        static fn(array $owner): string => (string)($owner['container'] ?? ''),
+                        $address['owners'] ?? []
+                    ))),
+                ];
             }
             unset($address);
 
