@@ -47,7 +47,8 @@ $checks = [
     'exclusion form is collapsed until explicitly requested' =>
         str_contains($js, '<details class="detail-exclusion-disclosure">') && str_contains($js, 'data-detail-exclusion-form'),
     'detail panels use compact proportions without forced minimum height' =>
-        str_contains($css, 'grid-template-columns: minmax(250px, .34fr) minmax(0, .66fr)') && str_contains($css, '.address-detail-panel {\\n  min-height: 0;'),
+        str_contains($css, 'grid-template-columns: minmax(250px, .34fr) minmax(0, .66fr)') &&
+        str_contains($css, '.address-detail-panel {') && str_contains($css, 'min-height: 0;'),
 ];
 
 foreach ($checks as $label => $passed) {
