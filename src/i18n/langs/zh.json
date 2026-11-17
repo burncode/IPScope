@@ -428,5 +428,6 @@
   "js.template_ip_purpose": "由 Unraid Docker 模板保存的静态 IP",
   "js.ipam_ip_purpose": "由 Docker 网络 IPAM 配置的固定 IP",
   "js.runtime_ip_purpose": "容器当前实际使用的 IP 地址",
-  "js.ip_conflict_notice": "IP 冲突：该 IP 被多个容器同时使用"
+  "js.ip_conflict_notice": "IP 冲突：该 IP 被多个容器同时使用",
+  "js.exclusion_reason_label": "排除原因"
 }
