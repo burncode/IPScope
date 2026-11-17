@@ -426,6 +426,8 @@ final class AddressInventory
         }
 
         // Detect a running container whose saved template IP differs from its actual IP.
+        // Duplicate template records must not emit duplicate mismatch events.
+        $templateRuntimeMismatchKeys = [];
         foreach ($containers as $container) {
             $state = strtolower((string)($container['state'] ?? 'unknown'));
             $active = (bool)($container['active'] ?? ($container['running'] ?? false))
@@ -451,6 +453,11 @@ final class AddressInventory
                     }
                     foreach (($savedTemplate['ips'] ?? []) as $reservedIp) {
                         if ($this->isIPv4($reservedIp) && $reservedIp !== $actual) {
+                            $mismatchKey = implode('|', [$containerName, $networkName, $reservedIp, $actual]);
+                            if (isset($templateRuntimeMismatchKeys[$mismatchKey])) {
+                                continue;
+                            }
+                            $templateRuntimeMismatchKeys[$mismatchKey] = true;
                             $conflicts[] = [
                                 'type' => 'template_runtime_mismatch',
                                 'network' => $networkName,
