@@ -56,6 +56,13 @@ $checks = [
         str_contains($css, '.network-card {') && str_contains($css, 'border: 0;') && str_contains($css, 'background: transparent;'),
     'conflict rows keep neutral backgrounds and use a left severity marker' =>
         str_contains($css, '.status-row-conflict:hover > td') && str_contains($css, 'inset 3px 0 0 #d92d20'),
+    'system address collisions have an explicit localized label and participant details' =>
+        str_contains($js, 'item.type === "system_address_collision"') &&
+        str_contains($js, 'js.system_address_collision') &&
+        str_contains($js, 'js.system_address') &&
+        str_contains($js, 'item.system_owners'),
+    'overlapping exclusion rules are summarized without duplicating the conflict row' =>
+        str_contains($js, 'js.matching_rules') && str_contains($js, 'item.rule_ids.length > 1'),
     'exclusion action has a compact explanatory toolbar and explicit confirmation' =>
         str_contains($js, 'detail-exclusion-toolbar') && str_contains($js, 'js.exclude_ip_helper') && str_contains($js, 'js.confirm_exclusion'),
     'exclusion rule creation remains collapsed until requested' =>
