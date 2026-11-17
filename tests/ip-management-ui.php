@@ -11,7 +11,16 @@ if (!is_string($js) || !is_string($css) || !is_array($zh) || !is_array($en)) {
     exit(1);
 }
 
+$html = file_get_contents(__DIR__ . '/../src/www/index.php');
+
 $checks = [
+
+    'IP management uses a flat page heading rather than a nested outer card' =>
+        str_contains($css, '.inventory-page-heading') && str_contains($html ?? '', 'inventory-page-heading'),
+    'network groups show driver but omit repetitive subnet metadata' =>
+        str_contains($js, 'network-driver-tag') && !str_contains($js, '(subnet ? " · " + escapeHtml(subnet) : "")'),
+    'IP inventory uses restrained row-level conflict emphasis' =>
+        str_contains($css, '.status-row-conflict > td:first-child') && str_contains($css, 'background: #fff;'),
     'container MAC is resolved from the matching Docker network record' =>
         str_contains($js, 'containersByName[owner.container]') && str_contains($js, 'networkDetails.mac'),
     'duplicate reservation/runtime claims are collapsed by container identity' =>
