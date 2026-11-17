@@ -428,5 +428,6 @@
   "js.template_ip_purpose": "Static IP saved in the Unraid Docker template",
   "js.ipam_ip_purpose": "Static IP configured through Docker network IPAM",
   "js.runtime_ip_purpose": "IP address currently used by the container",
-  "js.ip_conflict_notice": "IP conflict: this address is claimed by multiple containers"
+  "js.ip_conflict_notice": "IP conflict: this address is claimed by multiple containers",
+  "js.exclusion_reason_label": "Exclusion reason"
 }
