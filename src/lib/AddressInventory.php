@@ -73,7 +73,7 @@ final class AddressInventory
                                 }
                             }
                         }
-                    } catch (\\InvalidArgumentException $error) {
+                    } catch (\InvalidArgumentException $error) {
                         // Invalid subnet data is ignored here and by range expansion.
                     }
                 }
