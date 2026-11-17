@@ -40,7 +40,7 @@ $checks = [
     'two-column detail panels align and collapse responsively' =>
         str_contains($css, '.address-detail-layout') && str_contains($css, 'align-items: stretch') && str_contains($css, '@media (max-width: 900px)'),
     'conflict rows use a restrained red treatment' =>
-        str_contains($css, '.status-row-conflict') && str_contains($css, '#fff8f7'),
+        str_contains($css, '.status-row-conflict') && str_contains($css, 'background: #fff;') && str_contains($css, 'inset 3px 0 0 #d92d20'),
     'conflict detail includes an explicit warning banner' =>
         str_contains($js, 'detail-conflict-notice') && str_contains($js, 'js.ip_conflict_notice'),
     'container details use compact horizontal information rows' =>
@@ -52,6 +52,15 @@ $checks = [
     'detail panels use compact proportions without forced minimum height' =>
         str_contains($css, 'grid-template-columns: minmax(250px, .34fr) minmax(0, .66fr)') &&
         str_contains($css, '.address-detail-panel {') && str_contains($css, 'min-height: 0;'),
+    'network groups no longer render as nested bordered cards' =>
+        str_contains($css, '.network-card {') && str_contains($css, 'border: 0;') && str_contains($css, 'background: transparent;'),
+    'conflict rows keep neutral backgrounds and use a left severity marker' =>
+        str_contains($css, '.status-row-conflict:hover > td') && str_contains($css, 'inset 3px 0 0 #d92d20'),
+    'exclusion action has a compact explanatory toolbar and explicit confirmation' =>
+        str_contains($js, 'detail-exclusion-toolbar') && str_contains($js, 'js.exclude_ip_helper') && str_contains($js, 'js.confirm_exclusion'),
+    'exclusion rule creation remains collapsed until requested' =>
+        str_contains($js, '<details class="detail-exclusion-disclosure">') && str_contains($js, 'data-detail-exclusion-form'),
+
 ];
 
 foreach ($checks as $label => $passed) {
@@ -72,7 +81,7 @@ $detailKeys = [
     'js.system_gateway', 'js.system_auxiliary_address', 'js.system_network_address',
     'js.system_broadcast_address', 'js.docker_network_infrastructure_address',
     'js.no_docker_owner_detected', 'js.address_has_no_runtime_owner',
-    'js.ip_conflict_notice', 'js.exclusion_reason_label', 'js.exclude_this_ip',
+    'js.ip_conflict_notice', 'js.exclusion_reason_label', 'js.exclude_this_ip', 'js.exclusion_rules', 'js.exclude_ip_helper', 'js.confirm_exclusion',
     'js.reason_e_g_dhcp_reservation', 'js.add_rule', 'js.excluded_by_rule',
     'js.view_rule', 'js.a_matching_rule_is_disabled', 'js.enable_rule'
 ];
