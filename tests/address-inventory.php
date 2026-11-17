@@ -32,6 +32,14 @@ $containers = [
         'networks' => ['bond0' => ['ipv4' => '192.168.50.1', 'ipam_ipv4' => null]],
     ],
     [
+        'name' => 'network-address-collision', 'state' => 'running', 'running' => true,
+        'networks' => ['bond0' => ['ipv4' => '192.168.50.0', 'ipam_ipv4' => null]],
+    ],
+    [
+        'name' => 'broadcast-address-collision', 'state' => 'running', 'running' => true,
+        'networks' => ['bond0' => ['ipv4' => '192.168.50.255', 'ipam_ipv4' => null]],
+    ],
+    [
         'name' => 'duplicate', 'state' => 'exited', 'running' => false,
         'networks' => [],
     ],
@@ -133,8 +141,19 @@ $checks = [
     count(array_filter($result['conflicts'], static fn(array $c): bool => ($c['type'] ?? '') === 'system_address_collision' && ($c['ip'] ?? '') === '192.168.50.1')) === 1,
     (array_values(array_filter($result['conflicts'], static fn(array $c): bool => ($c['type'] ?? '') === 'system_address_collision' && ($c['ip'] ?? '') === '192.168.50.1'))[0]['system_owners'][0] ?? null) === 'system:gateway',
     ($addresses['192.168.50.21'] ?? null) === 'system',
-    ($addresses['192.168.50.0'] ?? null) === 'system',
-    ($addresses['192.168.50.255'] ?? null) === 'system',
+    // Subnet network/broadcast addresses must participate in collision classification.
+    ($addresses['192.168.50.0'] ?? null) === 'conflict',
+    ($addresses['192.168.50.255'] ?? null) === 'conflict',
+    count(array_filter($result['conflicts'], static fn(array $c): bool =>
+        ($c['type'] ?? '') === 'system_address_collision'
+        && in_array(($c['ip'] ?? ''), ['192.168.50.0', '192.168.50.255'], true)
+    )) === 2,
+    (array_values(array_filter($result['conflicts'], static fn(array $c): bool =>
+        ($c['ip'] ?? '') === '192.168.50.0'
+    ))[0]['system_owners'][0] ?? null) === 'system:network_address',
+    (array_values(array_filter($result['conflicts'], static fn(array $c): bool =>
+        ($c['ip'] ?? '') === '192.168.50.255'
+    ))[0]['system_owners'][0] ?? null) === 'system:broadcast_address',
     ($addresses['192.168.50.100'] ?? null) === 'conflict',
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'reservation_conflict')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'active_reservation_collision')) === 1,
