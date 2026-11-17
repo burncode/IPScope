@@ -427,7 +427,10 @@ final class AddressInventory
 
         // Detect a running container whose saved template IP differs from its actual IP.
         foreach ($containers as $container) {
-            if (empty($container['running'])) {
+            $state = strtolower((string)($container['state'] ?? 'unknown'));
+            $active = (bool)($container['active'] ?? ($container['running'] ?? false))
+                || in_array($state, ['running', 'paused'], true);
+            if (!$active) {
                 continue;
             }
             $containerName = (string)($container['name'] ?? 'unknown-container');
