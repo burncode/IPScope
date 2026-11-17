@@ -928,3 +928,229 @@ tbody tr:last-child td { border-bottom: 0; }
   .ipscope .address-detail-list { grid-template-columns: 96px minmax(0, 1fr); }
   .ipscope .address-table .address-actions button.icon-action { margin-left: 0 !important; }
 }
+
+
+/* IP management V3: compact, information-dense detail view inspired by the reference. */
+.ipscope .address-table td { padding-top: 12px; padding-bottom: 12px; }
+.ipscope .address-table th { padding-top: 12px; padding-bottom: 12px; }
+.ipscope .address-owner-chip {
+  margin: 1px 5px 1px 0;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.ipscope .address-detail-row > td {
+  padding: 12px 16px 14px !important;
+  background: #f8f9fb;
+}
+.ipscope .address-detail-layout {
+  grid-template-columns: minmax(250px, .34fr) minmax(0, .66fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.ipscope .address-detail-panel {
+  min-height: 0;
+  padding: 15px 17px;
+  border-color: #e5e9ee;
+  border-radius: 8px;
+  box-shadow: none;
+}
+.ipscope .address-detail-panel h4 {
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+.ipscope .address-summary-panel .address-detail-list {
+  grid-template-columns: 92px minmax(0, 1fr);
+  gap: 13px 10px;
+}
+.ipscope .address-summary-panel .address-detail-list dt {
+  text-align: left;
+  align-self: center;
+}
+.ipscope .address-summary-panel .address-detail-list dd {
+  align-self: center;
+  line-height: 1.45;
+}
+.ipscope .address-summary-panel .status-pill { vertical-align: middle; }
+.ipscope .detail-panel-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 21px;
+  height: 21px;
+  margin-left: 5px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: #f0f3f6;
+  color: #526273;
+  font-size: 11px;
+  font-weight: 700;
+}
+.ipscope .detail-owner-row {
+  display: grid;
+  grid-template-columns: 28px minmax(130px, 1.05fr) auto minmax(100px, auto) minmax(180px, 1.35fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 9px 4px;
+  border-top: 1px solid #edf0f3;
+}
+.ipscope .detail-owner-row:first-of-type { border-top: 0; }
+.ipscope .detail-docker-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  color: #1686c9;
+}
+.ipscope .detail-docker-mark svg {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: .5;
+}
+.ipscope .detail-owner-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+}
+.ipscope .detail-owner-name strong {
+  overflow-wrap: anywhere;
+  color: #263746;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ipscope .detail-owner-name > span {
+  color: #8290a0;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 10px;
+}
+.ipscope .detail-state-pill {
+  justify-self: start;
+  padding: 5px 10px;
+  background: #f0f2f4;
+  color: #687789;
+  white-space: nowrap;
+}
+.ipscope .detail-state-pill.is-running { background: #eaf7ef; color: #18804a; }
+.ipscope .detail-source-pill {
+  justify-self: start;
+  padding: 5px 9px;
+  border-radius: 5px;
+  background: #eef3f8;
+  color: #52677e;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.ipscope .detail-owner-purpose {
+  min-width: 0;
+  color: #596b7c;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.ipscope .detail-conflict-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid #f5d0cc;
+  border-radius: 7px;
+  background: #fff1f0;
+  color: #b42318;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ipscope .detail-conflict-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border: 2px solid currentColor;
+  border-radius: 50%;
+  font-size: 12px;
+  line-height: 1;
+}
+.ipscope .detail-exclusion-wrap {
+  margin-top: 10px;
+  padding: 9px 12px;
+  border: 1px solid #e5e9ee;
+  border-radius: 7px;
+  background: #fff;
+}
+.ipscope .detail-exclusion-action {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  margin: 0;
+}
+.ipscope .detail-exclusion-reason {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  margin: 0;
+}
+.ipscope .detail-exclusion-reason .detail-label {
+  flex: 0 0 auto;
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 650;
+}
+.ipscope .detail-exclusion-reason input {
+  min-width: 120px;
+  max-width: 420px;
+  height: 34px;
+  margin: 0;
+}
+.ipscope .detail-exclude-button {
+  flex: 0 0 auto;
+  min-height: 34px;
+  padding: 0 14px;
+}
+.ipscope .detail-exclusion-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #64748b;
+  font-size: 12px;
+}
+.ipscope .system-detail-line {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 10px 0;
+  border-top: 1px solid #edf0f3;
+  font-size: 12px;
+}
+.ipscope .system-detail-line span { width: 92px; flex: 0 0 92px; color: #718096; }
+.ipscope .system-detail-line strong { color: #263746; font-weight: 650; }
+@media (max-width: 1100px) {
+  .ipscope .detail-owner-row {
+    grid-template-columns: 26px minmax(110px, 1fr) auto auto;
+  }
+  .ipscope .detail-owner-purpose { grid-column: 2 / -1; padding-bottom: 4px; }
+}
+@media (max-width: 900px) {
+  .ipscope .address-detail-layout { grid-template-columns: minmax(0, 1fr); }
+  .ipscope .detail-owner-row {
+    grid-template-columns: 26px minmax(110px, 1fr) auto;
+  }
+  .ipscope .detail-source-pill { grid-column: 2; }
+  .ipscope .detail-owner-purpose { grid-column: 2 / -1; }
+}
+@media (max-width: 600px) {
+  .ipscope .address-detail-row > td { padding: 8px !important; }
+  .ipscope .detail-owner-row { gap: 8px; }
+  .ipscope .detail-exclusion-action,
+  .ipscope .detail-exclusion-reason,
+  .ipscope .detail-exclusion-state { align-items: stretch; flex-direction: column; }
+  .ipscope .detail-exclusion-reason input { max-width: none; width: 100%; }
+}
