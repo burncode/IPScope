@@ -50,6 +50,34 @@ final class AddressInventory
                 continue;
             }
             foreach (($network['ipv4'] ?? []) as $config) {
+                // Network and broadcast addresses are system-owned claims too.
+                // Register them before container claims so collisions are classified,
+                // not merely appended later as synthetic system rows.
+                $subnet = (string)($config['subnet'] ?? '');
+                if ($subnet !== '') {
+                    try {
+                        $range = (new IPv4Calculator())->range($subnet);
+                        $prefix = (int)substr(strrchr($subnet, '/'), 1);
+                        if ($prefix <= 30) {
+                            foreach ([
+                                $range['network'] => 'network_address',
+                                $range['broadcast'] => 'broadcast_address',
+                            ] as $specialIp => $kind) {
+                                if ($this->isIPv4($specialIp)) {
+                                    $this->addClaim($claims, $networkName, $specialIp, [
+                                        'container' => 'system:' . $kind,
+                                        'source' => 'ipv4_subnet',
+                                        'kind' => 'system',
+                                        'state' => 'system',
+                                    ]);
+                                }
+                            }
+                        }
+                    } catch (\\InvalidArgumentException $error) {
+                        // Invalid subnet data is ignored here and by range expansion.
+                    }
+                }
+
                 foreach (['gateway' => 'gateway', 'auxiliary_addresses' => 'auxiliary'] as $field => $kind) {
                     $values = $field === 'auxiliary_addresses'
                         ? (is_array($config[$field] ?? null) ? array_values($config[$field]) : [])
