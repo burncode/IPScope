@@ -429,5 +429,8 @@
   "js.ipam_ip_purpose": "Static IP configured through Docker network IPAM",
   "js.runtime_ip_purpose": "IP address currently used by the container",
   "js.ip_conflict_notice": "IP conflict: this address is claimed by multiple containers",
-  "js.exclusion_reason_label": "Exclusion reason"
+  "js.exclusion_reason_label": "Exclusion reason",
+  "js.exclusion_rules": "Exclusion rule",
+  "js.exclude_ip_helper": "Keep this address out of IP recommendations",
+  "js.confirm_exclusion": "Confirm exclusion"
 }
