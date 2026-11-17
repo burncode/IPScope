@@ -1321,25 +1321,26 @@ tbody tr:last-child td { border-bottom: 0; }
 
 
 /* T026-02: IP inventory workbench — flatter hierarchy, aligned controls and compact details. */
-.ipscope .ip-management-view {
-  padding: 2px 0 12px;
+.ipscope .ip-management-view { padding: 0; }
+.ipscope .inventory-panel {
+  margin-top: 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  overflow: hidden;
 }
-.ipscope .inventory-page-heading {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 4px 0 18px;
+.ipscope .inventory-panel > .panel-heading {
+  padding: 17px 20px;
+  border-bottom: 1px solid var(--line);
 }
-.ipscope .inventory-page-heading h2 {
+.ipscope .inventory-panel > .panel-heading h2 {
   margin: 0;
   color: #263746;
-  font-size: 21px;
-  line-height: 1.25;
+  font-size: 18px;
+  line-height: 1.3;
   font-weight: 720;
-  letter-spacing: -.025em;
 }
-.ipscope .inventory-page-heading p {
+.ipscope .inventory-panel > .panel-heading p {
   margin: 5px 0 0;
   color: #718096;
   font-size: 12px;
@@ -1568,4 +1569,36 @@ tbody tr:last-child td { border-bottom: 0; }
   .ipscope .detail-owner-row { grid-template-columns: 24px minmax(0, 1fr) auto; }
   .ipscope .detail-source-pill { grid-column: 2; }
   .ipscope .detail-owner-purpose { grid-column: 2 / -1; }
+}
+
+
+/* T026-03: restore the same outer panel frame used by the other IPScope tabs. */
+.ipscope .inventory-panel .inventory-toolbar {
+  margin: 0 18px 12px;
+  padding: 13px 0 12px;
+}
+.ipscope .inventory-panel .network-list {
+  padding: 0 18px 14px;
+}
+.ipscope .inventory-panel .address-detail-row > td {
+  padding: 14px 16px 16px !important;
+  background: #f7f9fb;
+}
+.ipscope .inventory-panel .address-detail-panel {
+  padding: 16px 18px;
+  border: 1px solid #e3e8ed;
+  border-radius: 8px;
+  background: #fff;
+}
+.ipscope .inventory-panel .address-detail-panel:last-child {
+  padding-right: 18px;
+}
+.ipscope .inventory-panel .detail-exclusion-wrap {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #e3e8ed;
+}
+@media (max-width: 650px) {
+  .ipscope .inventory-panel .inventory-toolbar { margin: 0 12px 10px; }
+  .ipscope .inventory-panel .network-list { padding: 0 12px 12px; }
 }
