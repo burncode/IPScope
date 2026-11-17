@@ -182,9 +182,9 @@ $checks = [
     ($addresses['192.168.50.109'] ?? null) === 'reserved',
     // Template and IPAM evidence for one stopped container remain one reservation owner.
     ($addresses['192.168.50.110'] ?? null) === 'reserved',
-    count(array_filter($result['networks'][0]['known_addresses'], static fn(array $a): bool =>
+    count((array_values(array_filter($result['networks'][0]['known_addresses'], static fn(array $a): bool =>
         ($a['ip'] ?? '') === '192.168.50.110'
-    )[0]['owners'] ?? []) === 2,
+    ))[0]['owners'] ?? [])) === 2,
     count(array_filter($result['conflicts'], static fn(array $c): bool =>
         ($c['ip'] ?? '') === '192.168.50.110'
     )) === 0,
