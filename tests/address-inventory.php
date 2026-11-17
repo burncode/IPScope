@@ -60,6 +60,10 @@ $containers = [
         'networks' => ['bond0' => ['ipv4' => '192.168.50.106', 'ipam_ipv4' => '192.168.50.106']],
     ],
     [
+        'name' => 'paused-mismatch', 'state' => 'paused', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => '192.168.50.112', 'ipam_ipv4' => '192.168.50.112']],
+    ],
+    [
         'name' => 'stopped-ipam-only', 'state' => 'exited', 'running' => false,
         'networks' => ['bond0' => ['ipv4' => '192.168.50.107', 'ipam_ipv4' => '192.168.50.107']],
     ],
@@ -81,6 +85,7 @@ $templates = [
     ['name' => 'plex', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
     ['name' => 'duplicate', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
     ['name' => 'mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.103']],
+    ['name' => 'paused-mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.111']],
     ['name' => 'saved-only-app', 'network' => 'bond0', 'ips' => ['192.168.50.105']],
     ['name' => 'stopped-reserver', 'network' => 'bond0', 'ips' => ['192.168.50.104']],
     ['name' => 'stopped-template-and-ipam', 'network' => 'bond0', 'ips' => ['192.168.50.110']],
@@ -174,7 +179,13 @@ $checks = [
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'reservation_conflict')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'active_reservation_collision')) === 1,
     count(array_filter($result['conflicts'], static fn(array $c): bool => ($c['ip'] ?? '') === '192.168.50.106')) === 0,
-    count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 1,
+    count(array_filter($result['conflicts'], static fn(array $c): bool => $c['type'] === 'template_runtime_mismatch')) === 2,
+    count(array_filter($result['conflicts'], static fn(array $c): bool =>
+        ($c['type'] ?? '') === 'template_runtime_mismatch'
+        && ($c['container'] ?? '') === 'paused-mismatch'
+        && ($c['template_ip'] ?? '') === '192.168.50.111'
+        && ($c['runtime_ip'] ?? '') === '192.168.50.112'
+    )) === 1,
     ($addresses['192.168.50.105'] ?? null) === 'available',
     ($addresses['192.168.50.106'] ?? null) === 'occupied',
     ($addresses['192.168.50.107'] ?? null) === 'reserved',
