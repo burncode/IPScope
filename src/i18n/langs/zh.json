@@ -429,5 +429,8 @@
   "js.ipam_ip_purpose": "由 Docker 网络 IPAM 配置的固定 IP",
   "js.runtime_ip_purpose": "容器当前实际使用的 IP 地址",
   "js.ip_conflict_notice": "IP 冲突：该 IP 被多个容器同时使用",
-  "js.exclusion_reason_label": "排除原因"
+  "js.exclusion_reason_label": "排除原因",
+  "js.exclusion_rules": "排除规则",
+  "js.exclude_ip_helper": "将此地址从 IP 建议中排除",
+  "js.confirm_exclusion": "确认排除"
 }
