@@ -32,6 +32,10 @@ $containers = [
         'networks' => ['bond0' => ['ipv4' => '192.168.50.1', 'ipam_ipv4' => null]],
     ],
     [
+        'name' => 'auxiliary-collision', 'state' => 'running', 'running' => true,
+        'networks' => ['bond0' => ['ipv4' => '192.168.50.21', 'ipam_ipv4' => null]],
+    ],
+    [
         'name' => 'network-address-collision', 'state' => 'running', 'running' => true,
         'networks' => ['bond0' => ['ipv4' => '192.168.50.0', 'ipam_ipv4' => null]],
     ],
@@ -64,6 +68,10 @@ $containers = [
         'networks' => ['bond0' => ['ipv4' => null, 'ipam_ipv4' => '192.168.50.108']],
     ],
     [
+        'name' => 'stopped-template-and-ipam', 'state' => 'exited', 'running' => false,
+        'networks' => ['bond0' => ['ipv4' => null, 'ipam_ipv4' => '192.168.50.110']],
+    ],
+    [
         'id' => 'container-id-duplicate-name',
         'name' => 'duplicate-id-test', 'state' => 'exited', 'running' => false,
         'networks' => ['bond0' => ['ipv4' => null, 'ipam_ipv4' => '192.168.50.109']],
@@ -75,6 +83,7 @@ $templates = [
     ['name' => 'mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.103']],
     ['name' => 'saved-only-app', 'network' => 'bond0', 'ips' => ['192.168.50.105']],
     ['name' => 'stopped-reserver', 'network' => 'bond0', 'ips' => ['192.168.50.104']],
+    ['name' => 'stopped-template-and-ipam', 'network' => 'bond0', 'ips' => ['192.168.50.110']],
     ['name' => 'duplicate-id-test', 'network' => 'bond0', 'ips' => ['192.168.50.109']],
 ];
 
@@ -140,7 +149,14 @@ $checks = [
     ($addresses['192.168.50.1'] ?? null) === 'conflict',
     count(array_filter($result['conflicts'], static fn(array $c): bool => ($c['type'] ?? '') === 'system_address_collision' && ($c['ip'] ?? '') === '192.168.50.1')) === 1,
     (array_values(array_filter($result['conflicts'], static fn(array $c): bool => ($c['type'] ?? '') === 'system_address_collision' && ($c['ip'] ?? '') === '192.168.50.1'))[0]['system_owners'][0] ?? null) === 'system:gateway',
-    ($addresses['192.168.50.21'] ?? null) === 'system',
+    // Auxiliary addresses are system-owned and must report a container collision.
+    ($addresses['192.168.50.21'] ?? null) === 'conflict',
+    count(array_filter($result['conflicts'], static fn(array $c): bool =>
+        ($c['type'] ?? '') === 'system_address_collision' && ($c['ip'] ?? '') === '192.168.50.21'
+    )) === 1,
+    (array_values(array_filter($result['conflicts'], static fn(array $c): bool =>
+        ($c['ip'] ?? '') === '192.168.50.21'
+    ))[0]['system_owners'][0] ?? null) === 'system:auxiliary',
     // Subnet network/broadcast addresses must participate in collision classification.
     ($addresses['192.168.50.0'] ?? null) === 'conflict',
     ($addresses['192.168.50.255'] ?? null) === 'conflict',
@@ -164,6 +180,14 @@ $checks = [
     ($addresses['192.168.50.107'] ?? null) === 'reserved',
     ($addresses['192.168.50.108'] ?? null) === 'reserved',
     ($addresses['192.168.50.109'] ?? null) === 'reserved',
+    // Template and IPAM evidence for one stopped container remain one reservation owner.
+    ($addresses['192.168.50.110'] ?? null) === 'reserved',
+    count(array_filter($result['networks'][0]['known_addresses'], static fn(array $a): bool =>
+        ($a['ip'] ?? '') === '192.168.50.110'
+    )[0]['owners'] ?? []) === 2,
+    count(array_filter($result['conflicts'], static fn(array $c): bool =>
+        ($c['ip'] ?? '') === '192.168.50.110'
+    )) === 0,
     count($result['orphan_templates']) === 1,
     // Overlapping rules must not turn an available address into an in-use conflict.
     ($overlapAddresses['192.168.50.102']['status'] ?? null) === 'excluded',
