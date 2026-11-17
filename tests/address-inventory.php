@@ -85,6 +85,8 @@ $templates = [
     ['name' => 'plex', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
     ['name' => 'duplicate', 'network' => 'bond0', 'ips' => ['192.168.50.100']],
     ['name' => 'mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.103']],
+    // Duplicate source records should not duplicate the same mismatch event.
+    ['name' => 'mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.103']],
     ['name' => 'paused-mismatch', 'network' => 'bond0', 'ips' => ['192.168.50.111']],
     ['name' => 'saved-only-app', 'network' => 'bond0', 'ips' => ['192.168.50.105']],
     ['name' => 'stopped-reserver', 'network' => 'bond0', 'ips' => ['192.168.50.104']],
