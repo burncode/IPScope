@@ -73,6 +73,22 @@ $checks = [
         str_contains($css, '.detail-exclusion-copy') &&
         str_contains($css, '.detail-exclusion-action') &&
         str_contains($css, 'align-items: end;'),
+    'inventory status and owner chips use compact consistent dimensions' =>
+        str_contains($css, '.address-table .status-pill') &&
+        str_contains($css, 'min-height: 20px') &&
+        str_contains($css, '.address-table .address-owner-chip') &&
+        str_contains($css, 'min-height: 22px'),
+    'expanded detail cards use compact spacing and restrained borders' =>
+        str_contains($css, '.inventory-panel .address-detail-panel') &&
+        str_contains($css, 'padding: 13px 15px') &&
+        str_contains($css, 'border-color: #e6ebef'),
+    'expanded container information uses compact aligned rows' =>
+        str_contains($css, '.inventory-panel .detail-owner-row') &&
+        str_contains($css, 'min-height: 43px') &&
+        str_contains($css, '.inventory-panel .detail-owner-purpose'),
+    'detail refinements retain responsive layouts' =>
+        str_contains($css, '@media (max-width: 900px)') &&
+        str_contains($css, '@media (max-width: 650px)');
     'network groups no longer render as nested bordered cards' =>
         str_contains($css, '.network-card {') && str_contains($css, 'border: 0;') && str_contains($css, 'background: transparent;'),
     'conflict rows keep neutral backgrounds and use a left severity marker' =>
