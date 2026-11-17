@@ -419,5 +419,14 @@
   "js.docker_network_infrastructure_address": "Docker 网络基础设施地址",
   "js.no_docker_owner_detected": "当前 Docker 快照未发现容器占用记录。",
   "js.address_has_no_runtime_owner": "当前地址没有运行时容器归属。",
-  "js.not_available": "不可用"
+  "js.not_available": "不可用",
+  "js.basic_information": "基本信息",
+  "js.containers_unit": "个容器",
+  "js.template_source": "模板预留",
+  "js.ipam_source": "IPAM 预留",
+  "js.runtime_source": "运行时占用",
+  "js.template_ip_purpose": "由 Unraid Docker 模板保存的静态 IP",
+  "js.ipam_ip_purpose": "由 Docker 网络 IPAM 配置的固定 IP",
+  "js.runtime_ip_purpose": "容器当前实际使用的 IP 地址",
+  "js.ip_conflict_notice": "IP 冲突：该 IP 被多个容器同时使用"
 }
