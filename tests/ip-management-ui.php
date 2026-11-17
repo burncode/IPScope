@@ -75,7 +75,7 @@ $detailKeys = [
     'js.ip_conflict_notice', 'js.exclusion_reason_label', 'js.exclude_this_ip',
     'js.reason_e_g_dhcp_reservation', 'js.add_rule', 'js.excluded_by_rule',
     'js.view_rule', 'js.a_matching_rule_is_disabled', 'js.enable_rule'
-]
+];
 foreach ($detailKeys as $key) {
     if (!isset($zh[$key], $en[$key])) {
         fwrite(STDERR, "FAIL: missing bilingual IP detail translation {$key}\n");
