@@ -346,9 +346,21 @@
           " · " + t("js.reserved_3") + " " + (item.reserved_containers || []).join(", ");
       } else if (item.type === "multiple_runtime_owners") {
         details = t("js.running_containers") + " " + (item.running_containers || item.containers || []).join(", ");
+      } else if (item.type === "system_address_collision") {
+        var systemOwners = (item.system_owners || []).map(function (owner) {
+          return String(owner).replace(/^system:/, "");
+        });
+        details = t("js.system_address") + " " + (systemOwners.join(", ") || t("js.unknown_system_owner")) +
+          (item.running_containers && item.running_containers.length
+            ? " · " + t("js.running_containers") + " " + item.running_containers.join(", ")
+            : "") +
+          (item.reserved_containers && item.reserved_containers.length
+            ? " · " + t("js.reserved_3") + " " + item.reserved_containers.join(", ")
+            : "");
       } else if (item.type === "excluded_address_in_use") {
         details = (item.reason || t("js.address_matches_an_exclusion_rule")) +
           (item.rule_id ? " · " + t("js.rule_id") + " " + item.rule_id : "") +
+          (item.rule_ids && item.rule_ids.length > 1 ? " · " + t("js.matching_rules") + " " + item.rule_ids.length : "") +
           (item.owners && item.owners.length ? " · " + t("js.owners") + " " + item.owners.join(", ") : "");
       } else {
         details = (item.container || "") + " · " + t("js.template") + " " + (item.template_ip || "") + " → " + t("js.runtime") + " " + (item.runtime_ip || "");
@@ -356,7 +368,8 @@
       var conflictLabel = item.type === "excluded_address_in_use" ? t("js.excluded_address_in_use") :
         (item.type === "reservation_conflict" ? t("js.reservation_conflict") :
         (item.type === "active_reservation_collision" ? t("js.active_reserved_collision") :
-        (item.type === "multiple_runtime_owners" ? t("js.multiple_runtime_owners") : item.type)));
+        (item.type === "multiple_runtime_owners" ? t("js.multiple_runtime_owners") :
+        (item.type === "system_address_collision" ? t("js.system_address_collision") : item.type))));
       return "<tr><td>" + escapeHtml(conflictLabel) + "</td><td>" + escapeHtml(item.network) +
         "</td><td>" + escapeHtml(item.ip || item.template_ip || "—") +
         "</td><td>" + escapeHtml(details) + "</td></tr>";
