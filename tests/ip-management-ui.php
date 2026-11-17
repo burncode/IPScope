@@ -20,10 +20,13 @@ $checks = [
         str_contains($js, 'status === "occupied"') && str_contains($js, 'js.container_information'),
     'conflict addresses render all distinct claiming containers' =>
         str_contains($js, 'status === "conflict"') && str_contains($js, 'js.occupied_containers'),
-    'reserved addresses render reservation source and reason' =>
-        str_contains($js, 'status === "reserved"') && str_contains($js, 'js.reservation_source') && str_contains($js, 'js.reservation_reason'),
+    'reserved addresses render reservation source and purpose' =>
+        str_contains($js, 'status === "reserved"') &&
+        str_contains($js, 'js.template_source') && str_contains($js, 'js.ipam_source') &&
+        str_contains($js, 'js.template_ip_purpose') && str_contains($js, 'js.ipam_ip_purpose'),
     'system addresses render infrastructure purpose and subnet scope' =>
-        str_contains($js, 'status === "system"') && str_contains($js, 'js.system_usage') && str_contains($js, 'js.reservation_scope'),
+        str_contains($js, 'status === "system"') && str_contains($js, 'js.system_usage') &&
+        str_contains($js, 'js.reservation_scope') && str_contains($js, 'var subnetLabel ='),
     'address owners are rendered as separate visual chips' =>
         str_contains($js, 'address-owner-chip') && str_contains($js, 'ownerNames.map'),
     'row detail controls expose expanded state accessibly' =>
@@ -59,19 +62,20 @@ foreach ($checks as $label => $passed) {
 }
 
 $detailKeys = [
-    'js.address_information', 'js.container_information', 'js.reservation_information',
-    'js.system_information', 'js.address_status_information', 'js.ip_address',
-    'js.conflict_count', 'js.occupied_containers', 'js.container_ip', 'js.running',
-    'js.paused', 'js.stopped', 'js.no_container_details', 'js.reservation_source',
-    'js.related_container', 'js.reservation_type', 'js.reservation_reason',
-    'js.container_template', 'js.template_reservation', 'js.docker_ipam_reservation',
-    'js.stopped_container_keeps_ip', 'js.saved_container_ip_reservation',
-    'js.saved_ip_reservation', 'js.system_usage', 'js.usage_details',
-    'js.reservation_scope', 'js.system_gateway', 'js.system_auxiliary_address',
-    'js.system_network_address', 'js.system_broadcast_address',
-    'js.docker_network_infrastructure_address', 'js.no_docker_owner_detected',
-    'js.address_has_no_runtime_owner', 'js.not_available'
-];
+    'js.basic_information', 'js.network', 'js.address_state', 'js.conflict_count',
+    'js.containers_unit', 'js.container_information', 'js.occupied_containers',
+    'js.reservation_information', 'js.system_information', 'js.address_status_information',
+    'js.running', 'js.paused', 'js.stopped', 'js.unknown_state', 'js.container_ip',
+    'js.no_container_details', 'js.template_source', 'js.ipam_source', 'js.runtime_source',
+    'js.template_ip_purpose', 'js.ipam_ip_purpose', 'js.runtime_ip_purpose',
+    'js.system_usage', 'js.usage_details', 'js.reservation_scope',
+    'js.system_gateway', 'js.system_auxiliary_address', 'js.system_network_address',
+    'js.system_broadcast_address', 'js.docker_network_infrastructure_address',
+    'js.no_docker_owner_detected', 'js.address_has_no_runtime_owner',
+    'js.ip_conflict_notice', 'js.exclusion_reason_label', 'js.exclude_this_ip',
+    'js.reason_e_g_dhcp_reservation', 'js.add_rule', 'js.excluded_by_rule',
+    'js.view_rule', 'js.a_matching_rule_is_disabled', 'js.enable_rule'
+]
 foreach ($detailKeys as $key) {
     if (!isset($zh[$key], $en[$key])) {
         fwrite(STDERR, "FAIL: missing bilingual IP detail translation {$key}\n");
