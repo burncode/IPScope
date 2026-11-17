@@ -432,5 +432,9 @@
   "js.exclusion_reason_label": "Exclusion reason",
   "js.exclusion_rules": "Exclusion rule",
   "js.exclude_ip_helper": "Keep this address out of IP recommendations",
-  "js.confirm_exclusion": "Confirm exclusion"
+  "js.confirm_exclusion": "Confirm exclusion",
+  "js.system_address_collision": "System address collision",
+  "js.system_address": "System address",
+  "js.unknown_system_owner": "Unknown system source",
+  "js.matching_rules": "Matching rules"
 }
