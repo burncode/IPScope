@@ -38,6 +38,16 @@ $checks = [
         str_contains($css, '.address-detail-layout') && str_contains($css, 'align-items: stretch') && str_contains($css, '@media (max-width: 900px)'),
     'conflict rows use a restrained red treatment' =>
         str_contains($css, '.status-row-conflict') && str_contains($css, '#fff8f7'),
+    'conflict detail includes an explicit warning banner' =>
+        str_contains($js, 'detail-conflict-notice') && str_contains($js, 'js.ip_conflict_notice'),
+    'container details use compact horizontal information rows' =>
+        str_contains($js, 'detail-owner-row') && str_contains($js, 'detail-source-pill') && str_contains($js, 'detail-owner-purpose'),
+    'container purpose distinguishes template, IPAM and runtime sources' =>
+        str_contains($js, 'js.template_ip_purpose') && str_contains($js, 'js.ipam_ip_purpose') && str_contains($js, 'js.runtime_ip_purpose'),
+    'exclusion form is collapsed until explicitly requested' =>
+        str_contains($js, '<details class="detail-exclusion-disclosure">') && str_contains($js, 'data-detail-exclusion-form'),
+    'detail panels use compact proportions without forced minimum height' =>
+        str_contains($css, 'grid-template-columns: minmax(250px, .34fr) minmax(0, .66fr)') && str_contains($css, '.address-detail-panel {\\n  min-height: 0;'),
 ];
 
 foreach ($checks as $label => $passed) {
