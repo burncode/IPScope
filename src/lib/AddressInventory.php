@@ -54,7 +54,8 @@ final class AddressInventory
                 // Register them before container claims so collisions are classified,
                 // not merely appended later as synthetic system rows.
                 $subnet = (string)($config['subnet'] ?? '');
-                if ($subnet !== '') {
+                $isBuiltinNetwork = in_array($networkName, ['bridge', 'host', 'none'], true);
+                if (!$isBuiltinNetwork && $subnet !== '') {
                     try {
                         $range = (new IPv4Calculator())->range($subnet);
                         $prefix = (int)substr(strrchr($subnet, '/'), 1);
