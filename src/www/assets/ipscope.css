@@ -1189,3 +1189,132 @@ tbody tr:last-child td { border-bottom: 0; }
 }
 .ipscope .detail-exclusion-disclosure[open] > summary::before { content: "−"; }
 .ipscope .detail-exclusion-disclosure .detail-exclusion-action { margin-top: 9px; }
+
+
+/* IP management V4: remove nested network frames, reserve red for the conflict signal,
+   and make exclusions a compact, purposeful action rather than another card. */
+.ipscope .network-card {
+  margin: 0 0 26px;
+  padding: 0 0 18px;
+  border: 0;
+  border-bottom: 1px solid #e8edf1;
+  border-radius: 0;
+  background: transparent;
+}
+.ipscope .network-card:last-child { margin-bottom: 0; border-bottom: 0; }
+.ipscope .network-head { margin-bottom: 12px; padding: 0 2px; }
+.ipscope .address-table-wrap { border: 0; border-radius: 0; box-shadow: none; }
+.ipscope .address-table tbody tr.status-row-conflict > td,
+.ipscope .address-table tbody tr.status-row-conflict:hover > td {
+  background: #fff;
+}
+.ipscope .address-table tbody tr.status-row-conflict > td:first-child {
+  box-shadow: inset 3px 0 0 #d92d20;
+}
+.ipscope .address-detail-row > td,
+.ipscope .address-detail-row:has(.detail-conflict-notice) > td {
+  background: #f7f8fa;
+}
+.ipscope .address-detail-layout { gap: 16px; }
+.ipscope .address-detail-panel {
+  border: 1px solid #e4e9ee;
+  background: #fff;
+  box-shadow: none;
+}
+.ipscope .detail-conflict-notice {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border-color: #f1d2cf;
+  background: #fff;
+}
+.ipscope .address-owner-chip.is-conflict {
+  border-color: #f0c8c5;
+  background: #fff;
+  color: #b42318;
+}
+.ipscope .detail-exclusion-wrap {
+  margin-top: 14px;
+  padding: 0;
+  border: 0;
+  border-top: 1px solid #e4e9ee;
+  border-radius: 0;
+  background: transparent;
+}
+.ipscope .detail-exclusion-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 54px;
+  padding: 10px 2px 0;
+}
+.ipscope .detail-exclusion-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.ipscope .detail-exclusion-copy strong {
+  color: #344454;
+  font-size: 12px;
+  font-weight: 700;
+}
+.ipscope .detail-exclusion-copy > span {
+  color: #8290a0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.ipscope .detail-exclusion-disclosure { flex: 0 0 auto; }
+.ipscope .detail-exclusion-disclosure > summary {
+  min-height: 32px;
+  padding: 0 12px;
+  border: 1px solid #d8e0e7;
+  border-radius: 6px;
+  background: #fff;
+  color: #425466;
+  font-size: 11px;
+  font-weight: 650;
+}
+.ipscope .detail-exclusion-disclosure > summary::before {
+  width: 15px;
+  height: 15px;
+  border-color: #b9c5d0;
+  font-size: 11px;
+}
+.ipscope .detail-exclusion-disclosure .detail-exclusion-action {
+  display: flex;
+  align-items: end;
+  gap: 10px;
+  min-width: min(460px, 70vw);
+  margin-top: 10px;
+  padding: 12px;
+  border: 1px solid #e2e8ee;
+  border-radius: 7px;
+  background: #fff;
+}
+.ipscope .detail-exclusion-reason { gap: 5px; }
+.ipscope .detail-exclusion-reason input { max-width: none; height: 36px; }
+.ipscope .detail-exclude-button {
+  min-height: 36px;
+  border: 1px solid #d8e0e7;
+  border-radius: 6px;
+  background: #f8fafb;
+  color: #344454;
+  font-weight: 650;
+}
+.ipscope .detail-exclude-button:hover { border-color: #9eacb9; background: #f1f5f8; }
+.ipscope .detail-exclusion-toolbar.is-active {
+  justify-content: flex-start;
+}
+.ipscope .detail-exclusion-toolbar.is-active .detail-exclusion-copy { flex: 1; }
+@media (max-width: 650px) {
+  .ipscope .detail-exclusion-toolbar { align-items: stretch; flex-wrap: wrap; gap: 9px; }
+  .ipscope .detail-exclusion-copy { flex-basis: 100%; }
+  .ipscope .detail-exclusion-disclosure { margin-left: 0; }
+  .ipscope .detail-exclusion-disclosure .detail-exclusion-action {
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 0;
+    width: min(100%, 420px);
+  }
+}
