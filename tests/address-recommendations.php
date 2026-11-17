@@ -166,6 +166,33 @@ $checks[] = $unavailableLanResult['blocked_reason'] === 'lan_discovery_unavailab
 $activeResponseSnapshot = $snapshot;
 $activeResponseSnapshot['networks'][0]['known_addresses'][0]['active_scan_evidence'] = [['status'=>'responding']];
 $activeResponseResult = $engine->recommend($activeResponseSnapshot);
+
+$unparsedResponseSnapshot = $snapshot;
+$unparsedResponseSnapshot['networks'][0]['known_addresses'][0]['active_scan_evidence'] = [['status'=>'response_unparsed']];
+$unparsedResponseResult = $engine->recommend($unparsedResponseSnapshot);
+$unparsedResponseIps = array_column($unparsedResponseResult['networks'][0]['candidates'] ?? [], 'ip');
+$checks[] = !in_array('192.168.50.8', $unparsedResponseIps, true);
+
+$probeErrorSnapshot = $snapshot;
+$probeErrorSnapshot['networks'][0]['known_addresses'][0]['active_scan_evidence'] = [['status'=>'probe_error']];
+$probeErrorResult = $engine->recommend($probeErrorSnapshot);
+$probeErrorIps = array_column($probeErrorResult['networks'][0]['candidates'] ?? [], 'ip');
+// A failed probe is not a positive occupancy observation; the recommendation remains advisory.
+$checks[] = in_array('192.168.50.8', $probeErrorIps, true);
+
+$noResponseSnapshot = $snapshot;
+$noResponseSnapshot['networks'][0]['known_addresses'][0]['active_scan_evidence'] = [['status'=>'no_response']];
+$noResponseResult = $engine->recommend($noResponseSnapshot);
+$noResponseIps = array_column($noResponseResult['networks'][0]['candidates'] ?? [], 'ip');
+// No response is not proof of availability; it only means this scan found no responder.
+$checks[] = in_array('192.168.50.8', $noResponseIps, true);
+
+$localEvidenceSnapshot = $snapshot;
+$localEvidenceSnapshot['networks'][0]['known_addresses'][0]['lan_evidence'] = [['type'=>'local_interface','status'=>'local']];
+$localEvidenceResult = $engine->recommend($localEvidenceSnapshot);
+$localEvidenceIps = array_column($localEvidenceResult['networks'][0]['candidates'] ?? [], 'ip');
+$checks[] = !in_array('192.168.50.8', $localEvidenceIps, true);
+
 $activeIps = array_column($activeResponseResult['networks'][0]['candidates'] ?? [], 'ip');
 $checks[] = !in_array('192.168.50.8', $activeIps, true);
 
