@@ -254,10 +254,11 @@
           (disabledRule ?
             '<div class="detail-exclusion-action"><span class="muted-inline">' + t("js.a_matching_rule_is_disabled") + '</span>' +
             '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("js.enable_rule") + '</button></div>' :
+            '<details class="detail-exclusion-disclosure"><summary>' + t("js.exclude_this_ip") + '</summary>' +
             '<form class="detail-exclusion-action" data-detail-exclusion-form>' +
-            '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclude_this_ip") + '</span>' +
+            '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclusion_reason_label") + '</span>' +
             '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("js.reason_e_g_dhcp_reservation") + '" required></label>' +
-            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.add_rule") + '</button></form>');
+            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.add_rule") + '</button></form></details>');
         var conflictNotice = status === "conflict" ?
           '<div class="detail-conflict-notice"><span class="detail-conflict-icon" aria-hidden="true">!</span><strong>' + t("js.ip_conflict_notice") + '</strong></div>' : '';
         var detailContent = conflictNotice + '<div class="address-detail-layout">' + addressInformation + detailRight + '</div>' +
