@@ -1318,3 +1318,254 @@ tbody tr:last-child td { border-bottom: 0; }
     width: min(100%, 420px);
   }
 }
+
+
+/* T026-02: IP inventory workbench — flatter hierarchy, aligned controls and compact details. */
+.ipscope .ip-management-view {
+  padding: 2px 0 12px;
+}
+.ipscope .inventory-page-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 4px 0 18px;
+}
+.ipscope .inventory-page-heading h2 {
+  margin: 0;
+  color: #263746;
+  font-size: 21px;
+  line-height: 1.25;
+  font-weight: 720;
+  letter-spacing: -.025em;
+}
+.ipscope .inventory-page-heading p {
+  margin: 5px 0 0;
+  color: #718096;
+  font-size: 12px;
+}
+.ipscope .inventory-toolbar {
+  min-height: 54px;
+  margin: 0 0 14px;
+  padding: 0 0 13px;
+  border-bottom: 1px solid #e3e8ed;
+}
+.ipscope .inventory-toolbar .address-controls {
+  width: min(680px, 100%);
+  gap: 10px;
+}
+.ipscope .inventory-toolbar .address-filter,
+.ipscope .inventory-toolbar .status-filter {
+  min-height: 38px;
+  border-color: #d8e0e7;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+}
+.ipscope .inventory-toolbar .address-filter { max-width: 360px; }
+.ipscope .inventory-toolbar .status-filter { min-width: 168px; }
+.ipscope .inventory-toolbar .address-list-tools { gap: 14px; }
+.ipscope .inventory-toolbar .page-size-label { font-size: 11px; }
+.ipscope .inventory-toolbar #address-count {
+  color: #66788a;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.ipscope .network-list { padding: 0; }
+.ipscope .network-card {
+  margin: 0 0 24px;
+  padding: 0 0 17px;
+  border-bottom: 1px solid #e5e9ee;
+}
+.ipscope .network-card:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+.ipscope .network-head {
+  align-items: center;
+  margin: 0 0 10px;
+  padding: 0 2px;
+}
+.ipscope .network-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.ipscope .network-name {
+  color: #263746;
+  font-size: 15px;
+  font-weight: 720;
+  letter-spacing: -.01em;
+}
+.ipscope .network-driver-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #f0f3f6;
+  color: #657789;
+  font-size: 10px;
+  font-weight: 600;
+}
+.ipscope .network-count {
+  color: #8290a0;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.ipscope .address-table-wrap { overflow-x: auto; }
+.ipscope .address-table {
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.ipscope .address-table .col-ip { width: 21% !important; }
+.ipscope .address-table .col-status { width: 14% !important; }
+.ipscope .address-table .col-owner { width: auto; }
+.ipscope .address-table .col-actions { width: 92px !important; }
+.ipscope .address-table thead th {
+  height: 38px;
+  padding: 9px 12px;
+  border-top: 1px solid #e7ebef;
+  border-bottom: 1px solid #e7ebef;
+  background: #f6f8fa;
+  color: #68798a;
+  font-size: 10px;
+  letter-spacing: .025em;
+}
+.ipscope .address-table tbody tr.address-row > td {
+  height: 47px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #edf0f3;
+  background: #fff;
+  vertical-align: middle;
+}
+.ipscope .address-table tbody tr.address-row:hover > td { background: #f8fafb; }
+.ipscope .address-table .ip-cell code {
+  color: #2d4052;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ipscope .address-owner-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap !important;
+}
+.ipscope .address-owner-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 25px;
+  margin: 1px 6px 1px 0;
+  padding: 3px 8px;
+  border: 1px solid #e1e7ec;
+  border-radius: 5px;
+  background: #f8fafb;
+  color: #3c5062;
+  font-size: 11px;
+  font-weight: 650;
+  vertical-align: middle;
+}
+.ipscope .address-owner-chip.is-conflict {
+  border-color: #f0c9c5;
+  background: #fff;
+  color: #b42318;
+}
+.ipscope .status-pill {
+  min-height: 23px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+.ipscope .status-row-conflict > td:first-child { box-shadow: inset 3px 0 0 #d92d20; }
+.ipscope .address-table tbody tr.status-row-conflict > td,
+.ipscope .address-table tbody tr.status-row-conflict:hover > td { background: #fff; }
+.ipscope .address-table .address-actions { min-width: 0; }
+.ipscope .address-table .address-actions button.icon-action {
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  border: 1px solid transparent !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  color: #718398 !important;
+}
+.ipscope .address-table .address-actions button.icon-action:hover {
+  border-color: #dce3e9 !important;
+  background: #f5f7f9 !important;
+  color: #315d78 !important;
+}
+.ipscope .address-detail-row > td,
+.ipscope .address-detail-row:has(.detail-conflict-notice) > td {
+  padding: 13px 16px 15px !important;
+  border-bottom: 1px solid #e4e9ee;
+  background: #f7f9fa;
+}
+.ipscope .address-detail-layout {
+  grid-template-columns: minmax(220px, .32fr) minmax(0, .68fr);
+  gap: 22px;
+}
+.ipscope .address-detail-panel {
+  min-height: 0;
+  padding: 4px 16px 6px 2px;
+  border: 0;
+  border-right: 1px solid #e1e7ec;
+  border-radius: 0;
+  background: transparent;
+}
+.ipscope .address-detail-panel:last-child {
+  padding-right: 2px;
+  border-right: 0;
+}
+.ipscope .address-detail-panel h4 {
+  margin: 0 0 12px;
+  color: #34495b;
+  font-size: 12px;
+}
+.ipscope .detail-owner-row {
+  grid-template-columns: 26px minmax(120px, .9fr) auto minmax(100px, auto) minmax(150px, 1.1fr);
+  min-height: 48px;
+  gap: 10px;
+  padding: 7px 0;
+}
+.ipscope .detail-owner-row:first-of-type { border-top: 0; }
+.ipscope .detail-conflict-notice {
+  margin: 0 0 12px;
+  padding: 8px 11px;
+  border: 1px solid #f0d4d1;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 12px;
+}
+.ipscope .detail-exclusion-wrap {
+  margin-top: 12px;
+  padding: 0;
+  border-top: 1px solid #e1e7ec;
+}
+.ipscope .detail-exclusion-toolbar {
+  min-height: 48px;
+  padding: 8px 2px 0;
+}
+.ipscope .address-pager {
+  padding: 9px 2px 0;
+  border-top: 0;
+}
+@media (max-width: 900px) {
+  .ipscope .inventory-toolbar { align-items: flex-start; flex-direction: column; }
+  .ipscope .inventory-toolbar .address-controls { width: 100%; }
+  .ipscope .address-detail-panel { padding: 4px 0; border-right: 0; }
+  .ipscope .detail-owner-row { grid-template-columns: 26px minmax(110px, 1fr) auto auto; }
+}
+@media (max-width: 650px) {
+  .ipscope .inventory-page-heading { margin-bottom: 14px; }
+  .ipscope .inventory-toolbar .address-controls { flex-direction: column; align-items: stretch; }
+  .ipscope .inventory-toolbar .address-filter,
+  .ipscope .inventory-toolbar .status-filter { width: 100%; max-width: none; }
+  .ipscope .inventory-toolbar .address-list-tools { width: 100%; }
+  .ipscope .network-title-group { align-items: flex-start; flex-direction: column; gap: 5px; }
+  .ipscope .address-table { min-width: 650px !important; }
+  .ipscope .detail-owner-row { grid-template-columns: 24px minmax(0, 1fr) auto; }
+  .ipscope .detail-source-pill { grid-column: 2; }
+  .ipscope .detail-owner-purpose { grid-column: 2 / -1; }
+}
