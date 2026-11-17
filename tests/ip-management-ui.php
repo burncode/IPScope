@@ -15,8 +15,10 @@ $html = file_get_contents(__DIR__ . '/../src/www/index.php');
 
 $checks = [
 
-    'IP management uses a flat page heading rather than a nested outer card' =>
-        str_contains($css, '.inventory-page-heading') && str_contains($html ?? '', 'inventory-page-heading'),
+    'IP management retains the same outer panel card as other tabs' =>
+        str_contains($html ?? '', 'class="panel inventory-panel"') &&
+        str_contains($css, '.inventory-panel') &&
+        str_contains($css, 'border: 1px solid var(--line)'),
     'network groups show driver but omit repetitive subnet metadata' =>
         str_contains($js, 'network-driver-tag') && !str_contains($js, '(subnet ? " · " + escapeHtml(subnet) : "")'),
     'IP inventory uses restrained row-level conflict emphasis' =>
