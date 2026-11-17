@@ -56,6 +56,13 @@ $checks = [
         str_contains($css, '.network-card {') && str_contains($css, 'border: 0;') && str_contains($css, 'background: transparent;'),
     'conflict rows keep neutral backgrounds and use a left severity marker' =>
         str_contains($css, '.status-row-conflict:hover > td') && str_contains($css, 'inset 3px 0 0 #d92d20'),
+    'system address collision owners use localized infrastructure labels' =>
+        str_contains($js, 'systemOwnerLabels') &&
+        str_contains($js, 't("js.system_gateway")') &&
+        str_contains($js, 't("js.system_auxiliary_address")'),
+    'template runtime mismatch conflicts use a localized label' =>
+        str_contains($js, 'item.type === "template_runtime_mismatch"') &&
+        str_contains($js, 't("js.template_runtime_mismatch"'),
     'system address collisions have an explicit localized label and participant details' =>
         str_contains($js, 'item.type === "system_address_collision"') &&
         str_contains($js, 'js.system_address_collision') &&
