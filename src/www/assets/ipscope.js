@@ -347,8 +347,15 @@
       } else if (item.type === "multiple_runtime_owners") {
         details = t("js.running_containers") + " " + (item.running_containers || item.containers || []).join(", ");
       } else if (item.type === "system_address_collision") {
+        var systemOwnerLabels = {
+          gateway: t("js.system_gateway"),
+          auxiliary: t("js.system_auxiliary_address"),
+          network_address: t("js.system_network_address"),
+          broadcast_address: t("js.system_broadcast_address")
+        };
         var systemOwners = (item.system_owners || []).map(function (owner) {
-          return String(owner).replace(/^system:/, "");
+          var key = String(owner).replace(/^system:/, "");
+          return systemOwnerLabels[key] || key.replace(/_/g, " ");
         });
         details = t("js.system_address") + " " + (systemOwners.join(", ") || t("js.unknown_system_owner")) +
           (item.running_containers && item.running_containers.length
@@ -369,7 +376,8 @@
         (item.type === "reservation_conflict" ? t("js.reservation_conflict") :
         (item.type === "active_reservation_collision" ? t("js.active_reserved_collision") :
         (item.type === "multiple_runtime_owners" ? t("js.multiple_runtime_owners") :
-        (item.type === "system_address_collision" ? t("js.system_address_collision") : item.type))));
+        (item.type === "system_address_collision" ? t("js.system_address_collision") :
+        (item.type === "template_runtime_mismatch" ? t("js.template_runtime_mismatch") : item.type)))));
       return "<tr><td>" + escapeHtml(conflictLabel) + "</td><td>" + escapeHtml(item.network) +
         "</td><td>" + escapeHtml(item.ip || item.template_ip || "—") +
         "</td><td>" + escapeHtml(details) + "</td></tr>";
