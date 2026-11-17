@@ -60,9 +60,19 @@ $checks = [
         str_contains($js, 'js.template_ip_purpose') && str_contains($js, 'js.ipam_ip_purpose') && str_contains($js, 'js.runtime_ip_purpose'),
     'exclusion form is collapsed until explicitly requested' =>
         str_contains($js, '<details class="detail-exclusion-disclosure">') && str_contains($js, 'data-detail-exclusion-form'),
-    'detail panels use compact proportions without forced minimum height' =>
-        str_contains($css, 'grid-template-columns: minmax(250px, .34fr) minmax(0, .66fr)') &&
-        str_contains($css, '.address-detail-panel {') && str_contains($css, 'min-height: 0;'),
+    'detail panels use aligned card columns without forced minimum height' =>
+        str_contains($css, 'grid-template-columns: minmax(260px, .36fr) minmax(0, .64fr)') &&
+        str_contains($css, 'align-items: stretch') &&
+        str_contains($css, '.address-detail-panel {') &&
+        str_contains($css, 'border: 1px solid #e3e8ed') &&
+        str_contains($css, 'min-height: 0;'),
+    'container detail rows use a stable five-column alignment grid' =>
+        str_contains($css, 'minmax(150px, 1.15fr)') &&
+        str_contains($css, 'minmax(160px, 1.25fr)'),
+    'exclusion controls align as a compact detail footer' =>
+        str_contains($css, '.detail-exclusion-copy') &&
+        str_contains($css, '.detail-exclusion-action') &&
+        str_contains($css, 'align-items: end;'),
     'network groups no longer render as nested bordered cards' =>
         str_contains($css, '.network-card {') && str_contains($css, 'border: 0;') && str_contains($css, 'background: transparent;'),
     'conflict rows keep neutral backgrounds and use a left severity marker' =>
