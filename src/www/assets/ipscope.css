@@ -1633,3 +1633,170 @@ tbody tr:last-child td { border-bottom: 0; }
   .ipscope .inventory-panel .inventory-toolbar { margin: 0 12px 10px; }
   .ipscope .inventory-panel .network-list { padding: 0 12px 12px; }
 }
+
+
+/* T026-04: compact inventory labels and give expanded details a denser, finished rhythm. */
+.ipscope .address-table .status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: 650;
+}
+.ipscope .address-table .address-owner-chip {
+  min-height: 22px;
+  margin: 0 5px 0 0;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.ipscope .address-table .exclusion-match-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 19px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  line-height: 1.2;
+}
+.ipscope .inventory-panel .address-detail-row > td {
+  padding: 12px 14px 14px !important;
+}
+.ipscope .inventory-panel .address-detail-layout {
+  grid-template-columns: minmax(230px, .32fr) minmax(0, .68fr);
+  gap: 12px;
+}
+.ipscope .inventory-panel .address-detail-panel {
+  padding: 13px 15px;
+  border-color: #e6ebef;
+  border-radius: 7px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .025);
+}
+.ipscope .inventory-panel .address-detail-panel h4 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 10px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #edf0f3;
+  color: #34495b;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+.ipscope .inventory-panel .detail-panel-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: #f0f3f6;
+  color: #647589;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 650;
+}
+.ipscope .inventory-panel .address-detail-list {
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 9px 10px;
+}
+.ipscope .inventory-panel .address-detail-list dt,
+.ipscope .inventory-panel .address-detail-list dd {
+  font-size: 11px;
+  line-height: 1.45;
+}
+.ipscope .inventory-panel .address-detail-list dd .status-pill {
+  vertical-align: middle;
+}
+.ipscope .inventory-panel .detail-owner-row {
+  grid-template-columns: 22px minmax(130px, 1.05fr) minmax(66px, auto) minmax(84px, auto) minmax(120px, 1fr);
+  min-height: 43px;
+  gap: 9px;
+  padding: 7px 0;
+}
+.ipscope .inventory-panel .detail-owner-row + .detail-owner-row {
+  border-top: 1px solid #edf0f3;
+}
+.ipscope .inventory-panel .detail-docker-mark svg {
+  width: 19px;
+  height: 19px;
+}
+.ipscope .inventory-panel .detail-owner-name strong {
+  color: #2e4051;
+  font-size: 11px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+.ipscope .inventory-panel .detail-owner-name > span {
+  margin-top: 2px;
+  font-size: 9px;
+}
+.ipscope .inventory-panel .detail-state-pill,
+.ipscope .inventory-panel .detail-source-pill {
+  min-height: 21px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.3;
+}
+.ipscope .inventory-panel .detail-owner-purpose {
+  color: #697b8d;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.ipscope .inventory-panel .detail-empty {
+  padding: 2px 0;
+  color: #7b8997;
+  font-size: 11px;
+  line-height: 1.5;
+}
+.ipscope .inventory-panel .detail-conflict-notice {
+  margin-bottom: 10px;
+  padding: 8px 11px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+.ipscope .inventory-panel .detail-exclusion-wrap {
+  margin-top: 11px;
+  padding-top: 9px;
+}
+.ipscope .inventory-panel .detail-exclusion-toolbar {
+  min-height: 34px;
+  gap: 10px;
+}
+.ipscope .inventory-panel .detail-exclusion-copy strong { font-size: 11px; }
+.ipscope .inventory-panel .detail-exclusion-copy span { font-size: 10px; }
+@media (max-width: 900px) {
+  .ipscope .inventory-panel .address-detail-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ipscope .inventory-panel .detail-owner-row {
+    grid-template-columns: 22px minmax(120px, 1fr) auto auto;
+  }
+}
+@media (max-width: 650px) {
+  .ipscope .inventory-panel .address-detail-row > td { padding: 9px !important; }
+  .ipscope .inventory-panel .address-detail-panel { padding: 12px; }
+  .ipscope .inventory-panel .detail-owner-row {
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    gap: 7px;
+  }
+  .ipscope .inventory-panel .detail-source-pill,
+  .ipscope .inventory-panel .detail-owner-purpose { grid-column: 2 / -1; }
+  .ipscope .inventory-panel .detail-exclusion-toolbar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .ipscope .inventory-panel .detail-exclusion-copy {
+    flex: 1 1 100%;
+    flex-direction: column;
+    gap: 3px;
+  }
+}
