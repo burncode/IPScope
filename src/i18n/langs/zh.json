@@ -432,5 +432,9 @@
   "js.exclusion_reason_label": "排除原因",
   "js.exclusion_rules": "排除规则",
   "js.exclude_ip_helper": "将此地址从 IP 建议中排除",
-  "js.confirm_exclusion": "确认排除"
+  "js.confirm_exclusion": "确认排除",
+  "js.system_address_collision": "系统地址碰撞",
+  "js.system_address": "系统地址",
+  "js.unknown_system_owner": "未知系统来源",
+  "js.matching_rules": "匹配规则"
 }
