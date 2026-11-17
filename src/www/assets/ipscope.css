@@ -1800,3 +1800,161 @@ tbody tr:last-child td { border-bottom: 0; }
     gap: 3px;
   }
 }
+
+
+/* T026-05: equalize detail cards and turn exclusion rules into a compact aligned action strip. */
+.ipscope .inventory-panel .address-detail-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.ipscope .inventory-panel .address-detail-panel {
+  min-height: 0;
+  height: 100%;
+}
+.ipscope .inventory-panel .address-detail-panel h4 {
+  min-height: 29px;
+  margin-bottom: 10px;
+}
+.ipscope .inventory-panel .address-summary-panel .address-detail-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: minmax(32px, auto);
+  gap: 7px;
+}
+.ipscope .inventory-panel .address-summary-panel .address-detail-list > div {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.ipscope .inventory-panel .address-summary-panel .address-detail-list dt,
+.ipscope .inventory-panel .address-summary-panel .address-detail-list dd {
+  margin: 0;
+  line-height: 1.4;
+}
+.ipscope .inventory-panel .system-detail-line {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-height: 39px;
+  padding: 6px 0;
+  border-top: 1px solid #edf0f3;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.ipscope .inventory-panel .system-detail-line:first-of-type {
+  margin-top: 0;
+}
+.ipscope .inventory-panel .system-detail-line span {
+  width: auto;
+  min-width: 0;
+  color: #718096;
+}
+.ipscope .inventory-panel .system-detail-line strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ipscope .inventory-panel .detail-exclusion-wrap {
+  display: flex;
+  align-items: center;
+  min-height: 0;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: 1px solid #e7ebef;
+  border-radius: 7px;
+  background: #f8fafb;
+}
+.ipscope .inventory-panel .detail-exclusion-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 30px;
+  gap: 16px;
+}
+.ipscope .inventory-panel .detail-exclusion-copy {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+}
+.ipscope .inventory-panel .detail-exclusion-copy strong {
+  color: #34495b;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.ipscope .inventory-panel .detail-exclusion-copy span {
+  color: #8492a0;
+  font-size: 10px;
+  line-height: 1.4;
+}
+.ipscope .inventory-panel .detail-exclusion-disclosure {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  margin: 0;
+}
+.ipscope .inventory-panel .detail-exclusion-disclosure > summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid #d8e0e7;
+  border-radius: 5px;
+  background: #fff;
+  color: #52677b;
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1;
+  cursor: pointer;
+  list-style: none;
+}
+.ipscope .inventory-panel .detail-exclusion-disclosure > summary::-webkit-details-marker { display: none; }
+.ipscope .inventory-panel .detail-exclusion-action {
+  align-items: end;
+  gap: 9px;
+  padding-top: 9px;
+}
+.ipscope .inventory-panel .detail-exclusion-action .detail-exclude-button {
+  align-self: end;
+  min-height: 32px;
+}
+.ipscope .inventory-panel .detail-exclusion-state,
+.ipscope .inventory-panel .detail-exclusion-toolbar > .detail-exclude-button {
+  flex: 0 0 auto;
+  align-self: center;
+}
+@media (max-width: 900px) {
+  .ipscope .inventory-panel .address-detail-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 650px) {
+  .ipscope .inventory-panel .detail-exclusion-wrap {
+    align-items: stretch;
+    padding: 9px 10px;
+  }
+  .ipscope .inventory-panel .detail-exclusion-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ipscope .inventory-panel .detail-exclusion-copy {
+    flex-direction: row;
+    flex-basis: auto;
+  }
+  .ipscope .inventory-panel .detail-exclusion-action {
+    align-items: stretch;
+    flex-direction: column;
+    width: 100%;
+  }
+  .ipscope .inventory-panel .detail-exclusion-action .detail-exclude-button {
+    align-self: stretch;
+  }
+}
