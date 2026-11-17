@@ -176,58 +176,53 @@
           var container = containersByName[owner.container] || null;
           var networkDetails = container && container.networks ? container.networks[network.name] : null;
           var mac = networkDetails && networkDetails.mac ? networkDetails.mac : "";
-          var containerIp = networkDetails && (networkDetails.ipv4 || networkDetails.ipam_ipv4)
-            ? (networkDetails.ipv4 || networkDetails.ipam_ipv4) : address.ip;
           var state = String(owner.state || (container && container.state) || "unknown").toLowerCase();
           var stateLabel = state === "running" ? t("js.running") :
             (state === "paused" ? t("js.paused") :
             (state === "exited" || state === "stopped" ? t("js.stopped") : t("js.unknown_state")));
+          var source = String(owner.source || "");
+          var sourceLabel = source === "unraid_template" ? t("js.template_source") :
+            (source === "docker_ipam" ? t("js.ipam_source") :
+            (source === "docker_runtime" ? t("js.runtime_source") : source));
+          var purposeLabel = source === "unraid_template" ? t("js.template_ip_purpose") :
+            (source === "docker_ipam" ? t("js.ipam_ip_purpose") :
+            (source === "docker_runtime" ? t("js.runtime_ip_purpose") : t("js.unknown_source")));
           return {
             name: owner.container,
-            source: String(owner.source || ""),
-            kind: String(owner.kind || ""),
+            source: source,
+            sourceLabel: sourceLabel,
+            purposeLabel: purposeLabel,
             state: stateLabel,
-            ip: containerIp,
             mac: mac
           };
         });
         var ownerDetails = detailOwners.map(function (owner) {
-          return '<div class="detail-entity-card">' +
-            '<div class="detail-entity-heading"><strong>' + escapeHtml(owner.name) + '</strong>' +
-            '<span class="detail-state-pill ' + (owner.state === t("js.running") ? 'is-running' : '') + '">' + escapeHtml(owner.state) + '</span></div>' +
-            '<div class="detail-entity-meta"><span>' + t("js.container_ip") + ' <strong>' + escapeHtml(owner.ip) + '</strong></span>' +
-            (owner.mac ? '<span>MAC <strong>' + escapeHtml(owner.mac) + '</strong></span>' : '') + '</div></div>';
+          return '<div class="detail-owner-row">' +
+            '<span class="detail-docker-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 10h18v6a4 4 0 0 1-4 4H8a5 5 0 0 1-5-5v-5Z"/><path d="M7 6h3v3H7zM11 6h3v3h-3zM15 6h3v3h-3zM11 2h3v3h-3zM2 13H0M24 13h-2"/></svg></span>' +
+            '<div class="detail-owner-name"><strong>' + escapeHtml(owner.name) + '</strong>' +
+            (owner.mac ? '<span>MAC ' + escapeHtml(owner.mac) + '</span>' : '') + '</div>' +
+            '<span class="detail-state-pill ' + (owner.state === t("js.running") ? 'is-running' : '') + '">' + escapeHtml(owner.state) + '</span>' +
+            '<span class="detail-source-pill">' + escapeHtml(owner.sourceLabel) + '</span>' +
+            '<span class="detail-owner-purpose">' + escapeHtml(owner.purposeLabel) + '</span></div>';
         }).join("");
-        var addressInformation = '<section class="address-detail-panel">' +
-          '<h4>' + t("js.address_information") + '</h4>' +
+        var addressInformation = '<section class="address-detail-panel address-summary-panel">' +
+          '<h4>' + t("js.basic_information") + '</h4>' +
           '<dl class="address-detail-list">' +
-          '<div><dt>' + t("js.ip_address") + '</dt><dd><code>' + escapeHtml(address.ip) + '</code></dd></div>' +
           '<div><dt>' + t("js.network") + '</dt><dd>' + escapeHtml(network.name) + '</dd></div>' +
           '<div><dt>' + t("js.address_state") + '</dt><dd><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></dd></div>' +
-          (status === "conflict" ? '<div><dt>' + t("js.conflict_count") + '</dt><dd>' + detailOwners.length + '</dd></div>' : '') +
+          (status === "conflict" ? '<div><dt>' + t("js.conflict_count") + '</dt><dd><strong>' + detailOwners.length + ' ' + t("js.containers_unit") + '</strong></dd></div>' : '') +
+          (status === "system" ? '<div><dt>' + t("js.system_usage") + '</dt><dd>' + escapeHtml(String(address.system_reason || t("js.docker_network_infrastructure_address")).replace(/_/g, " ")) + '</dd></div>' : '') +
           '</dl></section>';
         var detailRight = "";
-        if (status === "occupied") {
-          detailRight = '<section class="address-detail-panel"><h4>' + t("js.container_information") + '</h4>' +
-            (ownerDetails || '<p class="detail-empty">' + t("js.no_container_details") + '</p>') + '</section>';
-        } else if (status === "conflict") {
-          detailRight = '<section class="address-detail-panel"><h4>' + t("js.occupied_containers") + ' (' + detailOwners.length + ')</h4>' +
+        if (status === "occupied" || status === "conflict") {
+          detailRight = '<section class="address-detail-panel address-owner-panel"><h4>' +
+            (status === "conflict" ? t("js.occupied_containers") : t("js.container_information")) +
+            ' <span class="detail-panel-count">' + detailOwners.length + '</span></h4>' +
             (ownerDetails || '<p class="detail-empty">' + t("js.no_container_details") + '</p>') + '</section>';
         } else if (status === "reserved") {
-          var reservationOwner = detailOwners[0] || null;
-          var rawReservationSource = reservationOwner ? reservationOwner.source : "";
-          var reservationSource = rawReservationSource === "unraid_template" ? t("js.container_template") :
-            (rawReservationSource === "docker_ipam" ? "Docker IPAM" : t("js.unknown_source"));
-          var reservationReason = reservationOwner && reservationOwner.state
-            ? (reservationOwner.state === t("js.stopped") ? t("js.stopped_container_keeps_ip") : t("js.saved_container_ip_reservation"))
-            : t("js.saved_ip_reservation");
-          detailRight = '<section class="address-detail-panel"><h4>' + t("js.reservation_information") + '</h4>' +
-            '<dl class="address-detail-list">' +
-            '<div><dt>' + t("js.reservation_source") + '</dt><dd>' + escapeHtml(reservationSource) + '</dd></div>' +
-            '<div><dt>' + t("js.related_container") + '</dt><dd>' + escapeHtml(reservationOwner ? reservationOwner.name : t("js.not_available")) + '</dd></div>' +
-            '<div><dt>' + t("js.reservation_type") + '</dt><dd>' + escapeHtml(rawReservationSource === "unraid_template" ? t("js.template_reservation") : t("js.docker_ipam_reservation")) + '</dd></div>' +
-            '<div><dt>' + t("js.reservation_reason") + '</dt><dd>' + escapeHtml(reservationReason) + '</dd></div>' +
-            '</dl></section>';
+          detailRight = '<section class="address-detail-panel address-owner-panel"><h4>' + t("js.reservation_information") +
+            ' <span class="detail-panel-count">' + detailOwners.length + '</span></h4>' +
+            (ownerDetails || '<p class="detail-empty">' + t("js.saved_ip_reservation") + '</p>') + '</section>';
         } else if (status === "system") {
           var systemOwnerNames = (address.owners || []).filter(function (owner) {
             return owner.kind === "system" && owner.container;
@@ -239,15 +234,12 @@
             network_address: t("js.system_network_address"),
             broadcast_address: t("js.system_broadcast_address")
           })[systemReason] || systemReason.replace(/_/g, " ");
-          var subnetLabel = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
-          detailRight = '<section class="address-detail-panel"><h4>' + t("js.system_information") + '</h4>' +
-            '<dl class="address-detail-list">' +
-            '<div><dt>' + t("js.system_usage") + '</dt><dd>' + escapeHtml(systemReasonLabel) + '</dd></div>' +
-            '<div><dt>' + t("js.usage_details") + '</dt><dd>' + escapeHtml(t("js.docker_network_infrastructure_address")) + '</dd></div>' +
-            '<div><dt>' + t("js.reservation_scope") + '</dt><dd><code>' + escapeHtml(subnetLabel || t("js.not_available")) + '</code></dd></div>' +
-            '</dl></section>';
+          detailRight = '<section class="address-detail-panel address-owner-panel"><h4>' + t("js.system_information") + '</h4>' +
+            '<div class="system-detail-line"><span>' + t("js.system_usage") + '</span><strong>' + escapeHtml(systemReasonLabel) + '</strong></div>' +
+            '<div class="system-detail-line"><span>' + t("js.usage_details") + '</span><strong>' + escapeHtml(t("js.docker_network_infrastructure_address")) + '</strong></div>' +
+            '</section>';
         } else {
-          detailRight = '<section class="address-detail-panel"><h4>' + t("js.address_status_information") + '</h4>' +
+          detailRight = '<section class="address-detail-panel address-owner-panel"><h4>' + t("js.address_status_information") + '</h4>' +
             '<p class="detail-empty">' + (status === "available" ? t("js.no_docker_owner_detected") : t("js.address_has_no_runtime_owner")) + '</p></section>';
         }
         var matchingExclusions = address.exclusions || [];
@@ -266,7 +258,9 @@
             '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclude_this_ip") + '</span>' +
             '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("js.reason_e_g_dhcp_reservation") + '" required></label>' +
             '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.add_rule") + '</button></form>');
-        var detailContent = '<div class="address-detail-layout">' + addressInformation + detailRight + '</div>' +
+        var conflictNotice = status === "conflict" ?
+          '<div class="detail-conflict-notice"><span class="detail-conflict-icon" aria-hidden="true">!</span><strong>' + t("js.ip_conflict_notice") + '</strong></div>' : '';
+        var detailContent = conflictNotice + '<div class="address-detail-layout">' + addressInformation + detailRight + '</div>' +
           '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>';
         var ownerChips = ownerNames.length ? ownerNames.map(function (name) {
           return '<span class="address-owner-chip' + (status === "conflict" ? ' is-conflict' : '') + '">' + escapeHtml(name) + '</span>';
