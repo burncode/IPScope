@@ -250,17 +250,18 @@
             (rule.match_type === "ip" ? rule.value === address.ip : cidrContains(rule.value, address.ip));
         });
         var exclusionAction = matchingExclusions.length ?
-          '<div class="detail-exclusion-state"><span class="status-pill status-excluded">' + t("js.excluded_by_rule") + '</span>' +
-          '<span>' + escapeHtml(matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ")) + '</span>' +
+          '<div class="detail-exclusion-toolbar is-active"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + escapeHtml(matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ") || t("js.excluded_by_rule")) + '</span></div>' +
+          '<span class="status-pill status-excluded">' + t("js.excluded_by_rule") + '</span>' +
           '<button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("js.view_rule") + '</button></div>' :
           (disabledRule ?
-            '<div class="detail-exclusion-action"><span class="muted-inline">' + t("js.a_matching_rule_is_disabled") + '</span>' +
+            '<div class="detail-exclusion-toolbar"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + t("js.a_matching_rule_is_disabled") + '</span></div>' +
             '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("js.enable_rule") + '</button></div>' :
-            '<details class="detail-exclusion-disclosure"><summary>' + t("js.exclude_this_ip") + '</summary>' +
+            '<div class="detail-exclusion-toolbar"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + t("js.exclude_ip_helper") + '</span></div>' +
+            '<details class="detail-exclusion-disclosure"><summary>' + t("js.add_rule") + '</summary>' +
             '<form class="detail-exclusion-action" data-detail-exclusion-form>' +
             '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclusion_reason_label") + '</span>' +
             '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("js.reason_e_g_dhcp_reservation") + '" required></label>' +
-            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.add_rule") + '</button></form></details>');
+            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.confirm_exclusion") + '</button></form></details></div>');
         var conflictNotice = status === "conflict" ?
           '<div class="detail-conflict-notice"><span class="detail-conflict-icon" aria-hidden="true">!</span><strong>' + t("js.ip_conflict_notice") + '</strong></div>' : '';
         var detailContent = conflictNotice + '<div class="address-detail-layout">' + addressInformation + detailRight + '</div>' +
