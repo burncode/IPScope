@@ -281,10 +281,9 @@
       }).join("");
       var managed = network.address_space_managed !== false;
       return '<article class="network-card" data-page="0">' +
-        '<div class="network-head"><div><div class="network-name">' + escapeHtml(network.name) + '</div>' +
-        '<div class="network-meta">' + escapeHtml(network.driver || t("js.unknown_driver")) +
-        (subnet ? " · " + escapeHtml(subnet) : "") +
-        (managed ? "" : " · " + t("js.built_in_network_address_pool_not_managed")) + '</div></div>' +
+        '<div class="network-head"><div class="network-title-group"><div class="network-name">' + escapeHtml(network.name) + '</div>' +
+        '<span class="network-driver-tag">' + escapeHtml(network.driver || t("js.unknown_driver")) +
+        (managed ? "" : " · " + t("js.built_in_network_address_pool_not_managed")) + '</span></div>' +
         '<span class="network-count">' + addresses.length + ' ' + t("js.addresses") + '</span></div>' +
         '<div class="table-wrap address-table-wrap"><table class="address-table"><colgroup><col class="col-ip"><col class="col-status"><col class="col-owner"><col class="col-actions"></colgroup><thead><tr><th>' + t("js.ipv4_address") + '</th><th>' + t("js.status") + '</th><th>' + t("js.owner_reason") + '</th><th class="actions-heading">' + t("js.actions") + '</th></tr></thead>' +
         '<tbody>' + (rows || '<tr><td colspan="4" class="table-empty">' + t("js.no_address_records") + '</td></tr>') + '</tbody></table></div>' +
