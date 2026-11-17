@@ -220,7 +220,8 @@ final class AddressInventory
                         'reserved_containers' => array_values(array_unique(array_values($reservationOwners))),
                         'runtime_owner_count' => $runtimeCount,
                         'reservation_owner_count' => $reservationCount,
-                        'system_owners' => array_keys($systemOwners),
+                        'system_owners' => array_values($systemOwners),
+                        'system_owner_count' => count($systemOwners),
                     ];
                 }
             }
