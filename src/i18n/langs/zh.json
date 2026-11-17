@@ -436,5 +436,6 @@
   "js.system_address_collision": "系统地址碰撞",
   "js.system_address": "系统地址",
   "js.unknown_system_owner": "未知系统来源",
-  "js.matching_rules": "匹配规则"
+  "js.matching_rules": "匹配规则",
+  "js.template_runtime_mismatch": "模板 IP 与运行 IP 不一致"
 }
