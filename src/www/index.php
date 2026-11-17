@@ -89,12 +89,13 @@ $ipscopeI18nConfig = [
     </section>
 
     <section class="view-panel ip-management-view" data-panel="addresses">
-      <header class="inventory-page-heading">
+    <section class="panel inventory-panel">
+      <div class="panel-heading">
         <div>
           <h2><?= $ipscopeI18n->translate("ui.network_inventory") ?></h2>
           <p><?= $ipscopeI18n->translate("ui.known_addresses_grouped_by_docker_network") ?></p>
         </div>
-      </header>
+      </div>
       <div class="network-toolbar inventory-toolbar">
         <div class="address-controls">
           <input id="address-filter" class="address-filter" type="search" placeholder="<?= htmlspecialchars($ipscopeI18n->translate("ui.search_ip_or_container"), ENT_QUOTES, "UTF-8") ?>" autocomplete="off">
@@ -118,6 +119,7 @@ $ipscopeI18nConfig = [
       <div id="network-list" class="network-list">
         <div class="empty-state"><?= $ipscopeI18n->translate("ui.run_a_scan_to_collect_docker_network_data") ?></div>
       </div>
+    </section>
     </section>
 
     <section class="view-panel" data-panel="templates">
