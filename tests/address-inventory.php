@@ -66,6 +66,46 @@ $templates = [
     ['name' => 'duplicate-id-test', 'network' => 'bond0', 'ips' => ['192.168.50.109']],
 ];
 
+$overlappingRules = [
+    [
+        'id' => 'exclude-pool',
+        'enabled' => true,
+        'network' => 'bond0',
+        'match_type' => 'cidr',
+        'value' => '192.168.50.0/25',
+        'reason' => 'DHCP pool',
+    ],
+    [
+        'id' => 'exclude-specific',
+        'enabled' => true,
+        'network' => 'bond0',
+        'match_type' => 'ip',
+        'value' => '192.168.50.100',
+        'reason' => 'Manual reservation',
+    ],
+    [
+        'id' => 'exclude-running',
+        'enabled' => true,
+        'network' => 'bond0',
+        'match_type' => 'ip',
+        'value' => '192.168.50.101',
+        'reason' => 'Do not recommend',
+    ],
+];
+$overlapResult = (new AddressInventory())->build($networks, $containers, $templates, $overlappingRules);
+$overlapAddresses = [];
+foreach ($overlapResult['networks'][0]['known_addresses'] as $address) {
+    $overlapAddresses[$address['ip']] = $address;
+}
+$excludedInUseEvents = array_values(array_filter(
+    $overlapResult['conflicts'],
+    static fn(array $conflict): bool => ($conflict['type'] ?? '') === 'excluded_address_in_use'
+));
+$eventsByIp = [];
+foreach ($excludedInUseEvents as $event) {
+    $eventsByIp[$event['ip']][] = $event;
+}
+
 $result = (new AddressInventory())->build($networks, $containers, $templates);
 $bridgeNetwork = $result['networks'][1];
 $bridgeAddresses = $bridgeNetwork['known_addresses'] ?? [];
@@ -100,6 +140,20 @@ $checks = [
     ($addresses['192.168.50.108'] ?? null) === 'reserved',
     ($addresses['192.168.50.109'] ?? null) === 'reserved',
     count($result['orphan_templates']) === 1,
+    // Overlapping rules must not turn an available address into an in-use conflict.
+    ($overlapAddresses['192.168.50.102']['status'] ?? null) === 'excluded',
+    count($overlapAddresses['192.168.50.102']['exclusions'] ?? []) === 1,
+    count(array_filter($excludedInUseEvents, static fn(array $event): bool => $event['ip'] === '192.168.50.102')) === 0,
+    // A reservation conflict keeps its original classification and gets one exclusion event.
+    ($overlapAddresses['192.168.50.100']['status'] ?? null) === 'conflict',
+    count($overlapAddresses['192.168.50.100']['exclusions'] ?? []) === 2,
+    count($eventsByIp['192.168.50.100'] ?? []) === 1,
+    ($eventsByIp['192.168.50.100'][0]['rule_count'] ?? 0) === 2,
+    count($eventsByIp['192.168.50.100'][0]['rule_ids'] ?? []) === 2,
+    // A runtime-occupied address remains occupied and emits one event for one rule.
+    ($overlapAddresses['192.168.50.101']['status'] ?? null) === 'occupied',
+    count($eventsByIp['192.168.50.101'] ?? []) === 1,
+    ($eventsByIp['192.168.50.101'][0]['status'] ?? null) === 'occupied',
 ];
 
 foreach ($checks as $index => $passed) {
