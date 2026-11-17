@@ -88,7 +88,7 @@ $checks = [
         str_contains($css, '.inventory-panel .detail-owner-purpose'),
     'detail refinements retain responsive layouts' =>
         str_contains($css, '@media (max-width: 900px)') &&
-        str_contains($css, '@media (max-width: 650px)');
+        str_contains($css, '@media (max-width: 650px)'),
     'network groups no longer render as nested bordered cards' =>
         str_contains($css, '.network-card {') && str_contains($css, 'border: 0;') && str_contains($css, 'background: transparent;'),
     'conflict rows keep neutral backgrounds and use a left severity marker' =>
