@@ -419,5 +419,14 @@
   "js.docker_network_infrastructure_address": "Docker network infrastructure address",
   "js.no_docker_owner_detected": "No container claim was found in the current Docker snapshot.",
   "js.address_has_no_runtime_owner": "No runtime container owner is recorded for this address.",
-  "js.not_available": "Not available"
+  "js.not_available": "Not available",
+  "js.basic_information": "Basic information",
+  "js.containers_unit": "containers",
+  "js.template_source": "Template reservation",
+  "js.ipam_source": "IPAM reservation",
+  "js.runtime_source": "Runtime occupancy",
+  "js.template_ip_purpose": "Static IP saved in the Unraid Docker template",
+  "js.ipam_ip_purpose": "Static IP configured through Docker network IPAM",
+  "js.runtime_ip_purpose": "IP address currently used by the container",
+  "js.ip_conflict_notice": "IP conflict: this address is claimed by multiple containers"
 }
