@@ -234,9 +234,11 @@
             network_address: t("js.system_network_address"),
             broadcast_address: t("js.system_broadcast_address")
           })[systemReason] || systemReason.replace(/_/g, " ");
+          var subnetLabel = (network.ipv4 || []).map(function (item) { return item.subnet; }).filter(Boolean).join(", ");
           detailRight = '<section class="address-detail-panel address-owner-panel"><h4>' + t("js.system_information") + '</h4>' +
             '<div class="system-detail-line"><span>' + t("js.system_usage") + '</span><strong>' + escapeHtml(systemReasonLabel) + '</strong></div>' +
             '<div class="system-detail-line"><span>' + t("js.usage_details") + '</span><strong>' + escapeHtml(t("js.docker_network_infrastructure_address")) + '</strong></div>' +
+            (subnetLabel ? '<div class="system-detail-line"><span>' + t("js.reservation_scope") + '</span><strong><code>' + escapeHtml(subnetLabel) + '</code></strong></div>' : '') +
             '</section>';
         } else {
           detailRight = '<section class="address-detail-panel address-owner-panel"><h4>' + t("js.address_status_information") + '</h4>' +
