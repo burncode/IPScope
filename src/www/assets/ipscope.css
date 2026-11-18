@@ -1958,3 +1958,68 @@ tbody tr:last-child td { border-bottom: 0; }
     align-self: stretch;
   }
 }
+
+
+/* T026-06: keep exclusion context with the address state and remove empty detail-card height. */
+.ipscope .inventory-panel .address-detail-layout {
+  align-items: start;
+  gap: 10px;
+}
+.ipscope .inventory-panel .address-detail-panel {
+  height: auto;
+  min-height: 0;
+  padding: 11px 13px;
+}
+.ipscope .inventory-panel .address-detail-panel h4 {
+  min-height: 0;
+  margin: 0 0 7px;
+  padding-bottom: 7px;
+}
+.ipscope .inventory-panel .address-summary-panel .address-detail-list {
+  gap: 5px;
+}
+.ipscope .inventory-panel .address-summary-panel .address-detail-list > div {
+  min-height: 27px;
+}
+.ipscope .inventory-panel .system-detail-line {
+  min-height: 32px;
+  padding: 4px 0;
+}
+.ipscope .inventory-panel .detail-owner-row {
+  min-height: 37px;
+  padding: 5px 0;
+}
+.ipscope .inventory-panel .address-detail-layout.is-single-panel {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ipscope .inventory-panel .address-detail-layout.is-single-panel .address-summary-panel {
+  width: 100%;
+}
+.ipscope .inventory-panel .detail-inline-exclusion dd {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px 12px;
+}
+.ipscope .inventory-panel .detail-inline-exclusion-reason {
+  min-width: 0;
+  color: #34495b;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.ipscope .inventory-panel .detail-inline-exclusion .detail-link-button {
+  flex: 0 0 auto;
+  min-height: 25px;
+  padding: 2px 8px;
+  border: 1px solid #d9e1e8;
+  border-radius: 4px;
+  background: #fff;
+  color: #52677b;
+  font-size: 10px;
+  line-height: 1.2;
+}
+@media (max-width: 650px) {
+  .ipscope .inventory-panel .detail-inline-exclusion dd {
+    align-items: flex-start;
+  }
+}
