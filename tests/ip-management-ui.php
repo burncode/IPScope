@@ -120,6 +120,17 @@ $checks = [
         str_contains($js, 'detail-exclusion-toolbar') && str_contains($js, 'js.exclude_ip_helper') && str_contains($js, 'js.confirm_exclusion'),
     'exclusion rule creation remains collapsed until requested' =>
         str_contains($js, '<details class="detail-exclusion-disclosure">') && str_contains($js, 'data-detail-exclusion-form'),
+    'excluded address shows reason and rule link inside basic information' =>
+        str_contains($js, 'status === "excluded" && matchingExclusions.length') &&
+        str_contains($js, 'detail-inline-exclusion') &&
+        str_contains($js, 'data-open-view="exclusions"'),
+    'excluded address hides the empty runtime-owner panel and duplicate footer' =>
+        str_contains($js, 'status !== "excluded"') &&
+        str_contains($js, "exclusionAction ? '<div class=\"detail-exclusion-wrap\""),
+    'detail cards use content height rather than stretching across empty space' =>
+        str_contains($css, '.inventory-panel .address-detail-panel {') &&
+        str_contains($css, 'height: auto;') &&
+        str_contains($css, '.address-detail-layout.is-single-panel');
 
 ];
 
