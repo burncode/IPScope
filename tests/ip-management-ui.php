@@ -97,7 +97,7 @@ $checks = [
         str_contains($css, '.detail-exclusion-wrap') &&
         str_contains($css, 'justify-content: space-between') &&
         str_contains($css, 'align-items: center') &&
-        str_contains($css, 'min-height: 30px');
+        str_contains($css, 'min-height: 30px'),
     'network groups no longer render as nested bordered cards' =>
         str_contains($css, '.network-card {') && str_contains($css, 'border: 0;') && str_contains($css, 'background: transparent;'),
     'conflict rows keep neutral backgrounds and use a left severity marker' =>
