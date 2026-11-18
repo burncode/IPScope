@@ -205,11 +205,14 @@
             '<span class="detail-source-pill">' + escapeHtml(owner.sourceLabel) + '</span>' +
             '<span class="detail-owner-purpose">' + escapeHtml(owner.purposeLabel) + '</span></div>';
         }).join("");
+        var matchingExclusions = address.exclusions || [];
+        var exclusionReasonText = matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ") || t("js.excluded_by_rule");
         var addressInformation = '<section class="address-detail-panel address-summary-panel">' +
           '<h4>' + t("js.basic_information") + '</h4>' +
           '<dl class="address-detail-list">' +
           '<div><dt>' + t("js.network") + '</dt><dd>' + escapeHtml(network.name) + '</dd></div>' +
           '<div><dt>' + t("js.address_state") + '</dt><dd><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></dd></div>' +
+          (status === "excluded" && matchingExclusions.length ? '<div class="detail-inline-exclusion"><dt>' + t("js.exclusion_reason_label") + '</dt><dd><span class="detail-inline-exclusion-reason">' + escapeHtml(exclusionReasonText) + '</span><button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("js.view_rule") + '</button></dd></div>' : '') +
           (status === "conflict" ? '<div><dt>' + t("js.conflict_count") + '</dt><dd><strong>' + detailOwners.length + ' ' + t("js.containers_unit") + '</strong></dd></div>' : '') +
           (status === "system" ? '<div><dt>' + t("js.system_usage") + '</dt><dd>' + escapeHtml(String(address.system_reason || t("js.docker_network_infrastructure_address")).replace(/_/g, " ")) + '</dd></div>' : '') +
           '</dl></section>';
@@ -240,19 +243,16 @@
             '<div class="system-detail-line"><span>' + t("js.usage_details") + '</span><strong>' + escapeHtml(t("js.docker_network_infrastructure_address")) + '</strong></div>' +
             (subnetLabel ? '<div class="system-detail-line"><span>' + t("js.reservation_scope") + '</span><strong><code>' + escapeHtml(subnetLabel) + '</code></strong></div>' : '') +
             '</section>';
-        } else {
+        } else if (status !== "excluded") {
           detailRight = '<section class="address-detail-panel address-owner-panel"><h4>' + t("js.address_status_information") + '</h4>' +
             '<p class="detail-empty">' + (status === "available" ? t("js.no_docker_owner_detected") : t("js.address_has_no_runtime_owner")) + '</p></section>';
         }
-        var matchingExclusions = address.exclusions || [];
         var disabledRule = exclusionRules.find(function (rule) {
           return !rule.enabled && (rule.network === "*" || rule.network === network.name) &&
             (rule.match_type === "ip" ? rule.value === address.ip : cidrContains(rule.value, address.ip));
         });
         var exclusionAction = matchingExclusions.length ?
-          '<div class="detail-exclusion-toolbar is-active"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + escapeHtml(matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ") || t("js.excluded_by_rule")) + '</span></div>' +
-          '<span class="status-pill status-excluded">' + t("js.excluded_by_rule") + '</span>' +
-          '<button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("js.view_rule") + '</button></div>' :
+          '' :
           (disabledRule ?
             '<div class="detail-exclusion-toolbar"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + t("js.a_matching_rule_is_disabled") + '</span></div>' +
             '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("js.enable_rule") + '</button></div>' :
@@ -264,8 +264,8 @@
             '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.confirm_exclusion") + '</button></form></details></div>');
         var conflictNotice = status === "conflict" ?
           '<div class="detail-conflict-notice"><span class="detail-conflict-icon" aria-hidden="true">!</span><strong>' + t("js.ip_conflict_notice") + '</strong></div>' : '';
-        var detailContent = conflictNotice + '<div class="address-detail-layout">' + addressInformation + detailRight + '</div>' +
-          '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>';
+        var detailContent = conflictNotice + '<div class="address-detail-layout' + (status === "excluded" ? ' is-single-panel' : '') + '">' + addressInformation + detailRight + '</div>' +
+          (exclusionAction ? '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>' : '');
         var ownerChips = ownerNames.length ? ownerNames.map(function (name) {
           return '<span class="address-owner-chip' + (status === "conflict" ? ' is-conflict' : '') + '">' + escapeHtml(name) + '</span>';
         }).join("") : (reason ? '<span class="muted-inline">' + escapeHtml(reason) + '</span>' : '—');
