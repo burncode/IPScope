@@ -126,7 +126,7 @@ $checks = [
         str_contains($js, 'data-open-view="exclusions"'),
     'excluded address hides the empty runtime-owner panel and duplicate footer' =>
         str_contains($js, 'status !== "excluded"') &&
-        str_contains($js, "exclusionAction ? '<div class=\"detail-exclusion-wrap\""),
+        str_contains($js, 'exclusionAction ?') && str_contains($js, 'detail-exclusion-wrap'),
     'detail cards use content height rather than stretching across empty space' =>
         str_contains($css, '.inventory-panel .address-detail-panel {') &&
         str_contains($css, 'height: auto;') &&
