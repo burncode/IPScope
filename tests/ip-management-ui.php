@@ -69,10 +69,10 @@ $checks = [
     'container detail rows use a stable five-column alignment grid' =>
         str_contains($css, 'minmax(150px, 1.15fr)') &&
         str_contains($css, 'minmax(160px, 1.25fr)'),
-    'exclusion controls align as a compact detail footer' =>
-        str_contains($css, '.detail-exclusion-copy') &&
-        str_contains($css, '.detail-exclusion-action') &&
-        str_contains($css, 'align-items: end;'),
+    'exclusion controls are integrated into the basic information rows' =>
+        str_contains($js, 'detail-inline-exclusion-action') &&
+        str_contains($css, '.detail-inline-exclusion-action .detail-exclusion-toolbar') &&
+        str_contains($css, '.detail-inline-exclusion-action .detail-exclusion-copy'),
     'inventory status and owner chips use compact consistent dimensions' =>
         str_contains($css, '.address-table .status-pill') &&
         str_contains($css, 'min-height: 20px') &&
@@ -93,11 +93,11 @@ $checks = [
         str_contains($css, 'grid-template-columns: minmax(0, 1fr) minmax(0, 1fr)') &&
         str_contains($css, '.address-summary-panel .address-detail-list > div') &&
         str_contains($css, '.system-detail-line'),
-    'exclusion rules render as a compact vertically centered action strip' =>
-        str_contains($css, '.detail-exclusion-wrap') &&
-        str_contains($css, 'justify-content: space-between') &&
-        str_contains($css, 'align-items: center') &&
-        str_contains($css, 'min-height: 30px'),
+    'exclusion controls no longer render as a full-width footer strip' =>
+        str_contains($js, 'var detailContent = conflictNotice') &&
+        !str_contains($js, "detail-exclusion-wrap' + exclusionAction") &&
+        str_contains($css, '.inventory-panel .detail-exclusion-wrap') &&
+        str_contains($css, 'display: none !important;'),
     'network groups no longer render as nested bordered cards' =>
         str_contains($css, '.network-card {') && str_contains($css, 'border: 0;') && str_contains($css, 'background: transparent;'),
     'conflict rows keep neutral backgrounds and use a left severity marker' =>
@@ -124,9 +124,10 @@ $checks = [
         str_contains($js, 'status === "excluded" && matchingExclusions.length') &&
         str_contains($js, 'detail-inline-exclusion') &&
         str_contains($js, 'data-open-view="exclusions"'),
-    'excluded address hides the empty runtime-owner panel and duplicate footer' =>
-        str_contains($js, 'status !== "excluded"') &&
-        str_contains($js, 'exclusionAction ?') && str_contains($js, 'detail-exclusion-wrap'),
+    'exclusion actions are rendered inside basic information instead of the detail footer' =>
+        str_contains($js, '(exclusionAction ? \'<div class="detail-inline-exclusion-action"') &&
+        str_contains($js, 'var detailContent = conflictNotice') &&
+        !str_contains($js, "detail-exclusion-wrap' + exclusionAction"),
     'detail cards use content height rather than stretching across empty space' =>
         str_contains($css, '.inventory-panel .address-detail-panel {') &&
         str_contains($css, 'height: auto;') &&
