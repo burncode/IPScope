@@ -17,13 +17,17 @@ $ipscopeI18nConfig = [
     'messages' => $ipscopeI18n->catalog(),
     'fallback' => $ipscopeEnglish->catalog(),
 ];
+$ipscopeCssPath = __DIR__ . '/assets/ipscope.css';
+$ipscopeJsPath = __DIR__ . '/assets/ipscope.js';
+$ipscopeCssVersion = is_file($ipscopeCssPath) ? (string)filemtime($ipscopeCssPath) : '1';
+$ipscopeJsVersion = is_file($ipscopeJsPath) ? (string)filemtime($ipscopeJsPath) : '1';
 ?><!doctype html>
 <html lang="<?= htmlspecialchars($ipscopeI18n->locale() === 'zh' ? 'zh-CN' : 'en-US', ENT_QUOTES, 'UTF-8') ?>">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>IPScope</title>
-  <link rel="stylesheet" href="/plugins/ipscope/src/www/assets/ipscope.css">
+  <link rel="stylesheet" href="/plugins/ipscope/src/www/assets/ipscope.css?v=<?= rawurlencode($ipscopeCssVersion) ?>">
 </head>
 <body>
   <main class="ipscope">
@@ -359,6 +363,6 @@ $ipscopeI18nConfig = [
   </main>
   <script>window.IPScopeI18nConfig = <?= json_encode($ipscopeI18nConfig, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
   <script src="/plugins/ipscope/src/www/assets/i18n.js" defer></script>
-  <script src="/plugins/ipscope/src/www/assets/ipscope.js" defer></script>
+  <script src="/plugins/ipscope/src/www/assets/ipscope.js?v=<?= rawurlencode($ipscopeJsVersion) ?>" defer></script>
 </body>
 </html>
