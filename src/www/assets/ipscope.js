@@ -215,6 +215,7 @@
           (status === "excluded" && matchingExclusions.length ? '<div class="detail-inline-exclusion"><dt>' + t("js.exclusion_reason_label") + '</dt><dd><span class="detail-inline-exclusion-reason">' + escapeHtml(exclusionReasonText) + '</span><button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("js.view_rule") + '</button></dd></div>' : '') +
           (status === "conflict" ? '<div><dt>' + t("js.conflict_count") + '</dt><dd><strong>' + detailOwners.length + ' ' + t("js.containers_unit") + '</strong></dd></div>' : '') +
           (status === "system" ? '<div><dt>' + t("js.system_usage") + '</dt><dd>' + escapeHtml(String(address.system_reason || t("js.docker_network_infrastructure_address")).replace(/_/g, " ")) + '</dd></div>' : '') +
+          (exclusionAction ? '<div class="detail-inline-exclusion-action"><dt>' + t("js.exclusion_rules") + '</dt><dd>' + exclusionAction + '</dd></div>' : '') +
           '</dl></section>';
         var detailRight = "";
         if (status === "occupied" || status === "conflict") {
@@ -264,8 +265,7 @@
             '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.confirm_exclusion") + '</button></form></details></div>');
         var conflictNotice = status === "conflict" ?
           '<div class="detail-conflict-notice"><span class="detail-conflict-icon" aria-hidden="true">!</span><strong>' + t("js.ip_conflict_notice") + '</strong></div>' : '';
-        var detailContent = conflictNotice + '<div class="address-detail-layout' + (status === "excluded" ? ' is-single-panel' : '') + '">' + addressInformation + detailRight + '</div>' +
-          (exclusionAction ? '<div class="detail-exclusion-wrap">' + exclusionAction + '</div>' : '');
+        var detailContent = conflictNotice + '<div class="address-detail-layout' + (status === "excluded" ? ' is-single-panel' : '') + '">' + addressInformation + detailRight + '</div>';
         var ownerChips = ownerNames.length ? ownerNames.map(function (name) {
           return '<span class="address-owner-chip' + (status === "conflict" ? ' is-conflict' : '') + '">' + escapeHtml(name) + '</span>';
         }).join("") : (reason ? '<span class="muted-inline">' + escapeHtml(reason) + '</span>' : '—');
