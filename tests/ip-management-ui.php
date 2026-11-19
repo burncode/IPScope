@@ -129,8 +129,7 @@ $checks = [
         str_contains($js, 'data-open-view="exclusions"'),
     'per-address exclusion creation is removed in favor of centralized rule management' =>
         !str_contains($js, 'detail-exclusion-toolbar') &&
-        !str_contains($js, 'data-detail-exclusion-form') &&
-        !str_contains($js, 'data-add-exclusion') &&
+        !str_contains($js, '<form class="detail-exclusion-action"') &&
         str_contains($js, 'data-open-view="exclusions"'),
     'detail cards use content-led heights and compact aligned owner rows' =>
         str_contains($css, '.address-detail-layout {') &&
