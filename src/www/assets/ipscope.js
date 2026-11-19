@@ -207,6 +207,21 @@
         }).join("");
         var matchingExclusions = address.exclusions || [];
         var exclusionReasonText = matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ") || t("js.excluded_by_rule");
+        var disabledRule = exclusionRules.find(function (rule) {
+          return !rule.enabled && (rule.network === "*" || rule.network === network.name) &&
+            (rule.match_type === "ip" ? rule.value === address.ip : cidrContains(rule.value, address.ip));
+        });
+        var exclusionAction = matchingExclusions.length ?
+          '' :
+          (disabledRule ?
+            '<div class="detail-exclusion-toolbar"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + t("js.a_matching_rule_is_disabled") + '</span></div>' +
+            '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("js.enable_rule") + '</button></div>' :
+            '<div class="detail-exclusion-toolbar"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + t("js.exclude_ip_helper") + '</span></div>' +
+            '<details class="detail-exclusion-disclosure"><summary>' + t("js.add_rule") + '</summary>' +
+            '<form class="detail-exclusion-action" data-detail-exclusion-form>' +
+            '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclusion_reason_label") + '</span>' +
+            '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("js.reason_e_g_dhcp_reservation") + '" required></label>' +
+            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.confirm_exclusion") + '</button></form></details></div>');
         var addressInformation = '<section class="address-detail-panel address-summary-panel">' +
           '<h4>' + t("js.basic_information") + '</h4>' +
           '<dl class="address-detail-list">' +
@@ -248,21 +263,6 @@
           detailRight = '<section class="address-detail-panel address-owner-panel"><h4>' + t("js.address_status_information") + '</h4>' +
             '<p class="detail-empty">' + (status === "available" ? t("js.no_docker_owner_detected") : t("js.address_has_no_runtime_owner")) + '</p></section>';
         }
-        var disabledRule = exclusionRules.find(function (rule) {
-          return !rule.enabled && (rule.network === "*" || rule.network === network.name) &&
-            (rule.match_type === "ip" ? rule.value === address.ip : cidrContains(rule.value, address.ip));
-        });
-        var exclusionAction = matchingExclusions.length ?
-          '' :
-          (disabledRule ?
-            '<div class="detail-exclusion-toolbar"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + t("js.a_matching_rule_is_disabled") + '</span></div>' +
-            '<button type="button" class="detail-exclude-button" data-enable-exclusion="' + escapeHtml(disabledRule.id) + '">' + t("js.enable_rule") + '</button></div>' :
-            '<div class="detail-exclusion-toolbar"><div class="detail-exclusion-copy"><strong>' + t("js.exclusion_rules") + '</strong><span>' + t("js.exclude_ip_helper") + '</span></div>' +
-            '<details class="detail-exclusion-disclosure"><summary>' + t("js.add_rule") + '</summary>' +
-            '<form class="detail-exclusion-action" data-detail-exclusion-form>' +
-            '<label class="detail-exclusion-reason"><span class="detail-label">' + t("js.exclusion_reason_label") + '</span>' +
-            '<input type="text" data-exclusion-reason maxlength="160" placeholder="' + t("js.reason_e_g_dhcp_reservation") + '" required></label>' +
-            '<button type="submit" class="detail-exclude-button" data-add-exclusion data-ip="' + escapeHtml(address.ip) + '" data-network="' + escapeHtml(network.name) + '">' + t("js.confirm_exclusion") + '</button></form></details></div>');
         var conflictNotice = status === "conflict" ?
           '<div class="detail-conflict-notice"><span class="detail-conflict-icon" aria-hidden="true">!</span><strong>' + t("js.ip_conflict_notice") + '</strong></div>' : '';
         var detailContent = conflictNotice + '<div class="address-detail-layout' + (status === "excluded" ? ' is-single-panel' : '') + '">' + addressInformation + detailRight + '</div>';
