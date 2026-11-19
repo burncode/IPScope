@@ -130,7 +130,7 @@ $checks = [
     'detail cards use content height rather than stretching across empty space' =>
         str_contains($css, '.inventory-panel .address-detail-panel {') &&
         str_contains($css, 'height: auto;') &&
-        str_contains($css, '.address-detail-layout.is-single-panel');
+        str_contains($css, '.address-detail-layout.is-single-panel'),
 
 ];
 
