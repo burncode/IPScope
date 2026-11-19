@@ -127,13 +127,16 @@ $checks = [
         str_contains($js, 'status === "excluded" && matchingExclusions.length') &&
         str_contains($js, 'detail-inline-exclusion') &&
         str_contains($js, 'data-open-view="exclusions"'),
-    'exclusion actions are rendered inside basic information instead of the detail footer' =>
-        str_contains($js, '(exclusionAction ? \'<div class="detail-inline-exclusion-action"') &&
-        str_contains($js, 'var detailContent = conflictNotice') &&
-        !str_contains($js, "detail-exclusion-wrap' + exclusionAction"),
-    'detail cards use content height rather than stretching across empty space' =>
-        str_contains($css, '.inventory-panel .address-detail-panel {') &&
-        str_contains($css, 'height: auto;') &&
+    'per-address exclusion creation is removed in favor of centralized rule management' =>
+        !str_contains($js, 'detail-exclusion-toolbar') &&
+        !str_contains($js, 'data-detail-exclusion-form') &&
+        !str_contains($js, 'data-add-exclusion') &&
+        str_contains($js, 'data-open-view="exclusions"'),
+    'detail cards use content-led heights and compact aligned owner rows' =>
+        str_contains($css, '.address-detail-layout {') &&
+        str_contains($css, 'align-items: start;') &&
+        str_contains($css, '.detail-owner-purpose {') &&
+        str_contains($css, 'grid-column: 2 / -1;') &&
         str_contains($css, '.address-detail-layout.is-single-panel'),
 
 ];
