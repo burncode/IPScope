@@ -42,8 +42,11 @@ $checks = [
         str_contains($js, 'address-owner-chip') && str_contains($js, 'ownerNames.map'),
     'row detail controls expose expanded state accessibly' =>
         str_contains($js, 'aria-expanded="false"') && str_contains($js, 'detailsButton.setAttribute("aria-expanded"'),
-    'exclusion rule actions remain available in the detail panel' =>
-        str_contains($js, 'detail-exclusion-wrap') && str_contains($js, 'data-detail-exclusion-form'),
+    'exclusion rule actions remain available inside the basic information panel' =>
+        str_contains($js, 'detail-inline-exclusion-action') &&
+        str_contains($js, 'data-detail-exclusion-form') &&
+        str_contains($js, 'data-add-exclusion') &&
+        str_contains($js, 'data-enable-exclusion'),
     'exclusion action is initialized before detail content references it' =>
         strpos($js, 'var exclusionAction =') !== false &&
         strpos($js, 'var exclusionAction =') < strpos($js, "' + exclusionAction + '") &&
