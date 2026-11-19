@@ -2094,3 +2094,73 @@ tbody tr:last-child td { border-bottom: 0; }
     width: 100%;
   }
 }
+
+
+/* T027: compact, content-led IP detail panels. */
+.ipscope .address-detail-layout {
+  align-items: start;
+  grid-template-columns: minmax(280px, .88fr) minmax(380px, 1.12fr);
+  gap: 12px;
+}
+.ipscope .address-detail-panel {
+  min-height: 0;
+  height: auto;
+  padding: 15px 17px;
+}
+.ipscope .address-detail-panel h4 {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #edf0f3;
+}
+.ipscope .address-detail-list {
+  grid-template-columns: minmax(82px, 26%) minmax(0, 1fr);
+  gap: 9px 12px;
+}
+.ipscope .address-detail-list dt,
+.ipscope .address-detail-list dd {
+  align-self: center;
+  line-height: 1.45;
+}
+.ipscope .detail-owner-row {
+  grid-template-columns: 28px minmax(130px, 1fr) auto auto;
+  align-items: center;
+  gap: 5px 10px;
+  min-height: 0;
+  padding: 10px 2px;
+}
+.ipscope .detail-owner-name { grid-column: 2; }
+.ipscope .detail-state-pill { grid-column: 3; }
+.ipscope .detail-source-pill { grid-column: 4; }
+.ipscope .detail-owner-purpose {
+  grid-column: 2 / -1;
+  margin-top: -2px;
+  font-size: 11px;
+}
+.ipscope .detail-owner-row + .detail-owner-row {
+  border-top: 1px solid #edf0f3;
+}
+.ipscope .address-detail-layout.is-single-panel {
+  grid-template-columns: minmax(0, 1fr);
+}
+.ipscope .address-detail-layout.is-single-panel .address-detail-panel {
+  max-width: 100%;
+}
+@media (max-width: 900px) {
+  .ipscope .address-detail-layout { grid-template-columns: minmax(0, 1fr); }
+  .ipscope .detail-owner-row {
+    grid-template-columns: 26px minmax(0, 1fr) auto auto;
+  }
+}
+@media (max-width: 600px) {
+  .ipscope .detail-owner-row {
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+  }
+  .ipscope .detail-source-pill {
+    grid-column: 2;
+    grid-row: 3;
+  }
+  .ipscope .detail-owner-purpose {
+    grid-column: 2 / -1;
+    grid-row: 4;
+  }
+}
