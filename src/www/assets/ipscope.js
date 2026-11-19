@@ -214,7 +214,6 @@
           '<div><dt>' + t("js.address_state") + '</dt><dd><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></dd></div>' +
           (status === "excluded" && matchingExclusions.length ? '<div class="detail-inline-exclusion"><dt>' + t("js.exclusion_reason_label") + '</dt><dd><span class="detail-inline-exclusion-reason">' + escapeHtml(exclusionReasonText) + '</span><button type="button" class="detail-link-button" data-open-view="exclusions" data-open-rule="' + escapeHtml(matchingExclusions[0].id || "") + '">' + t("js.view_rule") + '</button></dd></div>' : '') +
           (status === "conflict" ? '<div><dt>' + t("js.conflict_count") + '</dt><dd><strong>' + detailOwners.length + ' ' + t("js.containers_unit") + '</strong></dd></div>' : '') +
-          (status === "system" ? '<div><dt>' + t("js.system_usage") + '</dt><dd>' + escapeHtml(String(address.system_reason || t("js.docker_network_infrastructure_address")).replace(/_/g, " ")) + '</dd></div>' : '') +
           '</dl></section>';
         var detailRight = "";
         if (status === "occupied" || status === "conflict") {
