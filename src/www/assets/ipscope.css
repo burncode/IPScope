@@ -2249,3 +2249,33 @@ tbody tr:last-child td { border-bottom: 0; }
   visibility: visible;
   transform: translate(-50%, 0);
 }
+
+
+/* T029: keep exclusion reason and help icon on one left-aligned line. */
+.ipscope .inventory-panel .address-summary-panel .detail-inline-exclusion {
+  min-width: 0;
+}
+.ipscope .inventory-panel .address-summary-panel .detail-inline-exclusion dt {
+  white-space: nowrap;
+}
+.ipscope .inventory-panel .address-summary-panel .detail-inline-exclusion dd {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  gap: 6px !important;
+  min-width: 0;
+  width: auto !important;
+  text-align: left !important;
+}
+.ipscope .inventory-panel .address-summary-panel .detail-inline-exclusion-reason {
+  display: inline;
+  flex: 0 1 auto;
+  min-width: 0;
+  text-align: left;
+}
+.ipscope .inventory-panel .address-summary-panel .detail-inline-exclusion .detail-info-tip {
+  flex: 0 0 16px;
+  margin: 0;
+}
