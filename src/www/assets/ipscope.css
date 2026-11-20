@@ -2164,3 +2164,88 @@ tbody tr:last-child td { border-bottom: 0; }
     grid-row: 4;
   }
 }
+
+
+/* T028: compact status badge and hoverable exclusion-rule explanation. */
+.ipscope .address-summary-panel .address-detail-list dd > .status-pill {
+  display: inline-flex !important;
+  align-items: center;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: max-content !important;
+  min-height: 0 !important;
+  padding: 3px 8px !important;
+  line-height: 1.45;
+  white-space: nowrap;
+}
+.ipscope .address-summary-panel .detail-inline-exclusion dd {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+.ipscope .detail-inline-exclusion-reason {
+  color: #344454;
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+}
+.ipscope .detail-info-tip {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #8291a2;
+  cursor: help;
+  outline: none;
+}
+.ipscope .detail-info-tip svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.55;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ipscope .detail-info-tip:hover,
+.ipscope .detail-info-tip:focus-visible { color: var(--accent); }
+.ipscope .detail-info-tip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: calc(100% + 9px);
+  width: max-content;
+  max-width: min(340px, 72vw);
+  padding: 10px 12px;
+  border: 1px solid #dce3e9;
+  border-radius: 7px;
+  background: #fff;
+  color: #344454;
+  box-shadow: 0 5px 18px rgba(25, 42, 58, .14);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.65;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 3px);
+  transition: opacity .12s ease, transform .12s ease, visibility .12s ease;
+}
+.ipscope .detail-info-tip:hover::after,
+.ipscope .detail-info-tip:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
