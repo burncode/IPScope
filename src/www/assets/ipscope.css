@@ -2279,3 +2279,16 @@ tbody tr:last-child td { border-bottom: 0; }
   flex: 0 0 16px;
   margin: 0;
 }
+
+
+/* T028: remove excess detail-panel height and duplicate system separators. */
+.ipscope .inventory-panel .address-detail-layout {
+  align-items: start;
+}
+.ipscope .inventory-panel .address-detail-panel {
+  height: auto;
+  min-height: 0;
+}
+.ipscope .inventory-panel .system-detail-line:first-of-type {
+  border-top: 0;
+}
