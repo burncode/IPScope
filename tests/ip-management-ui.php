@@ -125,12 +125,18 @@ $checks = [
         str_contains($js, 'data-tooltip='),
     'detail panels no longer render an inline exclusion disclosure form' =>
         !str_contains($js, '<details class="detail-exclusion-disclosure">') && !str_contains($js, '<form class="detail-exclusion-action"'),
-    'excluded address shows a compact reason with hoverable rule details' =>
-        str_contains($js, 'status === "excluded" && matchingExclusions.length') &&
+    'excluded and system addresses both explain matching exclusion rules' =>
+        str_contains($js, 'status === "excluded" || status === "system"') &&
+        str_contains($js, 'status === "excluded" ? t("js.exclusion_reason_label") : t("js.matching_rules")') &&
+        str_contains($js, 'js.system_exclusion_rule_notice') &&
         str_contains($js, 'detail-inline-exclusion') &&
         str_contains($js, 'detail-info-tip') &&
         str_contains($js, 'exclusionTooltip') &&
         str_contains($css, '.detail-info-tip::after'),
+    'exclusion reason and help icon are left-aligned inline after the label' =>
+        str_contains($css, 'justify-content: flex-start !important;') &&
+        str_contains($css, 'text-align: left !important;') &&
+        str_contains($css, '.detail-inline-exclusion-reason {'),
     'per-address exclusion creation is removed in favor of centralized rule management' =>
         !str_contains($js, 'detail-exclusion-toolbar') &&
         !str_contains($js, '<form class="detail-exclusion-action"') &&
