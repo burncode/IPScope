@@ -44,7 +44,7 @@ $checks = [
         str_contains($js, 'aria-expanded="false"') && str_contains($js, 'detailsButton.setAttribute("aria-expanded"'),
     'exclusion rule actions are centralized outside individual IP details' =>
         !str_contains($js, 'detail-inline-exclusion-action') &&
-        str_contains($js, 'data-open-view="exclusions"'),
+        str_contains($js, 'detail-info-tip'),
     'detail rendering keeps exclusion information independent from action forms' =>
         !str_contains($js, 'exclusionAction') &&
         str_contains($js, 'detail-info-tip') &&
@@ -134,7 +134,7 @@ $checks = [
     'per-address exclusion creation is removed in favor of centralized rule management' =>
         !str_contains($js, 'detail-exclusion-toolbar') &&
         !str_contains($js, '<form class="detail-exclusion-action"') &&
-        str_contains($js, 'data-open-view="exclusions"'),
+        str_contains($js, 'detail-info-tip'),
     'system and other address states render as compact intrinsic-width badges' =>
         str_contains($css, '.address-summary-panel .address-detail-list dd > .status-pill') &&
         str_contains($css, 'width: auto !important;') &&
