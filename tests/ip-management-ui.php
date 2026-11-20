@@ -45,8 +45,10 @@ $checks = [
     'exclusion rule actions are centralized outside individual IP details' =>
         !str_contains($js, 'detail-inline-exclusion-action') &&
         str_contains($js, 'data-open-view="exclusions"'),
-    'detail rendering does not depend on an inline exclusion action variable' =>
-        !str_contains($js, 'exclusionAction') && str_contains($js, 'data-open-view="exclusions"'),
+    'detail rendering keeps exclusion information independent from action forms' =>
+        !str_contains($js, 'exclusionAction') &&
+        str_contains($js, 'detail-info-tip') &&
+        str_contains($js, 'data-tooltip='),
     'two-column detail panels align and collapse responsively' =>
         str_contains($css, '.address-detail-layout') && str_contains($css, 'align-items: stretch') && str_contains($css, '@media (max-width: 900px)'),
     'conflict rows use a restrained red treatment' =>
@@ -57,8 +59,10 @@ $checks = [
         str_contains($js, 'detail-owner-row') && str_contains($js, 'detail-source-pill') && str_contains($js, 'detail-owner-purpose'),
     'container purpose distinguishes template, IPAM and runtime sources' =>
         str_contains($js, 'js.template_ip_purpose') && str_contains($js, 'js.ipam_ip_purpose') && str_contains($js, 'js.runtime_ip_purpose'),
-    'individual IP details do not embed a duplicate exclusion creation form' =>
-        !str_contains($js, '<form class="detail-exclusion-action"') && !str_contains($js, 'detail-exclusion-toolbar'),
+    'individual IP details use a compact explanatory icon instead of an exclusion form' =>
+        !str_contains($js, '<form class="detail-exclusion-action"') &&
+        str_contains($js, 'detail-info-tip') &&
+        str_contains($js, 'exclusionTooltip'),
     'detail panels use aligned card columns without forced minimum height' =>
         str_contains($css, 'grid-template-columns: minmax(260px, .36fr) minmax(0, .64fr)') &&
         str_contains($css, 'align-items: stretch') &&
@@ -68,9 +72,10 @@ $checks = [
     'container detail rows use a stable five-column alignment grid' =>
         str_contains($css, 'minmax(150px, 1.15fr)') &&
         str_contains($css, 'minmax(160px, 1.25fr)'),
-    'excluded addresses retain an inline reason and link to centralized rule management' =>
+    'excluded addresses retain an inline reason and hoverable rule explanation' =>
         str_contains($js, 'detail-inline-exclusion') &&
-        str_contains($js, 'data-open-view="exclusions"'),
+        str_contains($js, 'detail-info-tip') &&
+        str_contains($js, 'data-tooltip='),
     'inventory status and owner chips use compact consistent dimensions' =>
         str_contains($css, '.address-table .status-pill') &&
         str_contains($css, 'min-height: 20px') &&
@@ -115,7 +120,9 @@ $checks = [
     'overlapping exclusion rules are summarized without duplicating the conflict row' =>
         str_contains($js, 'js.matching_rules') && str_contains($js, 'item.rule_ids.length > 1'),
     'exclusion actions are managed from the dedicated rules view rather than each IP row' =>
-        !str_contains($js, 'detail-exclusion-toolbar') && str_contains($js, 'data-open-view="exclusions"'),
+        !str_contains($js, 'detail-exclusion-toolbar') &&
+        str_contains($js, 'detail-info-tip') &&
+        str_contains($js, 'data-tooltip='),
     'detail panels no longer render an inline exclusion disclosure form' =>
         !str_contains($js, '<details class="detail-exclusion-disclosure">') && !str_contains($js, '<form class="detail-exclusion-action"'),
     'excluded address shows a compact reason with hoverable rule details' =>
