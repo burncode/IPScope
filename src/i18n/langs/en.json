@@ -437,5 +437,6 @@
   "js.system_address": "System address",
   "js.unknown_system_owner": "Unknown system source",
   "js.matching_rules": "Matching rules",
-  "js.template_runtime_mismatch": "Template/runtime IP mismatch"
+  "js.template_runtime_mismatch": "Template/runtime IP mismatch",
+  "js.system_exclusion_rule_notice": "This is a Docker-reserved system address. System status takes precedence; exclusion rules do not override system addresses."
 }
