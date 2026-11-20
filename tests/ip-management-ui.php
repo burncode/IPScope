@@ -145,7 +145,15 @@ $checks = [
         str_contains($css, '.address-summary-panel .address-detail-list dd > .status-pill') &&
         str_contains($css, 'width: auto !important;') &&
         str_contains($css, 'max-width: max-content !important;') &&
-        str_contains($css, 'display: inline-flex !important;')
+        str_contains($css, 'display: inline-flex !important;'),
+    'inventory detail panels override legacy full-height stretching' =>
+        str_contains($css, '.inventory-panel .address-detail-layout {') &&
+        str_contains($css, 'align-items: start;') &&
+        str_contains($css, '.inventory-panel .address-detail-panel {') &&
+        str_contains($css, 'height: auto;'),
+    'system detail removes duplicate separator before first information row' =>
+        str_contains($css, '.inventory-panel .system-detail-line:first-of-type {') &&
+        str_contains($css, 'border-top: 0;')
 
 ];
 
