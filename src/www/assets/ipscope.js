@@ -214,8 +214,8 @@
             t("js.address_subnet") + ": " + (rule.value || address.ip),
             t("js.network") + ": " + (rule.network === "*" ? t("js.all_networks") : (rule.network || network.name)),
             t("js.reason") + ": " + (rule.reason || t("js.excluded_by_rule"))
-          ].join("\\n");
-        }).join("\\n\\n");
+          ].join("\n");
+        }).join("\n\n");
         var addressInformation = '<section class="address-detail-panel address-summary-panel">' +
           '<h4>' + t("js.basic_information") + '</h4>' +
           '<dl class="address-detail-list">' +
