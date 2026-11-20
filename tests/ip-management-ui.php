@@ -118,20 +118,21 @@ $checks = [
         !str_contains($js, 'detail-exclusion-toolbar') && str_contains($js, 'data-open-view="exclusions"'),
     'detail panels no longer render an inline exclusion disclosure form' =>
         !str_contains($js, '<details class="detail-exclusion-disclosure">') && !str_contains($js, '<form class="detail-exclusion-action"'),
-    'excluded address shows reason and rule link inside basic information' =>
+    'excluded address shows a compact reason with hoverable rule details' =>
         str_contains($js, 'status === "excluded" && matchingExclusions.length') &&
         str_contains($js, 'detail-inline-exclusion') &&
-        str_contains($js, 'data-open-view="exclusions"'),
+        str_contains($js, 'detail-info-tip') &&
+        str_contains($js, 'exclusionTooltip') &&
+        str_contains($css, '.detail-info-tip::after'),
     'per-address exclusion creation is removed in favor of centralized rule management' =>
         !str_contains($js, 'detail-exclusion-toolbar') &&
         !str_contains($js, '<form class="detail-exclusion-action"') &&
         str_contains($js, 'data-open-view="exclusions"'),
-    'detail cards use content-led heights and compact aligned owner rows' =>
-        str_contains($css, '.address-detail-layout {') &&
-        str_contains($css, 'align-items: start;') &&
-        str_contains($css, '.detail-owner-purpose {') &&
-        str_contains($css, 'grid-column: 2 / -1;') &&
-        str_contains($css, '.address-detail-layout.is-single-panel'),
+    'system and other address states render as compact intrinsic-width badges' =>
+        str_contains($css, '.address-summary-panel .address-detail-list dd > .status-pill') &&
+        str_contains($css, 'width: auto !important;') &&
+        str_contains($css, 'max-width: max-content !important;') &&
+        str_contains($css, 'display: inline-flex !important;')
 
 ];
 
