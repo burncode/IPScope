@@ -207,21 +207,24 @@
         }).join("");
         var matchingExclusions = address.exclusions || [];
         var exclusionReasonText = matchingExclusions.map(function (rule) { return rule.reason; }).filter(Boolean).join(" · ") || t("js.excluded_by_rule");
-        var exclusionTooltip = matchingExclusions.map(function (rule) {
-          return [
-            t("js.rule_id") + " " + (rule.id || "—"),
-            t("js.type") + ": " + (rule.match_type === "cidr" ? t("js.cidr") : t("js.single_ipv4")),
-            t("js.address_subnet") + ": " + (rule.value || address.ip),
-            t("js.network") + ": " + (rule.network === "*" ? t("js.all_networks") : (rule.network || network.name)),
-            t("js.reason") + ": " + (rule.reason || t("js.excluded_by_rule"))
-          ].join("\n");
-        }).join("\n\n");
+        var exclusionTooltip = [
+          status === "system" ? t("js.system_exclusion_rule_notice") : "",
+          matchingExclusions.map(function (rule) {
+            return [
+              t("js.rule_id") + " " + (rule.id || "—"),
+              t("js.type") + ": " + (rule.match_type === "cidr" ? t("js.cidr") : t("js.single_ipv4")),
+              t("js.address_subnet") + ": " + (rule.value || address.ip),
+              t("js.network") + ": " + (rule.network === "*" ? t("js.all_networks") : (rule.network || network.name)),
+              t("js.reason") + ": " + (rule.reason || t("js.excluded_by_rule"))
+            ].join("\\n");
+          }).join("\\n\\n")
+        ].filter(Boolean).join("\\n\\n");
         var addressInformation = '<section class="address-detail-panel address-summary-panel">' +
           '<h4>' + t("js.basic_information") + '</h4>' +
           '<dl class="address-detail-list">' +
           '<div><dt>' + t("js.network") + '</dt><dd>' + escapeHtml(network.name) + '</dd></div>' +
           '<div><dt>' + t("js.address_state") + '</dt><dd><span class="status-pill status-' + escapeHtml(status) + '">' + escapeHtml(label) + '</span></dd></div>' +
-          (status === "excluded" && matchingExclusions.length ? '<div class="detail-inline-exclusion"><dt>' + t("js.exclusion_reason_label") + '</dt><dd><span class="detail-inline-exclusion-reason">' + escapeHtml(exclusionReasonText) + '</span><span class="detail-info-tip" tabindex="0" role="img" aria-label="' + escapeHtml(t("js.address_matches_an_exclusion_rule")) + '" title="' + escapeHtml(exclusionTooltip) + '" data-tooltip="' + escapeHtml(exclusionTooltip) + '"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.2"></circle><path d="M10 9v4M10 6.3h.01"></path></svg></span></dd></div>' : '') +
+          ((status === "excluded" || status === "system") && matchingExclusions.length ? '<div class="detail-inline-exclusion"><dt>' + (status === "excluded" ? t("js.exclusion_reason_label") : t("js.matching_rules")) + '</dt><dd><span class="detail-inline-exclusion-reason">' + escapeHtml(exclusionReasonText) + '</span><span class="detail-info-tip" tabindex="0" role="img" aria-label="' + escapeHtml(t("js.address_matches_an_exclusion_rule")) + '" title="' + escapeHtml(exclusionTooltip) + '" data-tooltip="' + escapeHtml(exclusionTooltip) + '"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.2"></circle><path d="M10 9v4M10 6.3h.01"></path></svg></span></dd></div>' : '') +
           (status === "conflict" ? '<div><dt>' + t("js.conflict_count") + '</dt><dd><strong>' + detailOwners.length + ' ' + t("js.containers_unit") + '</strong></dd></div>' : '') +
           '</dl></section>';
         var detailRight = "";
