@@ -153,7 +153,17 @@ $checks = [
         str_contains($css, 'height: auto;'),
     'system detail removes duplicate separator before first information row' =>
         str_contains($css, '.inventory-panel .system-detail-line:first-of-type {') &&
-        str_contains($css, 'border-top: 0;')
+        str_contains($css, 'border-top: 0;'),
+    'basic information uses a compact consistent label/value grid' =>
+        str_contains($css, '.inventory-panel .address-summary-panel .address-detail-list {') &&
+        str_contains($css, 'grid-auto-rows: minmax(25px, auto);') &&
+        str_contains($css, 'gap: 4px;') &&
+        str_contains($css, 'grid-template-columns: 76px minmax(0, 1fr);') &&
+        str_contains($css, 'min-height: 25px;'),
+    'basic information labels and values share centered row alignment' =>
+        str_contains($css, '.inventory-panel .address-summary-panel .address-detail-list dt,') &&
+        str_contains($css, '.inventory-panel .address-summary-panel .address-detail-list dd {') &&
+        str_contains($css, 'align-items: center;')
 
 ];
 
